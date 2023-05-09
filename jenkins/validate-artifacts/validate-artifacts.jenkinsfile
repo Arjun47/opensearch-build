@@ -68,7 +68,6 @@ pipeline {
                             arch: "$ARCHITECTURE",
                             os_build_number: "$OS_BUILD_NUMBER",
                             osd_build_number: "$OSD_BUILD_NUMBER",
-                            using_staging_artifact_only: "$USE_STAGING_ARTIFACTS"
                     )
                 }
             }
