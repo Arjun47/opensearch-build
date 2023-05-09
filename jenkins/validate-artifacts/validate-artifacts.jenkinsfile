@@ -64,6 +64,9 @@ pipeline {
                             version: "$VERSION",
                             distribution: "$DISTRIBUTION",
                             arch: "$ARCHITECTURE"
+                            os_build_number: "OS_BUILD_NUMBER"
+                            osd_build_number: "OSD_BUILD_NUMBER"
+                            using_staging_artifact_only: ""
                     )
                 }
             }
@@ -86,7 +89,7 @@ pipeline {
 
                     stash includes: '**', name: 'opensearch-build-repo'
 
-                    def distributionList = ["tar","rpm","yum"]
+                    def distributionList = ["tar","rpm","yum","docker"]
                     echo "distributionList: ${distributionList}"
 
                     validateDistributions = [:]
