@@ -27,7 +27,7 @@ pipeline {
             name: 'ARCHITECTURE',
             description: 'Enter the architecture type among [x64,arm64] default is set to x64',
             trim: true,
-            defaultValue: "x64"
+            defaultValue: ""
         )
         string(
             name: 'OS_BUILD_NUMBER',
