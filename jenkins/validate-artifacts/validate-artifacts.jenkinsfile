@@ -27,17 +27,19 @@ pipeline {
             name: 'ARCHITECTURE',
             description: 'Enter the architecture type among [x64,arm64] default is set to x64',
             trim: true,
-            defaultValue: ""
+            defaultValue: "x64"
         )
         string(
             name: 'OS_BUILD_NUMBER',
             description: 'Enter the build number for opensearch-This parameter is applicable only for docker validation',
             trim: true
+            defaultValue: ""
         )
         string(
             name: 'OSD_BUILD_NUMBER',
             description: 'Enter the build number for opensearch Dashboards -This parameter is applicable only for docker validation',
             trim: true
+            defaultValue: ""
         )
     }
 
