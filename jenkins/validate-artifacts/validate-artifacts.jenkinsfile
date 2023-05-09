@@ -6,8 +6,8 @@ lib = library(identifier: 'jenkins@lib', retriever: modernSCM([
 ]))
 
 def AGENT = env.ARCHITECTURE == 'x64' ? "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host" : "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host"
-def IMAGE = env.DISTRIBUTION == 'tar' ? "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2" : "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1"
-def ARGUMENTS = env.DISTRIBUTION == 'tar' ? "-u 1000" : "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro"
+def IMAGE = env.DISTRIBUTION == 'tar' ? "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2" : "opensearchstaging/ci-runner:ubuntu2004-x64-docker-buildx0.6.3-qemu5.0-awscli1.22-jdk11-v2"
+def ARGUMENTS = env.DISTRIBUTION == 'tar' ? "-u 1000" : "-u 1000"
 
 pipeline {
     agent none
@@ -32,14 +32,12 @@ pipeline {
         string(
             name: 'OS_BUILD_NUMBER',
             description: 'Enter the build number for opensearch-This parameter is applicable only for docker validation',
-            trim: true,
-            defaultValue: ""
+            trim: true
         )
         string(
             name: 'OSD_BUILD_NUMBER',
             description: 'Enter the build number for opensearch Dashboards -This parameter is applicable only for docker validation',
-            trim: true,
-            defaultValue: ""
+            trim: true
         )
     }
 
@@ -88,7 +86,7 @@ pipeline {
 
                     stash includes: '**', name: 'opensearch-build-repo'
 
-                    def distributionList = ["tar","rpm","yum","docker"]
+                    def distributionList = ["tar","rpm","yum"]
                     echo "distributionList: ${distributionList}"
 
                     validateDistributions = [:]
