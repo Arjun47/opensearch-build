@@ -6,8 +6,8 @@ lib = library(identifier: 'jenkins@lib', retriever: modernSCM([
 ]))
 
 def AGENT = env.ARCHITECTURE == 'x64' ? "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host" : "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host"
-def IMAGE = env.DISTRIBUTION == 'docker' ? "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2" : "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1"
-def ARGUMENTS = env.DISTRIBUTION == 'docker' ? "-u 1000" : "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro"
+def IMAGE = env.DISTRIBUTION == 'rpm' ? "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2" : "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1"
+def ARGUMENTS = env.DISTRIBUTION == 'tar' ? "-u 1000" : "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro"
 
 pipeline {
     agent none
@@ -65,6 +65,7 @@ pipeline {
                     validateArtifacts(
                             version: "$VERSION",
                             distribution: "$DISTRIBUTION",
+                            arch: "$ARCHITECTURE"
                     )
                 }
             }
