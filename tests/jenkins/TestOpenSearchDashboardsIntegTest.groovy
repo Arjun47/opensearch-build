@@ -114,9 +114,37 @@ class TestOpenSearchDashboardsIntegTest extends BuildPipelineTest {
     }
 
     @Test
+    void checkError() {
+        helper.addFileExistsMock('manifests/tests/jenkins/data/opensearch-dashboards-1.2.0-test.yml', false)
+        runScript('jenkins/opensearch-dashboards/integ-test.jenkinsfile')
+        assertJobStatusFailure()
+    }
+
+    @Test
     void checkIfRunningInParallel(){
         runScript('jenkins/opensearch-dashboards/integ-test.jenkinsfile')
         assertThat(getCommandExecutions('parallel', ''), hasItem('{Run Integtest ganttChartDashboards=groovy.lang.Closure, Run Integtest indexManagementDashboards=groovy.lang.Closure, Run Integtest anomalyDetectionDashboards=groovy.lang.Closure, Run Integtest OpenSearch-Dashboards=groovy.lang.Closure, Run Integtest securityDashboards=groovy.lang.Closure, Run Integtest functionalTestDashboards=groovy.lang.Closure, Run Integtest alertingDashboards=groovy.lang.Closure, Run Integtest queryWorkbenchDashboards=groovy.lang.Closure, Run Integtest reportsDashboards=groovy.lang.Closure, Run Integtest observabilityDashboards=groovy.lang.Closure}'))
+    }
+
+    @Test
+    void checkGHissueCreation() {
+        helper.addShMock('env PATH=$PATH  ./test.sh integ-test manifests/tests/jenkins/data/opensearch-dashboards-1.2.0-test.yml --component observabilityDashboards --test-run-id 215 --paths opensearch=/tmp/workspace/tar opensearch-dashboards=/tmp/workspace/tar ', '', 1)
+        helper.addShMock('gh issue list --repo https://github.com/opensearch-project/dashboards-observability.git -S "[AUTOCUT] Integration Test failed for observabilityDashboards: 1.2.0 tar distribution in:title" --label autocut,v1.2.0,integ-test-failure', '', 0)
+        assertThrows(Exception) {
+            runScript('jenkins/opensearch-dashboards/integ-test.jenkinsfile')
+            }
+        assertJobStatusFailure()
+        /*assertThat(getCommandExecutions('sh', 'create'), hasItem('{script=gh issue create --title \"[AUTOCUT] Integration Test failed for observabilityDashboards: 1.2.0 tar distribution\" --body \"The integration test failed at distribution level for component observabilityDashboards<br>Version: 1.2.0<br>Distribution: tar<br>Architecture: x64<br>Platform: linux<br><br>Please check the logs: https://some/url/redirect<br><br> * Steps to reproduce: See https://github.com/opensearch-project/opensearch-build/tree/main/src/test_workflow#integration-tests<br>* Access cluster logs:<br> - [With security](https://ci.opensearch.org/ci/dbc/dummy_job/1.2.0/215/linux/x64/tar/test-results/215/integ-test//with-security/local-cluster-logs/stdout.txt) (if applicable)<br> - [Without security](https://ci.opensearch.org/ci/dbc/dummy_job/1.2.0/215/linux/x64/tar/test-results/215/integ-test/observabilityDashboards/without-security/local-cluster-logs/stdout.txt) (if applicable)<br><br> _Note: All in one test report manifest with all the details coming soon. See https://github.com/opensearch-project/opensearch-build/issues/1274_\" --label autocut,v1.2.0,integ-test-failure --label \"untriaged\" --repo https://github.com/opensearch-project/observabilityDashboards.git, returnStdout=true}'))
+         */
+    }
+
+    @Test
+    void checkGHexistingIssue() {
+        helper.addShMock('env PATH=$PATH  ./test.sh integ-test manifests/tests/jenkins/data/opensearch-dashboards-1.2.0-test.yml --component observabilityDashboards --test-run-id 215 --paths opensearch=/tmp/workspace/tar opensearch-dashboards=/tmp/workspace/tar ', '', 1)
+        assertThrows(Exception) {
+            runScript('jenkins/opensearch-dashboards/integ-test.jenkinsfile')
+            }
+        assertJobStatusFailure()
     }
 
     def getCommandExecutions(methodName, command) {
