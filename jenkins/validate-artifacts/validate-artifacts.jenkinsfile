@@ -32,13 +32,13 @@ pipeline {
         string(
             name: 'OS_BUILD_NUMBER',
             description: 'Enter the build number for opensearch-This parameter is applicable only for docker validation',
-            trim: true
+            trim: true,
             defaultValue: ""
         )
         string(
             name: 'OSD_BUILD_NUMBER',
             description: 'Enter the build number for opensearch Dashboards -This parameter is applicable only for docker validation',
-            trim: true
+            trim: true,
             defaultValue: ""
         )
     }
