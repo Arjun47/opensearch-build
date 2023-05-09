@@ -65,7 +65,6 @@ pipeline {
                     validateArtifacts(
                             version: "$VERSION",
                             distribution: "$DISTRIBUTION",
-                            arch: "$ARCHITECTURE"
                     )
                 }
             }
