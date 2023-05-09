@@ -67,7 +67,7 @@ pipeline {
                             distribution: "$DISTRIBUTION",
                             arch: "$ARCHITECTURE",
                             os_build_number: "$OS_BUILD_NUMBER",
-                            osd_build_number: "$OSD_BUILD_NUMBER",
+                            osd_build_number: "$OSD_BUILD_NUMBER"
                     )
                 }
             }
