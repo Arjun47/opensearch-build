@@ -1,0 +1,271 @@
+Jenkins job
+
+lib = library(identifier: 'jenkins@4.1.1', retriever: modernSCM([
+    $class: 'GitSCMSource',
+    remote: 'https://github.com/opensearch-project/opensearch-build-libraries.git',
+]))
+
+def AGENT = env.ARCHITECTURE == 'x64' ? "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host" : "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host"
+def IMAGE = env.DISTRIBUTION == 'tar' ? "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2" : "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1"
+def ARGUMENTS = env.DISTRIBUTION == 'tar' ? "" : "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro"
+
+pipeline {
+    agent none
+    parameters {
+        string(
+            name: 'VERSION',
+            description: 'VERSION NUMBER',
+            trim: true
+        )
+        string(
+            name: 'DISTRIBUTION',
+            description: 'Enter the distribution type among [tar,rpm,yum,docker,All(To run all the distributions)] default is set to Tarball',
+            trim: true,
+            defaultValue: "tar"
+        )
+        string(
+            name: 'ARCHITECTURE',
+            description: 'Enter the architecture type among [x64,arm64] default is set to x64',
+            trim: true,
+            defaultValue: "x64"
+        )
+        string(
+            name: 'OS_BUILD_NUMBER',
+            description: 'Enter the build number for opensearch-This parameter is applicable only for docker validation',
+            trim: true
+        )
+        string(
+            name: 'OSD_BUILD_NUMBER',
+            description: 'Enter the build number for opensearch Dashboards -This parameter is applicable only for docker validation',
+            trim: true
+        )
+    }
+
+    stages {
+        stage('Validate a Distribution') {
+            when {
+                expression { DISTRIBUTION != "All" }
+            }
+            agent {
+                docker {
+                    label AGENT
+                    image IMAGE
+                    args ARGUMENTS
+                    alwaysPull true
+               }
+            }
+            steps {
+                script {
+                    if (VERSION == '') {
+                        currentBuild.result = 'ABORTED'
+                        error('Provide version number for the artifacts')
+                    }
+                    validateArtifacts(
+                            version: "$VERSION",
+                            distribution: "$DISTRIBUTION",
+                            arch: "$ARCHITECTURE"
+                    )
+                }
+            }
+            post() {
+                always {
+                    script {
+                        postCleanup()
+                    }
+                }
+            }
+        }
+
+        stage('Validate All Distributions') {
+            when {
+                expression { DISTRIBUTION == "All" }
+            }
+            parallel{
+                stage('Tarball-X64') {
+                    agent {
+                        docker {
+                        label AGENT
+                        image 'opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2'
+                        alwaysPull true
+                        }
+                    }
+                    steps {
+                        script {
+                            if (VERSION == '') {
+                                currentBuild.result = 'ABORTED'
+                                error('Provide version number for the artifacts')
+                            }
+                            validateArtifacts(
+                                version: "$VERSION",
+                                distribution: "tar",
+                                arch: "x64"
+                            )
+                        }
+
+                    }
+                    post() {
+                        always {
+                            script {
+                                postCleanup()
+                            }
+                        }
+                    }
+                }
+                stage('Tarball-ARM64') {
+                    agent {
+                        docker {
+                        label 'Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host'
+                        image 'opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2'
+                        alwaysPull true
+                        }
+                    }
+                    steps {
+                        script {
+                            if (VERSION == '') {
+                                currentBuild.result = 'ABORTED'
+                                error('Provide version number for the artifacts')
+                            }
+                            validateArtifacts(
+                                version: "$VERSION",
+                                distribution: "tar",
+                                arch: "arm64"
+                            )
+                        }
+
+                    }
+                    post() {
+                        always {
+                            script {
+                                postCleanup()
+                            }
+                        }
+                    }
+                }
+                stage('Rpm-X64') {
+                    agent {
+                        docker {
+                            label AGENT
+                            image 'opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1'
+                            args '--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+                            alwaysPull true
+                        }
+                    }
+                    steps {
+                        script {
+                            if (VERSION == '') {
+                                currentBuild.result = 'ABORTED'
+                                error('Provide version number for the artifacts')
+                            }
+                            validateArtifacts(
+                                version: "$VERSION",
+                                distribution: "rpm",
+                                arch: "x64"
+                            )
+                        }
+
+                    }
+                    post() {
+                        always {
+                            script {
+                                postCleanup()
+                            }
+                        }
+                    }
+                }
+                stage('Rpm-ARM64') {
+                    agent {
+                        docker {
+                            label 'Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host'
+                            image 'opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1'
+                            args '--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+                            alwaysPull true
+                        }
+                    }
+                    steps {
+                        script {
+                            if (VERSION == '') {
+                                currentBuild.result = 'ABORTED'
+                                error('Provide version number for the artifacts')
+                            }
+                            validateArtifacts(
+                                version: "$VERSION",
+                                distribution: "rpm",
+                                arch: "arm64"
+                            )
+                        }
+
+                    }
+                    post() {
+                        always {
+                            script {
+                                postCleanup()
+                            }
+                        }
+                    }
+                }
+                stage('Yum-X64') {
+                    agent {
+                        docker {
+                            label AGENT
+                            image 'opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1'
+                            args '--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+                            alwaysPull true
+                        }
+                    }
+                    steps {
+                        script {
+                            if (VERSION == '') {
+                                currentBuild.result = 'ABORTED'
+                                error('Provide version number for the artifacts')
+                            }
+                            validateArtifacts(
+                                version: "$VERSION",
+                                distribution: "yum",
+                                arch: "x64"
+                            )
+                        }
+
+                    }
+                    post() {
+                        always {
+                            script {
+                                postCleanup()
+                            }
+                        }
+                    }
+                }
+                stage('Yum-Arm64') {
+                    agent {
+                        docker {
+                            label 'Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host'
+                            image 'opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1'
+                            args '--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+                            alwaysPull true
+                        }
+                    }
+                    steps {
+                        script {
+                            if (VERSION == '') {
+                                currentBuild.result = 'ABORTED'
+                                error('Provide version number for the artifacts')
+                            }
+                            validateArtifacts(
+                                version: "$VERSION",
+                                distribution: "yum",
+                                arch: "arm64"
+                            )
+                        }
+
+                    }
+                    post() {
+                        always {
+                            script {
+                                postCleanup()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
