@@ -52,9 +52,9 @@ pipeline {
             }
             agent {
                 docker {
-                    label AGENT
-                    image IMAGE
-                    args ARGUMENTS
+                    label agent_nodes["$ARCHITECTURE"]
+                    image docker_images["$DISTRIBUTION"]
+                    args docker_args["$DISTRIBUTION"]
                     alwaysPull true
                }
             }
@@ -84,7 +84,7 @@ pipeline {
             when {
                 expression { DISTRIBUTION == "All" }
             }
-            agent { label agent_nodes["$architecture"] }
+            agent { label agent_nodes["$ARCHITECTURE"] }
             steps {
                 script {
 
@@ -102,7 +102,7 @@ pipeline {
                         validateDistributions["Run Validation ${local_component}"] = {
                             // Using scripted pipelines to trigger dynamic parallel stages
                             timeout(time: 2, unit: 'HOURS') {
-                                node(agent_nodes["$architecture"]) {
+                                node(agent_nodes["$ARCHITECTURE"]) {
                                     docker.withRegistry('https://public.ecr.aws/') {
                                         docker.image(docker_images["$distribution"]).inside(docker_args["$distribution"]) {
                                             try {
