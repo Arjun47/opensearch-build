@@ -1,0 +1,65 @@
+lib = library(identifier: 'jenkins@lib', retriever: modernSCM([
+    $class: 'GitSCMSource',
+    remote: 'https://github.com/Divyaasm/opensearch-build-libraries.git',
+]))
+
+def AGENT = env.ARCHITECTURE == 'x64' ? "Jenkins-Agent-AL2-X64-C54xlarge-Single-Host" : "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Single-Host"
+
+pipeline {
+    agent none
+    parameters {
+        string(
+            name: 'VERSION',
+            description: 'VERSION NUMBER',
+            trim: true
+        )
+        string(
+            name: 'DISTRIBUTION',
+            description: 'Enter the distribution type among [tar,rpm,yum,docker,All(To run all the distributions)] default is set to Tarball',
+            trim: true,
+            defaultValue: "tar"
+        )
+        string(
+            name: 'ARCHITECTURE',
+            description: 'Enter the architecture type among [x64,arm64] default is set to x64',
+            trim: true,
+            defaultValue: "x64"
+        )
+        string(
+            name: 'OS_BUILD_NUMBER',
+            description: 'Enter the build number for opensearch-This parameter is applicable only for docker validation',
+            trim: true
+        )
+        string(
+            name: 'OSD_BUILD_NUMBER',
+            description: 'Enter the build number for opensearch Dashboards -This parameter is applicable only for docker validation',
+            trim: true
+        )
+    }
+
+    stages {
+        stage('Validate Docker Distribution') {
+            agent { label AGENT }
+            steps {
+                script {
+                    if (VERSION == '') {
+                        currentBuild.result = 'ABORTED'
+                        error('Provide version number for the artifacts')
+                    }
+                    validateArtifacts(
+                            version: "$VERSION",
+                            distribution: "$DISTRIBUTION",
+                            arch: "$ARCHITECTURE"
+                    )
+                }
+            }
+            post() {
+                always {
+                    script {
+                        postCleanup()
+                    }
+                }
+            }
+        }
+    }
+}
