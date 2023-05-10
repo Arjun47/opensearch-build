@@ -72,8 +72,6 @@ pipeline {
             steps {
                 script {
 
-                    stash includes: "**", name: "validation-$BUILD_NUMBER"
-
                     def distributionList = ["tar","rpm","yum"]
                     echo "distributionList: ${distributionList}"
 
@@ -93,7 +91,6 @@ pipeline {
                                         try {
                                             stage("Run Validation for ${local_distribution}") {
                                                 echo "Distribution Name: ${local_distribution}"
-                                                unstash "validation-$BUILD_NUMBER"
 
                                                 validateArtifacts(
                                                 version: "$VERSION",
