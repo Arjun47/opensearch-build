@@ -58,8 +58,8 @@ pipeline {
 
                     env.AGENT_LABEL = agent_nodes["$architecture"]
                     def distributionDefaultList = ["tar","rpm","yum"]
-                    def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : distributionDefaultList
-                    env.distributionList = distributionList
+                    def distribution = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : distributionDefaultList
+                    env.distributionList = distribution
                     echo "distributionList: ${distributionList}"
 
                 }
