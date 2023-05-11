@@ -117,7 +117,7 @@ pipeline {
                                                 }
                                             } catch (e) {
                                                 echo "Error occurred while validating ${local_component}"
-                                                throw e
+                                                throw new Exception("Error running integtest for component ${local_component}", e)
                                             } finally {
                                                 echo "Completed validation for ${local_component}"
                                                 postCleanup()
