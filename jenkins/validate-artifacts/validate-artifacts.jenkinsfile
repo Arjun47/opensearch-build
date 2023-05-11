@@ -53,7 +53,7 @@ pipeline {
             agent {
                 docker {
                     label agent_nodes["$ARCHITECTURE"]
-                    image docker_images["$DISTRIBUTION"]
+                    image docker_images["tar"]
                     args docker_args["$DISTRIBUTION"]
                     alwaysPull true
                }
@@ -66,7 +66,7 @@ pipeline {
                     }
                     validateArtifacts(
                             version: "$VERSION",
-                            distribution: "$DISTRIBUTION",
+                            distribution: "tar",
                             arch: "$ARCHITECTURE"
                     )
                 }
