@@ -110,9 +110,9 @@ pipeline {
                                             try {
                                                 stage("Run Validation for ${local_component}") {
                                                     validateArtifacts(
-                                                    version: "$VERSION",
-                                                    distribution: "${local_component}",
-                                                    arch: "$ARCHITECTURE"
+                                                            version: "$VERSION",
+                                                            distribution: "${local_component}",
+                                                            arch: "$ARCHITECTURE"
                                                     )
                                                 }
                                             } catch (e) {
