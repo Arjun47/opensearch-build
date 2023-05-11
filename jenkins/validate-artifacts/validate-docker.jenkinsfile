@@ -70,7 +70,8 @@ pipeline {
             steps {
                 script {
 
-                    def distributionList = ["tar","rpm","yum"]
+                    def distributionDefaultList = ["tar","rpm","yum"]
+                    def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : distributionDefaultList
                     echo "distributionList: ${distributionList}"
 
                     stash includes: "**", name: "validateDocker-$BUILD_NUMBER"
