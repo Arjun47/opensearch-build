@@ -3,12 +3,29 @@ lib = library(identifier: 'jenkins@4.1.1', retriever: modernSCM([
     remote: 'https://github.com/opensearch-project/opensearch-build-libraries.git',
 ]))
 
+def docker_images = [
+    "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2",
+    "rpm": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
+    "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
+    "docker": ""
+]
+
+def docker_args = [
+    "tar": "-u 1000",
+    "rpm": "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro",
+    "yum": "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro",
+    "docker": ""
+]
+
 def agent_nodes = [
-    "x64": "Jenkins-Agent-AL2-X64-C54xlarge-Single-Host",
-    "arm64": "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Single-Host"
+    "x64": env.DISTRIBUTION == 'docker' ? "Jenkins-Agent-AL2-X64-C54xlarge-Single-Host" : "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host",
+    "arm64": env.DISTRIBUTION == 'docker' ? "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Single-Host" : "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host",
 ]
 
 pipeline {
+    options {
+        timeout(time: 4, unit: 'HOURS')
+    }
     agent none
     parameters {
         string(
@@ -20,7 +37,6 @@ pipeline {
             name: 'DISTRIBUTION',
             description: 'Enter the distribution type among [tar,rpm,yum,docker,All(To run all the distributions)] default is set to Tarball',
             trim: true,
-            defaultValue: "tar"
         )
         string(
             name: 'ARCHITECTURE',
@@ -31,14 +47,29 @@ pipeline {
     }
 
     stages {
-        stage('Validate Docker Distribution') {
-            agent { label agent_nodes["$ARCHITECTURE"]}
+        stage('verify-parameters') {
+            agent { label agent_nodes["x64"] }
             steps {
                 script {
                     if (VERSION == '') {
                         currentBuild.result = 'ABORTED'
                         error('Provide version number for the artifacts')
                     }
+
+                    env.AGENT_LABEL = agent_nodes["$architecture"]
+
+                }
+            }
+            post {
+                always {
+                    postCleanup()
+                }
+            }
+        }
+        stage('Validate Docker Distribution') {
+            agent { label agent_nodes["$ARCHITECTURE"]}
+            steps {
+                script {
                     validateArtifacts(
                             version: "$VERSION",
                             distribution: "$DISTRIBUTION",
@@ -51,6 +82,63 @@ pipeline {
                     script {
                         postCleanup()
                     }
+                }
+            }
+        }
+        stage('Run for all validations') {
+            agent { label AGENT_LABEL }
+            steps {
+                script {
+
+                    def distributionDefaultList = ["tar","rpm","yum"]
+                    def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : distributionDefaultList
+                    echo "distributionList: ${distributionList}"
+
+                    stash includes: "**", name: "validateDocker-$BUILD_NUMBER"
+
+                    validateDistributions = [:]
+
+                    for (distribution in distributionList) {
+                        def local_component = distribution.trim()
+                        def local_component_index = distributionList.indexOf(local_component)
+                        def wait_seconds = local_component_index * 10
+
+                        echo "Add Distribution: ${local_component}"
+                        validateDistributions["Run Validation ${local_component}"] = {
+                            // Using scripted pipelines to trigger dynamic parallel stages
+                            timeout(time: 2, unit: 'HOURS') {
+                                node(AGENT_LABEL ) {
+                                    docker.withRegistry('https://public.ecr.aws/') {
+                                        docker.image(docker_images["$local_component"]).inside(docker_args["$local_component"]) {
+                                            try {
+                                                stage("Run Validation for ${local_component}") {
+                                                    unstash "validateDocker-$BUILD_NUMBER"
+
+                                                    validateArtifacts(
+                                                            version: "$VERSION",
+                                                            distribution: "${local_component}",
+                                                            arch: "$ARCHITECTURE"
+                                                    )
+                                                }
+                                            } catch (e) {
+                                                echo "Error occurred while validating ${local_component}"
+                                                throw e
+                                            } finally {
+                                                echo "Completed validation for ${local_component}"
+                                                postCleanup()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    parallel validateDistributions
+                }
+            }
+            post {
+                always {
+                    postCleanup()
                 }
             }
         }
