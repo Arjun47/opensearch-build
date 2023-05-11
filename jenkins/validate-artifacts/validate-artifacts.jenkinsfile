@@ -106,7 +106,7 @@ pipeline {
                             timeout(time: 2, unit: 'HOURS') {
                                 node(agent_nodes["$ARCHITECTURE"]) {
                                     docker.withRegistry('https://public.ecr.aws/') {
-                                        docker.image(docker_images["$distribution"]).inside(docker_args["$distribution"]) {
+                                        docker.image(docker_images["$local_component"]).inside(docker_args["$local_component"]) {
                                             try {
                                                 stage("Run Validation for ${local_component}") {
                                                     validateArtifacts(
