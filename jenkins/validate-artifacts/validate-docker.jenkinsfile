@@ -5,8 +5,7 @@ lib = library(identifier: 'jenkins@4.1.1', retriever: modernSCM([
 
 def docker_images = [
     "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2",
-    "rpm": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
-    "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
+    "rpm","yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
 ]
 
 def docker_args = [
@@ -35,7 +34,6 @@ pipeline {
             name: 'DISTRIBUTION',
             description: 'Enter the distribution type among [tar,rpm,yum,docker,All(To run all the distributions)] default is set to Tarball',
             trim: true,
-            defaultValue: "tar"
         )
         string(
             name: 'ARCHITECTURE',
