@@ -87,6 +87,7 @@ pipeline {
             agent { label agent_nodes["$ARCHITECTURE"] }
             steps {
                 script {
+                    stash includes: "**", name: "validation-$BUILD_NUMBER"
 
                     def distributionList = ["tar","rpm","yum"]
                     echo "distributionList: ${distributionList}"
@@ -109,6 +110,8 @@ pipeline {
                                         docker.image(docker_images["$local_component"]).inside(docker_args["$local_component"]) {
                                             try {
                                                 stage("Run Validation for ${local_component}") {
+                                                    unstash "validation-$BUILD_NUMBER"
+
                                                     validateArtifacts(
                                                             version: "$VERSION",
                                                             distribution: "${local_component}",
