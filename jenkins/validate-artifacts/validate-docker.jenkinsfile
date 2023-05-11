@@ -46,36 +46,19 @@ pipeline {
     }
 
     stages {
-        stage('Validate a Distribution') {
-            when {
-                expression { DISTRIBUTION != "All" }
-            }
-            agent {
-                docker {
-                    label agent_nodes["$ARCHITECTURE"]
-                    image docker_images["tar"]
-                    args docker_args["$DISTRIBUTION"]
-                    alwaysPull true
-               }
-            }
+        stage('verify-parameters') {
+            agent { label agent_nodes["x64"] }
             steps {
                 script {
-                    if (VERSION == '') {
-                        currentBuild.result = 'ABORTED'
-                        error('Provide version number for the artifacts')
+
+                    env.AGENT_LABEL = agent_nodes["$architecture"]
+
                     }
-                    validateArtifacts(
-                            version: "$VERSION",
-                            distribution: "tar",
-                            arch: "$ARCHITECTURE"
-                    )
                 }
             }
-            post() {
+            post {
                 always {
-                    script {
-                        postCleanup()
-                    }
+                    postCleanup()
                 }
             }
         }
@@ -84,7 +67,7 @@ pipeline {
             when {
                 expression { DISTRIBUTION == "All" }
             }
-            agent { label agent_nodes["$ARCHITECTURE"] }
+            agent { label AGENT_LABEL }
             steps {
                 script {
                     stash includes: "**", name: "validateDocker-$BUILD_NUMBER"
@@ -105,7 +88,7 @@ pipeline {
                         validateDistributions["Run Validation ${local_component}"] = {
                             // Using scripted pipelines to trigger dynamic parallel stages
                             timeout(time: 2, unit: 'HOURS') {
-                                node(agent_nodes["$ARCHITECTURE"]) {
+                                node(AGENT_LABEL ) {
                                     docker.withRegistry('https://public.ecr.aws/') {
                                         docker.image(docker_images["$local_component"]).inside(docker_args["$local_component"]) {
                                             try {
@@ -120,7 +103,7 @@ pipeline {
                                                 }
                                             } catch (e) {
                                                 echo "Error occurred while validating ${local_component}"
-                                                throw new Exception("Error running integtest for component ${local_component}", e)
+                                                throw e
                                             } finally {
                                                 echo "Completed validation for ${local_component}"
                                                 postCleanup()
