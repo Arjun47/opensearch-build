@@ -71,7 +71,7 @@ pipeline {
             steps {
                 script {
 
-                    def distributionDefaultList = ["tar","rpm","yum"]
+                    def distributionDefaultList = ["tar","rpm","yum","docker"]
                     def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : distributionDefaultList
                     echo "distributionList: ${distributionList}"
 
