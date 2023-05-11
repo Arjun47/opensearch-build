@@ -24,8 +24,8 @@ class Validation(ABC):
     def run(self) -> Any:
         try:
             return self.download_artifacts() and self.installation() and self.start_cluster() and self.validation() and self.cleanup()
-        except Exception:
-            return False
+        except Exception as e:
+            raise Exception(f'An error occurred while running the validation tests: {str(e)}')
 
     @abstractmethod
     def download_artifacts(self) -> bool:
