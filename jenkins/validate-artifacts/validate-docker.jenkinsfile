@@ -89,7 +89,7 @@ pipeline {
                             // Using scripted pipelines to trigger dynamic parallel stages
                             timeout(time: 2, unit: 'HOURS') {
                                 node(AGENT_LABEL ) {
-                                    if ($local_component == "docker"){
+                                    if ("${local_component}" == "docker"){
                                         stage("Run Validation for ${local_component}") {
                                             unstash "validateDocker-$BUILD_NUMBER"
 
