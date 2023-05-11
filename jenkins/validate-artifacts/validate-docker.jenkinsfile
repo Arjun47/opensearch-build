@@ -1,12 +1,13 @@
+Jenkins job
+
 lib = library(identifier: 'jenkins@lib', retriever: modernSCM([
     $class: 'GitSCMSource',
     remote: 'https://github.com/Divyaasm/opensearch-build-libraries.git',
 ]))
 
-def agent_nodes = [
-    "x64": "Jenkins-Agent-AL2-X64-C54xlarge-Single-Host",
-    "arm64": "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Single-Host"
-]
+def AGENT = env.ARCHITECTURE == 'x64' ? "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host" : "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host"
+def IMAGE = env.DISTRIBUTION == 'tar' ? "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2" : "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1"
+def ARGUMENTS = env.DISTRIBUTION == 'tar' ? "-u 1000" : "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro"
 
 pipeline {
     agent none
@@ -28,11 +29,31 @@ pipeline {
             trim: true,
             defaultValue: "x64"
         )
+        string(
+            name: 'OS_BUILD_NUMBER',
+            description: 'Enter the build number for opensearch-This parameter is applicable only for docker validation',
+            trim: true
+        )
+        string(
+            name: 'OSD_BUILD_NUMBER',
+            description: 'Enter the build number for opensearch Dashboards -This parameter is applicable only for docker validation',
+            trim: true
+        )
     }
 
     stages {
-        stage('Validate Docker Distribution') {
-            agent { label agent_nodes["$ARCHITECTURE"]}
+        stage('Validate a Distribution') {
+            when {
+                expression { DISTRIBUTION != "All" }
+            }
+            agent {
+                docker {
+                    label AGENT
+                    image IMAGE
+                    args ARGUMENTS
+                    alwaysPull true
+               }
+            }
             steps {
                 script {
                     if (VERSION == '') {
@@ -51,6 +72,66 @@ pipeline {
                     script {
                         postCleanup()
                     }
+                }
+            }
+        }
+
+        stage('Run for all validations') {
+            when {
+                expression { DISTRIBUTION == "All" }
+            }
+            agent { label AGENT }
+            steps {
+                script {
+
+                    stash includes: '**', name: 'opensearch-build-repo'
+
+                    def distributionList = ["tar","rpm","yum"]
+                    echo "distributionList: ${distributionList}"
+
+                    validateDistributions = [:]
+
+                    for (distribution in distributionList) {
+                        def local_distribution = distribution
+                        def wait_seconds = distributionList.indexOf(local_distribution) * 20
+
+                        echo "Add Distribution: ${local_distribution}"
+                        unstash 'opensearch-build-repo'
+
+                        validateDistributions["Validation for ${local_distribution}"] = {
+                            // Using scripted pipelines to trigger dynamic parallel stages
+                            timeout(time: 2, unit: 'HOURS') {
+                                node(AGENT) {
+                                    docker.image(IMAGE).inside(ARGUMENTS) {
+                                        try {
+                                            stage("Run Validation for ${local_distribution}") {
+                                                echo "Distribution Name: ${local_distribution}"
+                                                unstash 'opensearch-build-repo'
+
+                                                validateArtifacts(
+                                                version: "$VERSION",
+                                                distribution: "${local_distribution}",
+                                                arch: "$ARCHITECTURE"
+                                                )
+                                            }
+                                        } catch (e) {
+                                            echo "Error occurred while validating ${local_distribution}"
+                                            throw e
+                                        } finally {
+                                            echo "Completed validation for ${local_distribution}"
+                                            postCleanup()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    parallel validateDistributions
+                }
+            }
+            post {
+                always {
+                    postCleanup()
                 }
             }
         }
