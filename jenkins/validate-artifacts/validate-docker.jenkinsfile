@@ -89,24 +89,36 @@ pipeline {
                             // Using scripted pipelines to trigger dynamic parallel stages
                             timeout(time: 2, unit: 'HOURS') {
                                 node(AGENT_LABEL ) {
-                                    docker.withRegistry('https://public.ecr.aws/') {
-                                        docker.image(docker_images["$local_component"]).inside(docker_args["$local_component"]) {
-                                            try {
-                                                stage("Run Validation for ${local_component}") {
-                                                    unstash "validateDocker-$BUILD_NUMBER"
+                                    if ($local_component == "docker"){
+                                        stage("Run Validation for ${local_component}") {
+                                            unstash "validateDocker-$BUILD_NUMBER"
 
-                                                    validateArtifacts(
+                                            validateArtifacts(
+                                                version: "$VERSION",
+                                                distribution: "${local_component}",
+                                                arch: "$ARCHITECTURE"
+                                            )
+                                        }
+                                    } else {
+                                        docker.withRegistry('https://public.ecr.aws/') {
+                                            docker.image(docker_images["$local_component"]).inside(docker_args["$local_component"]) {
+                                                try {
+                                                    stage("Run Validation for ${local_component}") {
+                                                        unstash "validateDocker-$BUILD_NUMBER"
+
+                                                        validateArtifacts(
                                                             version: "$VERSION",
                                                             distribution: "${local_component}",
                                                             arch: "$ARCHITECTURE"
-                                                    )
+                                                        )
+                                                    }
+                                                } catch (e) {
+                                                    echo "Error occurred while validating ${local_component}"
+                                                    throw e
+                                                } finally {
+                                                    echo "Completed validation for ${local_component}"
+                                                    postCleanup()
                                                 }
-                                            } catch (e) {
-                                                echo "Error occurred while validating ${local_component}"
-                                                throw e
-                                            } finally {
-                                                echo "Completed validation for ${local_component}"
-                                                postCleanup()
                                             }
                                         }
                                     }
