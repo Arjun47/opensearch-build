@@ -57,6 +57,9 @@ pipeline {
                     }
 
                     env.AGENT_LABEL = agent_nodes["$architecture"]
+                    def distributionDefaultList = ["tar","rpm","yum"]
+                    def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : distributionDefaultList
+                    echo "distributionList: ${distributionList}"
 
                 }
             }
@@ -67,6 +70,9 @@ pipeline {
             }
         }
         stage('Validate Docker Distribution') {
+            when{
+                expression { "docker" in  distributionList }
+            }
             agent { label agent_nodes["$ARCHITECTURE"]}
             steps {
                 script {
@@ -89,10 +95,6 @@ pipeline {
             agent { label AGENT_LABEL }
             steps {
                 script {
-
-                    def distributionDefaultList = ["tar","rpm","yum"]
-                    def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : distributionDefaultList
-                    echo "distributionList: ${distributionList}"
 
                     stash includes: "**", name: "validateDocker-$BUILD_NUMBER"
 
