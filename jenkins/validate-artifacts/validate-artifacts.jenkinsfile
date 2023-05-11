@@ -46,29 +46,6 @@ pipeline {
     }
 
     stages {
-        stage('verify-parameters') {
-            agent { label agent_nodes["x64"] }
-            steps {
-                script {
-
-                    env.AGENT_LABEL = agent_nodes["$ARCHITECTURE"]
-
-
-                    echo "Version: ${version}, VersionOpenSearch: ${env.versionOpenSearch}, Agent: ${AGENT_LABEL}, OSD_BuildId: ${buildId}, OS_BuildId: ${buildIdOpenSearch}, Distribution: ${distribution}"
-                    currentBuild.description = "$architecture, osd-$version-$buildId, os-$versionOpenSearch-$buildIdOpenSearch, $distribution"
-
-                    if (! env.version.equals(env.versionOpenSearch)) {
-                        currentBuild.result = 'ABORTED'
-                        error("OSD Version $version does not match OS Version $versionOpenSearch")
-                    }
-                }
-            }
-            post {
-                always {
-                    postCleanup()
-                }
-            }
-        }
         stage('Validate a Distribution') {
             when {
                 expression { DISTRIBUTION != "All" }
