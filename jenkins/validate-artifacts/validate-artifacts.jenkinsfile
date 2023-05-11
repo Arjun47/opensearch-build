@@ -106,35 +106,34 @@ pipeline {
                                     docker.withRegistry('https://public.ecr.aws/') {
                                         docker.image(docker_images["$distribution"]).inside(docker_args["$distribution"]) {
                                             try {
-                                            stage("Run Validation for ${local_component}") {
-                                                validateArtifacts(
-                                                version: "$VERSION",
-                                                distribution: "${local_component}",
-                                                arch: "$ARCHITECTURE"
-                                                )
-                                            }
-                                        } catch (e) {
-                                            echo "Error occurred while validating ${local_component}"
+                                                stage("Run Validation for ${local_component}") {
+                                                    validateArtifacts(
+                                                    version: "$VERSION",
+                                                    distribution: "${local_component}",
+                                                    arch: "$ARCHITECTURE"
+                                                    )
+                                                }
+                                            } catch (e) {
+                                                echo "Error occurred while validating ${local_component}"
                                             throw e
-                                        } finally {
-                                            echo "Completed validation for ${local_component}"
-                                            postCleanup()
+                                            } finally {
+                                                echo "Completed validation for ${local_component}"
+                                                postCleanup()
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                        parallel validateDistributions
                     }
-                    parallel validateDistributions
                 }
-            }
-            post {
-                always {
-                    postCleanup()
+                post {
+                    always {
+                        postCleanup()
+                    }
                 }
             }
         }
     }
-}
-
 }
