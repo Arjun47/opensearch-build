@@ -6,17 +6,20 @@ lib = library(identifier: 'jenkins@4.1.1', retriever: modernSCM([
 def docker_images = [
     "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2",
     "rpm","yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
+    "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
+    "docker": ""
 ]
 
 def docker_args = [
     "tar": "-u 1000",
     "rpm": "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro",
     "yum": "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro",
+    "docker": ""
 ]
 
 def agent_nodes = [
-    "x64": "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host",
-    "arm64": "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host",
+    "x64": env.DISTRIBUTION == 'docker' ? "Jenkins-Agent-AL2-X64-C54xlarge-Single-Host" : "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host"
+    "arm64": env.DISTRIBUTION == 'docker' ? "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Single-Host" : "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host"
 ]
 
 pipeline {
