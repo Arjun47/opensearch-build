@@ -53,7 +53,6 @@ pipeline {
 
                     env.AGENT_LABEL = agent_nodes["$architecture"]
 
-                    }
                 }
             }
             post {
