@@ -7,14 +7,12 @@ def docker_images = [
     "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2",
     "rpm": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
     "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
-    "docker": ""
 ]
 
 def docker_args = [
     "tar": "-u 1000",
     "rpm": "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro",
     "yum": "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro",
-    "docker": ""
 ]
 
 def agent_nodes = [
@@ -57,7 +55,7 @@ pipeline {
                     }
 
                     env.AGENT_LABEL = agent_nodes["$architecture"]
-                    env.distributionList = ["tar","rpm","yum","docker"]
+
                 }
             }
             post {
@@ -66,32 +64,16 @@ pipeline {
                 }
             }
         }
-        stage('Validate Docker Distribution') {
-            when{
-                expression { "docker" in  distributionList }
-            }
-            agent { label agent_nodes["$ARCHITECTURE"]}
-            steps {
-                script {
-                    validateArtifacts(
-                            version: "$VERSION",
-                            distribution: "$DISTRIBUTION",
-                            arch: "$ARCHITECTURE"
-                    )
-                }
-            }
-            post() {
-                always {
-                    script {
-                        postCleanup()
-                    }
-                }
-            }
-        }
+
+
         stage('Run for all validations') {
             agent { label AGENT_LABEL }
             steps {
                 script {
+
+                    def distributionDefaultList = ["tar","rpm","yum"]
+                    def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : distributionDefaultList
+                    echo "distributionList: ${distributionList}"
 
                     stash includes: "**", name: "validateDocker-$BUILD_NUMBER"
 
