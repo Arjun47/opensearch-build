@@ -63,9 +63,6 @@ pipeline {
         }
 
         stage('Run for all validations') {
-            when {
-                expression { DISTRIBUTION == "All" }
-            }
             agent { label AGENT_LABEL }
             steps {
                 script {
