@@ -1,6 +1,6 @@
-lib = library(identifier: 'jenkins@lib', retriever: modernSCM([
+lib = library(identifier: 'jenkins@4.1.1', retriever: modernSCM([
     $class: 'GitSCMSource',
-    remote: 'https://github.com/Divyaasm/opensearch-build-libraries.git',
+    remote: 'https://github.com/opensearch-project/opensearch-build-libraries.git',
 ]))
 
 def docker_images = [
@@ -123,6 +123,7 @@ pipeline {
                                                     arch: "$ARCHITECTURE",
                                                     "os-build-number": "$OS_BUILD_NUMBER",
                                                     "osd-build-number": "$OSD_BUILD_NUMBER",
+                                                    "validate-digest-only" : ""
                                                 )
                                             }
                                         } catch (e) {
