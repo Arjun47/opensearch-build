@@ -40,12 +40,14 @@ pipeline {
             name: 'DISTRIBUTION',
             description: 'Enter the distribution type among [tar,rpm,yum,docker,All(To run all the distributions)] default is set to Tarball',
             trim: true,
+            defaultValue: "tar rpm yum docker"
+
         )
         string(
             name: 'ARCHITECTURE',
             description: 'Enter the architecture type among [x64,arm64] default is set to x64',
             trim: true,
-            defaultValue: "x64"
+            defaultValue: "x64 arm64"
         )
         string(
             name: 'OS_BUILD_NUMBER',
@@ -61,7 +63,7 @@ pipeline {
             name: 'OPTIONAL_ARGS',
             description: 'optional choose among validate-digest-only or using-staging-artifact-only',
             trim: true,
-            defaultValue: ""
+            defaultValue: "using-staging-artifact-only"
         )
 
     }
@@ -93,10 +95,11 @@ pipeline {
             steps {
                 script {
 
-                    def distributionDefaultList = ["tar","rpm","yum","docker"]
-                    def architectureList = ["x64","arm64"]
-                    def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : distributionDefaultList
+                    def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : ""
+                    def architectureList = ARCHITECTURE ? ARCHITECTURE.trim().split(" ") as List : ""
+
                     echo "distributionList: ${distributionList}"
+                    echo "architectureList: ${architectureList}"
 
                     stash includes: "**", name: "validateDocker-$BUILD_NUMBER"
 
@@ -119,24 +122,14 @@ pipeline {
                                                 stage("Run Validation for ${local_distribution}") {
                                                     unstash "validateDocker-$BUILD_NUMBER"
 
-                                                    if (OPTIONAL_ARGS != ""){
-                                                        validateArtifacts(
-                                                            version: "$VERSION",
-                                                            distribution: "${local_distribution}",
-                                                            arch: "${local_architecture}",
-                                                            "os-build-number": "$OS_BUILD_NUMBER",
-                                                            "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                            "$OPTIONAL_ARGS" : ""
-                                                        )
-                                                    } else {
-                                                        validateArtifacts(
-                                                            version: "$VERSION",
-                                                            distribution: "${local_distribution}",
-                                                            arch: "${local_architecture}",
-                                                            "os-build-number": "$OS_BUILD_NUMBER",
-                                                            "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                        )
-                                                    }
+                                                    validateArtifacts(
+                                                        version: "$VERSION",
+                                                        distribution: "${local_distribution}",
+                                                        arch: "${local_architecture}",
+                                                        "os-build-number": "$OS_BUILD_NUMBER",
+                                                        "osd-build-number": "$OSD_BUILD_NUMBER",
+                                                        "$OPTIONAL_ARGS" : ""
+                                                    )
                                                 }
                                             } catch (e) {
                                                 echo "Error occurred while validating ${local_distribution}"
