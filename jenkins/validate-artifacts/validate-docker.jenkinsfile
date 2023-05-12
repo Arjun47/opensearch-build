@@ -123,7 +123,7 @@ pipeline {
                                                         validateArtifacts(
                                                             version: "$VERSION",
                                                             distribution: "${local_distribution}",
-                                                            arch: "$ARCHITECTURE",
+                                                            arch: "${local_architecture}",
                                                             "os-build-number": "$OS_BUILD_NUMBER",
                                                             "osd-build-number": "$OSD_BUILD_NUMBER",
                                                             "$OPTIONAL_ARGS" : ""
@@ -132,7 +132,7 @@ pipeline {
                                                         validateArtifacts(
                                                             version: "$VERSION",
                                                             distribution: "${local_distribution}",
-                                                            arch: "$ARCHITECTURE",
+                                                            arch: "${local_architecture}",
                                                             "os-build-number": "$OS_BUILD_NUMBER",
                                                             "osd-build-number": "$OSD_BUILD_NUMBER",
                                                         )
@@ -157,7 +157,7 @@ pipeline {
                                                             validateArtifacts(
                                                                 version: "$VERSION",
                                                                 distribution: "${local_distribution}",
-                                                                arch: "$ARCHITECTURE"
+                                                                arch: "${local_architecture}"
                                                             )
                                                         }
                                                     } catch (e) {
