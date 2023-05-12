@@ -123,7 +123,6 @@ pipeline {
                                                     arch: "$ARCHITECTURE",
                                                     os_build_number: "OS_BUILD_NUMBER",
                                                     osd_build_number: "OS_BUILD_NUMBER",
-                                                    "OPTIONAL ARGS"
                                                 )
                                             }
                                         } catch (e) {
