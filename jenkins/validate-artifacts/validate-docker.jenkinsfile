@@ -129,7 +129,7 @@ pipeline {
                                             echo "Error occurred while validating ${local_distribution}"
                                             throw e
                                         } finally {
-                                            echo "Completed validation for ${local_distribution}"build
+                                            echo "Completed validation for ${local_distribution}"
                                             postCleanup()
                                         }
                                     }
