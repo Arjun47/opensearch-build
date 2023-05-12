@@ -120,7 +120,9 @@ pipeline {
                                                 validateArtifacts(
                                                     version: "$VERSION",
                                                     distribution: "${local_distribution}",
-                                                    arch: "$ARCHITECTURE"
+                                                    arch: "$ARCHITECTURE",
+                                                    os-build-number: "$OS_BUILD_NUMBER",
+                                                    osd-build-number: "$OSD_BUILD_NUMBER"
                                                 )
                                             }
                                         } catch (e) {
