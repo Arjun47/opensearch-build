@@ -122,7 +122,8 @@ pipeline {
                                                     distribution: "${local_distribution}",
                                                     arch: "$ARCHITECTURE",
                                                     "os-build-number": "$OS_BUILD_NUMBER",
-                                                    "osd-build-number": "$OSD_BUILD_NUMBER"
+                                                    "osd-build-number": "$OSD_BUILD_NUMBER",
+                                                    "validate-digest-only"
                                                 )
                                             }
                                         } catch (e) {
