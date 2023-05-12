@@ -117,14 +117,24 @@ pipeline {
                                             stage("Run Validation for ${local_distribution}") {
                                                 unstash "validateDocker-$BUILD_NUMBER"
 
-                                                validateArtifacts(
-                                                    version: "$VERSION",
-                                                    distribution: "${local_distribution}",
-                                                    arch: "$ARCHITECTURE",
-                                                    "os-build-number": "$OS_BUILD_NUMBER",
-                                                    "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                    "$OPTIONAL_ARGS" : ""
-                                                )
+                                                if (OPTIONAL_ARGS = ""){
+                                                    validateArtifacts(
+                                                        version: "$VERSION",
+                                                        distribution: "${local_distribution}",
+                                                        arch: "$ARCHITECTURE",
+                                                        "os-build-number": "$OS_BUILD_NUMBER",
+                                                        "osd-build-number": "$OSD_BUILD_NUMBER",
+                                                        "$OPTIONAL_ARGS" : ""
+                                                    )
+                                                } else {
+                                                    validateArtifacts(
+                                                        version: "$VERSION",
+                                                        distribution: "${local_distribution}",
+                                                        arch: "$ARCHITECTURE",
+                                                        "os-build-number": "$OS_BUILD_NUMBER",
+                                                        "osd-build-number": "$OSD_BUILD_NUMBER",
+                                                    )
+                                                }
                                             }
                                         } catch (e) {
                                             echo "Error occurred while validating ${local_distribution}"
