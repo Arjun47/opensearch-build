@@ -58,7 +58,7 @@ pipeline {
             trim: true,
         )
         string(
-            name: 'OPTIONAL ARGS',
+            name: 'OPTIONAL_ARGS',
             description: 'optional choose among validate-digest-only or using-staging-artifact-only',
             trim: true,
             defaultValue: ""
@@ -123,6 +123,7 @@ pipeline {
                                                     arch: "$ARCHITECTURE",
                                                     os_build_number: "$OS_BUILD_NUMBER",
                                                     osd_build_number: "$OSD_BUILD_NUMBER",
+                                                    "$OPTIONAL_ARGS"
                                                 )
                                             }
                                         } catch (e) {
