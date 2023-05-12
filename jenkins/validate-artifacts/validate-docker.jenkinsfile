@@ -102,68 +102,70 @@ pipeline {
 
                     validateDistributions = [:]
 
-                    for (distribution in distributionList) {
-                        def local_distribution = distribution.trim()
-                        def local_distribution_index = distributionList.indexOf(local_distribution)
-                        def wait_seconds = local_distribution_index * 10
+                    for (architecure in architectureList) {
+                        for (distribution in distributionList) {
+                            def local_distribution = distribution.trim()
+                            def local_distribution_index = distributionList.indexOf(local_distribution)
+                            def wait_seconds = local_distribution_index * 10
 
-                        echo "Add Distribution: ${local_distribution}"
-                        validateDistributions["Run Validation ${local_distribution}"] = {
-                            // Using scripted pipelines to trigger dynamic parallel stages
-                            timeout(time: 2, unit: 'HOURS') {
-                                if ("${local_distribution}" == "docker"){
-                                    node(AGENT_LABEL_DOCKER ) {
-                                        try {
-                                            stage("Run Validation for ${local_distribution}") {
-                                                unstash "validateDocker-$BUILD_NUMBER"
+                            echo "Add Distribution: ${local_distribution}"
+                            validateDistributions["Run Validation ${local_distribution}"] = {
+                                // Using scripted pipelines to trigger dynamic parallel stages
+                                timeout(time: 2, unit: 'HOURS') {
+                                    if ("${local_distribution}" == "docker"){
+                                        node(AGENT_LABEL_DOCKER ) {
+                                            try {
+                                                stage("Run Validation for ${local_distribution}") {
+                                                    unstash "validateDocker-$BUILD_NUMBER"
 
-                                                if (OPTIONAL_ARGS != ""){
-                                                    validateArtifacts(
-                                                        version: "$VERSION",
-                                                        distribution: "${local_distribution}",
-                                                        arch: "$ARCHITECTURE",
-                                                        "os-build-number": "$OS_BUILD_NUMBER",
-                                                        "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                        "$OPTIONAL_ARGS" : ""
-                                                    )
-                                                } else {
-                                                    validateArtifacts(
-                                                        version: "$VERSION",
-                                                        distribution: "${local_distribution}",
-                                                        arch: "$ARCHITECTURE",
-                                                        "os-build-number": "$OS_BUILD_NUMBER",
-                                                        "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                    )
-                                                }
-                                            }
-                                        } catch (e) {
-                                            echo "Error occurred while validating ${local_distribution}"
-                                            throw e
-                                        } finally {
-                                            echo "Completed validation for ${local_distribution}"
-                                            postCleanup()
-                                        }
-                                    }
-                                } else {
-                                    node(AGENT_LABEL ) {
-                                        docker.withRegistry('https://public.ecr.aws/') {
-                                            docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
-                                                try {
-                                                    stage("Run Validation for ${local_distribution}") {
-                                                        unstash "validateDocker-$BUILD_NUMBER"
-
+                                                    if (OPTIONAL_ARGS != ""){
                                                         validateArtifacts(
                                                             version: "$VERSION",
                                                             distribution: "${local_distribution}",
-                                                            arch: "$ARCHITECTURE"
+                                                            arch: "$ARCHITECTURE",
+                                                            "os-build-number": "$OS_BUILD_NUMBER",
+                                                            "osd-build-number": "$OSD_BUILD_NUMBER",
+                                                            "$OPTIONAL_ARGS" : ""
+                                                        )
+                                                    } else {
+                                                        validateArtifacts(
+                                                            version: "$VERSION",
+                                                            distribution: "${local_distribution}",
+                                                            arch: "$ARCHITECTURE",
+                                                            "os-build-number": "$OS_BUILD_NUMBER",
+                                                            "osd-build-number": "$OSD_BUILD_NUMBER",
                                                         )
                                                     }
-                                                } catch (e) {
-                                                    echo "Error occurred while validating ${local_distribution}"
-                                                    throw e
-                                                } finally {
-                                                    echo "Completed validation for ${local_distribution}"
-                                                    postCleanup()
+                                                }
+                                            } catch (e) {
+                                                echo "Error occurred while validating ${local_distribution}"
+                                                throw e
+                                            } finally {
+                                                echo "Completed validation for ${local_distribution}"
+                                                postCleanup()
+                                            }
+                                        }
+                                    } else {
+                                        node(AGENT_LABEL ) {
+                                            docker.withRegistry('https://public.ecr.aws/') {
+                                                docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
+                                                    try {
+                                                        stage("Run Validation for ${local_distribution}") {
+                                                            unstash "validateDocker-$BUILD_NUMBER"
+
+                                                            validateArtifacts(
+                                                                version: "$VERSION",
+                                                                distribution: "${local_distribution}",
+                                                                arch: "$ARCHITECTURE"
+                                                            )
+                                                        }
+                                                    } catch (e) {
+                                                        echo "Error occurred while validating ${local_distribution}"
+                                                        throw e
+                                                    } finally {
+                                                        echo "Completed validation for ${local_distribution}"
+                                                        postCleanup()
+                                                    }
                                                 }
                                             }
                                         }
