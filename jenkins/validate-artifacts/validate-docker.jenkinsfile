@@ -117,7 +117,7 @@ pipeline {
                                             stage("Run Validation for ${local_distribution}") {
                                                 unstash "validateDocker-$BUILD_NUMBER"
 
-                                                if (OPTIONAL_ARGS == ""){
+                                                if (OPTIONAL_ARGS != ""){
                                                     validateArtifacts(
                                                         version: "$VERSION",
                                                         distribution: "${local_distribution}",
