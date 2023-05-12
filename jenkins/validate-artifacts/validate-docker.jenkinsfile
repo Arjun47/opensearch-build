@@ -123,7 +123,7 @@ pipeline {
                                                     arch: "$ARCHITECTURE",
                                                     "os-build-number": "$OS_BUILD_NUMBER",
                                                     "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                    "validate-digest-only" : ""
+                                                    "$OPTIONAL_ARGS" : ""
                                                 )
                                             }
                                         } catch (e) {
