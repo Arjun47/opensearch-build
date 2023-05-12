@@ -77,9 +77,6 @@ pipeline {
                         currentBuild.result = 'ABORTED'
                         error('Provide version number for the artifacts')
                     }
-
-                    def architectureList = ["x64","arm64"]
-
                 }
             }
             post {
