@@ -104,7 +104,10 @@ pipeline {
 
                     for (architecture in architectureList) {
                         for (distribution in distributionList) {
+                            echo "architectureList: ${architectureList}"
+                            echo "architecture: ${architecture}"
                             def local_architecture = architecture.trim()
+                            echo "local_architecture: ${local_architecture}"
                             def local_distribution = distribution.trim()
                             def local_distribution_index = distributionList.indexOf(local_distribution)
                             def wait_seconds = local_distribution_index * 10
