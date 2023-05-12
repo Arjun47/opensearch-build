@@ -114,7 +114,7 @@ pipeline {
                                 // Using scripted pipelines to trigger dynamic parallel stages
                                 timeout(time: 2, unit: 'HOURS') {
                                     if ("${local_distribution}" == "docker"){
-                                        node(label agent_nodes_docker["${local_architecture}"] ) {
+                                        node(label agent_nodes_docker["$local_architecture"]]) {
                                             try {
                                                 stage("Run Validation for ${local_distribution}") {
                                                     unstash "validateDocker-$BUILD_NUMBER"
@@ -147,7 +147,7 @@ pipeline {
                                             }
                                         }
                                     } else {
-                                        node(label agent_nodes["${local_architecture}"] ) {
+                                        node(label agent_nodes["$local_architecture"]) {
                                             docker.withRegistry('https://public.ecr.aws/') {
                                                 docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
                                                     try {
