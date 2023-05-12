@@ -47,6 +47,23 @@ pipeline {
             trim: true,
             defaultValue: "x64"
         )
+        string(
+            name: 'OS_BUILD_NUMBER',
+            description: 'Enter the build number for opensearch-This parameter is applicable only for docker validation',
+            trim: true,
+        )
+        string(
+            name: 'OSD_BUILD_NUMBER',
+            description: 'Enter the build number for opensearch Dashboards -This parameter is applicable only for docker validation',
+            trim: true,
+        )
+        string(
+            name: 'OPTIONAL ARGS',
+            description: 'optional choose among validate-digest-only or using-staging-artifact-only',
+            trim: true,
+            defaultValue: ""
+        )
+
     }
 
     stages {
@@ -103,7 +120,10 @@ pipeline {
                                                 validateArtifacts(
                                                     version: "$VERSION",
                                                     distribution: "${local_distribution}",
-                                                    arch: "$ARCHITECTURE"
+                                                    arch: "$ARCHITECTURE",
+                                                    os_build_number: "OS_BUILD_NUMBER",
+                                                    osd_build_number: "OS_BUILD_NUMBER",
+                                                    "OPTIONAL ARGS"
                                                 )
                                             }
                                         } catch (e) {
