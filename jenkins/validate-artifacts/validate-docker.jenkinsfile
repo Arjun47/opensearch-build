@@ -76,8 +76,6 @@ pipeline {
                         error('Provide version number for the artifacts')
                     }
 
-                    env.AGENT_LABEL_DOCKER = agent_nodes_docker["$architecture"]
-                    env.AGENT_LABEL = agent_nodes["$architecture"]
                     def architectureList = ["x64","arm64"]
 
                 }
