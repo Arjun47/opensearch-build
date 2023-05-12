@@ -123,14 +123,14 @@ pipeline {
                                                     arch: "$ARCHITECTURE",
                                                     "os-build-number": "$OS_BUILD_NUMBER",
                                                     "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                    "validate-digest-only":
+                                                    "validate-digest-only"
                                                 )
                                             }
                                         } catch (e) {
                                             echo "Error occurred while validating ${local_distribution}"
                                             throw e
                                         } finally {
-                                            echo "Completed validation for ${local_distribution}"
+                                            echo "Completed validation for ${local_distribution}"build
                                             postCleanup()
                                         }
                                     }
