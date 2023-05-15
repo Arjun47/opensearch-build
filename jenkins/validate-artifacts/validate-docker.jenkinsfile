@@ -95,8 +95,8 @@ pipeline {
                     def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : ""
                     def architectureList = ARCHITECTURE ? ARCHITECTURE.trim().split(" ") as List : ""
                     def myList = ["tar", "rpm"]
-                    echo "distributionList[0]: ${myList[0]}, ${myList[0]}"
-                    echo "distributionList: ${distributionList}"
+                    echo "distributionList[0]: ${myList[0]}, ${myList[1]}"
+                    echo "distributionList: ${distributionList[0]}"
                     echo "architectureList: ${architectureList}"
 
                     stash includes: "**", name: "validateDocker-$BUILD_NUMBER"
