@@ -104,15 +104,9 @@ pipeline {
 
                     for (architecture in architectureList) {
                         def local_architecture = architecture.trim()
-                        val = dis()
-                        validateDistributions["Run Validation for ${local_architecture}"] = {
+                        validateDistributions["Run Validation Framework"] = {
                             for (distribution in distributionList) {
                                 def local_distribution = distribution.trim()
-                                def dis() {
-                                    expression {
-                                        return local_distribution
-                                    }
-                                }
 
                                 echo "Add Distribution: ${local_distribution}"
                                 // Using scripted pipelines to trigger dynamic parallel stages
@@ -120,7 +114,7 @@ pipeline {
                                     if ("${local_distribution}" == "docker"){
                                         node(agent_nodes_docker["$local_architecture"]) {
                                             try {
-                                                stage("Run Validation for ${local_distribution}") {
+                                                stage("Run Validation for ${local_distribution} ${local_architecture}") {
                                                     unstash "validateDocker-$BUILD_NUMBER"
 
                                                     validateArtifacts(
