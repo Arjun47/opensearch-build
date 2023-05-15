@@ -106,7 +106,7 @@ pipeline {
                         def local_architecture = architecture.trim()
                         list = ["tar", "rpm", "yum"]
                         counter = 0
-                        var = list[counter]
+                        val = list[counter]
                         counter = counter + 1
                         validateDistributions["Run Validation ${local_architecture} ${val}"] = {
                             for (distribution in distributionList) {
