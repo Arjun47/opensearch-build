@@ -94,7 +94,8 @@ pipeline {
 
                     def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : ""
                     def architectureList = ARCHITECTURE ? ARCHITECTURE.trim().split(" ") as List : ""
-
+                    def myList = ["tar", "rpm"]
+                    echo "distributionList[0]: ${myList[0]}, ${myList[0]}"
                     echo "distributionList: ${distributionList}"
                     echo "architectureList: ${architectureList}"
 
@@ -105,7 +106,7 @@ pipeline {
                     for (architecture in architectureList) {
                         def local_architecture = architecture.trim()
                         def counter = 0
-                        validateDistributions["Run Validation Framework ${distributionList[${counter}]} ${local_architecture}"] = {
+                        validateDistributions["Run Validation Framework ${distributionList[ ${counter} ] } ${local_architecture}"] = {
                             counter = counter + 1
                             for (distribution in distributionList) {
                                 def local_distribution = distribution.trim()
