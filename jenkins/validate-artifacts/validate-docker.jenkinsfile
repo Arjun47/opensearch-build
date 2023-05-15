@@ -104,9 +104,12 @@ pipeline {
 
                     for (architecture in architectureList) {
                         def local_architecture = architecture.trim()
-                        validateDistributions["Run Validation for ${local_architecture}"] = {
+                        validateDistributions["Run Validation for $(dis) ${local_architecture}"] = {
                             for (distribution in distributionList) {
                                 def local_distribution = distribution.trim()
+                                def dis() {
+                                return local_distribution
+                                }
 
                                 echo "Add Distribution: ${local_distribution}"
                                 // Using scripted pipelines to trigger dynamic parallel stages
