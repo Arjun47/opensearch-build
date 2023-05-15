@@ -172,8 +172,8 @@ pipeline {
                             }
                         }
                     }
-                    parallel validateDistributions
                 }
+                parallel validateDistributions
             }
             post {
                 always {
