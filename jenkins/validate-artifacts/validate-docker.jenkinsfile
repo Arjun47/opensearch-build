@@ -77,10 +77,6 @@ pipeline {
                         currentBuild.result = 'ABORTED'
                         error('Provide version number for the artifacts')
                     }
-                    if ("docker" in DISTRIBUTION and (OS_BUILD_NUMBER = "" or OSD_BUILD_NUMBER = "")) {
-                        currentBuild.result = 'ABORTED'
-                        error('Provide OS and OSD builder numbers')
-                    }
                 }
             }
             post {
@@ -107,24 +103,23 @@ pipeline {
                     validateDistributions = [:]
 
                     for (architecture in architectureList) {
-                        def local_architecture = architecture.trim()
-                        validateDistributions["Run Validation ${local_architecture}"] = {
-                            for (distribution in distributionList) {
-                                echo "architectureList: ${architectureList}"
-                                echo "architecture: ${architecture}"
-                                def local_architecture = architecture.trim()
-                                echo "local_architecture: ${local_architecture}"
-                                def local_distribution = distribution.trim()
-                                def local_distribution_index = distributionList.indexOf(local_distribution)
-                                def wait_seconds = local_distribution_index * 10
+                        for (distribution in distributionList) {
+                            echo "architectureList: ${architectureList}"
+                            echo "architecture: ${architecture}"
+                            def local_architecture = architecture.trim()
+                            echo "local_architecture: ${local_architecture}"
+                            def local_distribution = distribution.trim()
+                            def local_distribution_index = distributionList.indexOf(local_distribution)
+                            def wait_seconds = local_distribution_index * 10
 
-                                echo "Add Distribution: ${local_distribution}"
+                            echo "Add Distribution: ${local_distribution}"
+                            validateDistributions["Run Validation ${local_distribution}"] = {
                                 // Using scripted pipelines to trigger dynamic parallel stages
                                 timeout(time: 2, unit: 'HOURS') {
                                     if ("${local_distribution}" == "docker"){
                                         node(agent_nodes_docker["$local_architecture"]) {
                                             try {
-                                                stage("Run Validation for ${local_distribution} ${local_architecture}") {
+                                                stage("Run Validation for ${local_distribution}") {
                                                     unstash "validateDocker-$BUILD_NUMBER"
 
                                                     validateArtifacts(
@@ -149,7 +144,7 @@ pipeline {
                                             docker.withRegistry('https://public.ecr.aws/') {
                                                 docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
                                                     try {
-                                                        stage("Run Validation for ${local_distribution} ${local_architecture}") {
+                                                        stage("Run Validation for ${local_distribution}") {
                                                             unstash "validateDocker-$BUILD_NUMBER"
 
                                                             validateArtifacts(
@@ -172,8 +167,8 @@ pipeline {
                                 }
                             }
                         }
+                        parallel validateDistributions
                     }
-                    parallel validateDistributions
                 }
             }
             post {
@@ -184,3 +179,4 @@ pipeline {
         }
     }
 }
+
