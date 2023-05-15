@@ -108,7 +108,7 @@ pipeline {
                         counter = 0
                         val = list[counter]
                         counter = counter + 1
-                        validateArchitectures["Run Validation ${local_architecture}"] = {
+                        validateArchitectures["Run Validation"] = {
                             validateDistributions = [:]
                             for (distribution in distributionList) {
                                 echo "architectureList: ${architectureList}"
@@ -120,7 +120,7 @@ pipeline {
 
                                 echo "Add Distribution: ${local_distribution}"
                                 // Using scripted pipelines to trigger dynamic parallel stages
-                                validateDistributions["Run Validation ${local_distribution}"] = {
+                                validateDistributions["Run Validation ${local_distribution} ${local_architecture}"] = {
                                     timeout(time: 2, unit: 'HOURS') {
                                         if ("${local_distribution}" == "docker"){
                                             node(agent_nodes_docker["$local_architecture"]) {
