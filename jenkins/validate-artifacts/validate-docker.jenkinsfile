@@ -107,8 +107,6 @@ pipeline {
                         validateDistributions["Run Validation for ${local_architecture}"] = {
                             for (distribution in distributionList) {
                                 def local_distribution = distribution.trim()
-                                def local_distribution_index = distributionList.indexOf(local_distribution)
-                                def wait_seconds = local_distribution_index * 10
 
                                 echo "Add Distribution: ${local_distribution}"
                                 // Using scripted pipelines to trigger dynamic parallel stages
