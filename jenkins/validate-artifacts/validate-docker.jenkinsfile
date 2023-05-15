@@ -158,6 +158,7 @@ pipeline {
                                                                     distribution: "${local_distribution}",
                                                                     arch: "${local_architecture}"
                                                                 )
+                                                            }
                                                         } catch (e) {
                                                             echo "Error occurred while validating ${local_distribution}"
                                                             throw e
