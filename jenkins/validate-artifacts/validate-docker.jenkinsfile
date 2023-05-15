@@ -104,7 +104,8 @@ pipeline {
 
                     for (architecture in architectureList) {
                         def local_architecture = architecture.trim()
-                        validateDistributions["Run Validation for $(dis) ${local_architecture}"] = {
+                        val = dis()
+                        validateDistributions["Run Validation for ${local_architecture}"] = {
                             for (distribution in distributionList) {
                                 def local_distribution = distribution.trim()
                                 def dis() {
