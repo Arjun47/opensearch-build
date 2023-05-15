@@ -150,7 +150,7 @@ pipeline {
                                                 docker.withRegistry('https://public.ecr.aws/') {
                                                     docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
                                                         try {
-                                                            stage("Run Validation ${local_architecture} ${local_distribution}") {
+                                                            stage("Validate") {
                                                                 unstash "validateDocker-$BUILD_NUMBER"
 
                                                                 validateArtifacts(
