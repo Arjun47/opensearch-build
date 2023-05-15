@@ -109,7 +109,9 @@ pipeline {
                             for (distribution in distributionList) {
                                 def local_distribution = distribution.trim()
                                 def dis() {
-                                return local_distribution
+                                    expression {
+                                        return local_distribution
+                                    }
                                 }
 
                                 echo "Add Distribution: ${local_distribution}"
