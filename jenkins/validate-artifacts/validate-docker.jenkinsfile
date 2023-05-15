@@ -108,7 +108,7 @@ pipeline {
                         counter = 0
                         val = list[counter]
                         counter = counter + 1
-                        validateArchitectures["Run Validation"] = {
+                        validateArchitectures["Run Validation ${local_architecture}"] = {
                             validateDistributions = [:]
                             for (distribution in distributionList) {
                                 echo "architectureList: ${architectureList}"
