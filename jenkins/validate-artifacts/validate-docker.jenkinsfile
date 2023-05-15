@@ -106,7 +106,9 @@ pipeline {
                     for (architecture in architectureList) {
                         def local_architecture = architecture.trim()
                         def counter = 0
-                        validateDistributions["Run Validation Framework ${distributionList[ ${counter} ] } ${local_architecture}"] = {
+                        echo "start"
+                        validateDistributions["Run Validation Framework ${distributionList[0]} ${local_architecture}"] = {
+                            echo "end"
                             counter = counter + 1
                             for (distribution in distributionList) {
                                 def local_distribution = distribution.trim()
