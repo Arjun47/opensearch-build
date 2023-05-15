@@ -77,6 +77,10 @@ pipeline {
                         currentBuild.result = 'ABORTED'
                         error('Provide version number for the artifacts')
                     }
+                    if ("docker" in DISTRIBUTION and (OS_BUILD_NUMBER = "" or OSD_BUILD_NUMBER = "")) {
+                        currentBuild.result = 'ABORTED'
+                        error('Provide OS and OSD builder numbers')
+                    }
                 }
             }
             post {
@@ -94,9 +98,8 @@ pipeline {
 
                     def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : ""
                     def architectureList = ARCHITECTURE ? ARCHITECTURE.trim().split(" ") as List : ""
-                    def myList = ["tar", "rpm"]
-                    echo "distributionList[0]: ${myList[0]}, ${myList[1]}"
-                    echo "distributionList: ${distributionList[0]}"
+
+                    echo "distributionList: ${distributionList}"
                     echo "architectureList: ${architectureList}"
 
                     stash includes: "**", name: "validateDocker-$BUILD_NUMBER"
@@ -105,15 +108,18 @@ pipeline {
 
                     for (architecture in architectureList) {
                         def local_architecture = architecture.trim()
-                        def counter = 0
-                        echo "start"
-                        validateDistributions["Run Validation Framework ${counter}"] = {
-                            echo "end"
-                            counter = counter + 1
-                            for (distribution in distributionList) {
-                                def local_distribution = distribution.trim()
+                        validateDistributions["Run Validation ${local_architecture}"] = {
+                        for (distribution in distributionList) {
+                            echo "architectureList: ${architectureList}"
+                            echo "architecture: ${architecture}"
+                            def local_architecture = architecture.trim()
+                            echo "local_architecture: ${local_architecture}"
+                            def local_distribution = distribution.trim()
+                            def local_distribution_index = distributionList.indexOf(local_distribution)
+                            def wait_seconds = local_distribution_index * 10
 
-                                echo "Add Distribution: ${local_distribution}"
+                            echo "Add Distribution: ${local_distribution}"
+                            validateDistributions["Run Validation ${local_distribution}"] = {
                                 // Using scripted pipelines to trigger dynamic parallel stages
                                 timeout(time: 2, unit: 'HOURS') {
                                     if ("${local_distribution}" == "docker"){
@@ -167,8 +173,8 @@ pipeline {
                                 }
                             }
                         }
+                        parallel validateDistributions
                     }
-                    parallel validateDistributions
                 }
             }
             post {
