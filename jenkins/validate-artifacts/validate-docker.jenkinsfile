@@ -119,7 +119,7 @@ pipeline {
                                     if ("${local_distribution}" == "docker"){
                                         node(agent_nodes_docker["$local_architecture"]) {
                                             try {
-                                                stage("Run Validation for ${local_distribution}") {
+                                                stage("Run Validation for ${local_distribution} ${local_architecture}") {
                                                     unstash "validateDocker-$BUILD_NUMBER"
 
                                                     validateArtifacts(
