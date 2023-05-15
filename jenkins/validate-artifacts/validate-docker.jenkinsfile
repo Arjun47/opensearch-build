@@ -120,7 +120,7 @@ pipeline {
 
                                 echo "Add Distribution: ${local_distribution}"
                                 // Using scripted pipelines to trigger dynamic parallel stages
-                                validateDistributions["Validation ${local_distribution}"] = {
+                                validateDistributions["Validation ${local_distribution} ${local_architecture}"] = {
                                     timeout(time: 2, unit: 'HOURS') {
                                         if ("${local_distribution}" == "docker"){
                                             node(agent_nodes_docker["$local_architecture"]) {
