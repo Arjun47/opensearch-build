@@ -100,7 +100,7 @@ pipeline {
 
                     stash includes: "**", name: "validateDocker-$BUILD_NUMBER"
 
-                    validateDistributions = [:]
+                    validateArchitectures = [:]
 
                     for (architecture in architectureList) {
                         def local_architecture = architecture.trim()
@@ -108,7 +108,8 @@ pipeline {
                         counter = 0
                         val = list[counter]
                         counter = counter + 1
-                        validateDistributions["Run Validation ${local_architecture} ${val}"] = {
+                        validateArchitectures["Run Validation ${local_architecture} ${val}"] = {
+                            validateDistributions = [:]
                             for (distribution in distributionList) {
                                 echo "architectureList: ${architectureList}"
                                 echo "architecture: ${architecture}"
@@ -119,50 +120,52 @@ pipeline {
 
                                 echo "Add Distribution: ${local_distribution}"
                                 // Using scripted pipelines to trigger dynamic parallel stages
-                                timeout(time: 2, unit: 'HOURS') {
-                                if ("${local_distribution}" == "docker"){
-                                    node(agent_nodes_docker["$local_architecture"]) {
-                                        try {
-                                            stage("Run Validation ${local_architecture} ${local_distribution}") {
-                                                unstash "validateDocker-$BUILD_NUMBER"
+                                validateDistributions["Run Validation ${local_architecture} ${val}"] = {
+                                    timeout(time: 2, unit: 'HOURS') {
+                                        if ("${local_distribution}" == "docker"){
+                                            node(agent_nodes_docker["$local_architecture"]) {
+                                                try {
+                                                    stage("Run Validation ${local_architecture} ${local_distribution}") {
+                                                        unstash "validateDocker-$BUILD_NUMBER"
 
-                                                validateArtifacts(
-                                                    version: "$VERSION",
-                                                    distribution: "${local_distribution}",
-                                                    arch: "${local_architecture}",
-                                                        "os-build-number": "$OS_BUILD_NUMBER",
-                                                        "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                        "$OPTIONAL_ARGS" : ""
-                                                    )
+                                                        validateArtifacts(
+                                                            version: "$VERSION",
+                                                            distribution: "${local_distribution}",
+                                                            arch: "${local_architecture}",
+                                                            "os-build-number": "$OS_BUILD_NUMBER",
+                                                            "osd-build-number": "$OSD_BUILD_NUMBER",
+                                                            "$OPTIONAL_ARGS" : ""
+                                                        )
+                                                    }
+                                                } catch (e) {
+                                                    echo "Error occurred while validating ${local_distribution}"
+                                                    throw e
+                                                } finally {
+                                                    echo "Completed validation for ${local_distribution}"
+                                                    postCleanup()
                                                 }
-                                            } catch (e) {
-                                                echo "Error occurred while validating ${local_distribution}"
-                                                throw e
-                                            } finally {
-                                                echo "Completed validation for ${local_distribution}"
-                                                postCleanup()
                                             }
-                                        }
-                                    } else {
-                                        node(agent_nodes["$local_architecture"]) {
-                                            docker.withRegistry('https://public.ecr.aws/') {
-                                                docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
-                                                    try {
-                                                        stage("Run Validation ${local_architecture} ${local_distribution}") {
-                                                            unstash "validateDocker-$BUILD_NUMBER"
+                                        } else {
+                                            node(agent_nodes["$local_architecture"]) {
+                                                docker.withRegistry('https://public.ecr.aws/') {
+                                                    docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
+                                                        try {
+                                                            stage("Run Validation ${local_architecture} ${local_distribution}") {
+                                                                unstash "validateDocker-$BUILD_NUMBER"
 
-                                                            validateArtifacts(
-                                                                version: "$VERSION",
-                                                                distribution: "${local_distribution}",
-                                                                arch: "${local_architecture}"
-                                                            )
+                                                                validateArtifacts(
+                                                                    version: "$VERSION",
+                                                                    distribution: "${local_distribution}",
+                                                                    arch: "${local_architecture}"
+                                                                )
+                                                            }
+                                                        } catch (e) {
+                                                            echo "Error occurred while validating ${local_distribution}"
+                                                            throw e
+                                                        } finally {
+                                                            echo "Completed validation for ${local_distribution}"
+                                                            postCleanup()
                                                         }
-                                                    } catch (e) {
-                                                        echo "Error occurred while validating ${local_distribution}"
-                                                        throw e
-                                                    } finally {
-                                                        echo "Completed validation for ${local_distribution}"
-                                                        postCleanup()
                                                     }
                                                 }
                                             }
@@ -170,9 +173,10 @@ pipeline {
                                     }
                                 }
                             }
+                            parallel validateDistributions
                         }
                     }
-                    parallel validateDistributions
+                    parallel validateArchitectures
                 }
             }
             post {
@@ -183,4 +187,3 @@ pipeline {
         }
     }
 }
-
