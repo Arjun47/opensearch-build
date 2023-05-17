@@ -91,9 +91,11 @@ pipeline {
             agent {label agent_nodes["x64"] }
             steps {
                 script {
+                    echo "start"
                     parallel {
                         def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : ""
                         def architectureList = ARCHITECTURE ? ARCHITECTURE.trim().split(" ") as List : ""
+                        echo "end"
 
                         echo "distributionList: ${distributionList}"
                         echo "architectureList: ${architectureList}"
