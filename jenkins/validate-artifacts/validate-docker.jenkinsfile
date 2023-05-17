@@ -91,7 +91,7 @@ pipeline {
             agent {label agent_nodes["x64"] }
             steps {
                 script {
-                    parallel(
+                    parallel {
                         def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : ""
                         def architectureList = ARCHITECTURE ? ARCHITECTURE.trim().split(" ") as List : ""
 
@@ -170,7 +170,7 @@ pipeline {
                             }
                             parallel validateDistributions
                         }
-                    )
+                    }
                 }
             }
             post {
