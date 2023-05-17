@@ -123,7 +123,7 @@ pipeline {
                                     if ("${local_distribution}" == "docker"){
                                         node(agent_nodes_docker["$local_architecture"]) {
                                             try {
-                                                stage("Validate") {
+                                                stage("Validation ${local_architecture}-${local_distribution}") {
                                                     unstash "validateDocker-$BUILD_NUMBER"
 
                                                     validateArtifacts(
@@ -148,7 +148,7 @@ pipeline {
                                             docker.withRegistry('https://public.ecr.aws/') {
                                                 docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
                                                     try {
-                                                        stage("Validate") {
+                                                        stage("Validation ${local_architecture}-${local_distribution}") {
                                                             unstash "validateDocker-$BUILD_NUMBER"
 
                                                             validateArtifacts(
