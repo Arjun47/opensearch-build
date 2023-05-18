@@ -117,13 +117,13 @@ pipeline {
                             def wait_seconds = local_distribution_index * 10
 
                             echo "Add Distribution: ${local_distribution}"
-                            validateDistributions["Run Validation ${local_distribution}"] = {
+                            validateDistributions["Run Validation ${local_distribution}-${local_architecture}"] = {
                                 // Using scripted pipelines to trigger dynamic parallel stages
                                 timeout(time: 2, unit: 'HOURS') {
                                     if ("${local_distribution}" == "docker"){
                                         node(agent_nodes_docker["$local_architecture"]) {
                                             try {
-                                                stage("Run Validation for ${local_distribution} ${local_architecture}") {
+                                                stage("Run Validation for ${local_distribution}-${local_architecture}") {
                                                     unstash "validateDocker-$BUILD_NUMBER"
 
                                                     validateArtifacts(
@@ -136,10 +136,10 @@ pipeline {
                                                     )
                                                 }
                                             } catch (e) {
-                                                echo "Error occurred while validating ${local_distribution}"
+                                                echo "Error occurred while validating ${local_distribution}-${local_architecture}"
                                                 throw e
                                             } finally {
-                                                echo "Completed validation for ${local_distribution}"
+                                                echo "Completed validation for ${local_distribution}-${local_architecture}"
                                                 postCleanup()
                                             }
                                         }
