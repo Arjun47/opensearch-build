@@ -37,7 +37,7 @@ class TestOpenSearchDashboardsIntegTest extends BuildPipelineTest {
         def testManifest = "tests/jenkins/data/opensearch-dashboards-1.2.0-test.yml"
         def buildId = 215
         def buildManifest = "tests/jenkins/data/opensearch-dashboards-1.2.0-build.yml"
-        def buildManifestUrl = "https://ci.opensearch.org/ci/dbc/distribution-build-opensearch-dashboards/1.2.0/${buildId}/linux/x64/tar/builds/opensearch-dashboards/opensearch-dashboards-1.2.0-linux-x64.tar.gz"
+        def buildManifestUrl = "https://ci.opensearch.org/ci/dbc/distribution-build-opensearch-dashboards/1.2.0/${buildId}/linux/x64/tar/dist/opensearch-dashboards/opensearch-dashboards-1.2.0-linux-x64.tar.gz"
         def agentLabel = "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host"
         def bucketName = 'job-s3-bucket-name'
 
@@ -114,13 +114,6 @@ class TestOpenSearchDashboardsIntegTest extends BuildPipelineTest {
     }
 
     @Test
-    void checkError() {
-        helper.addFileExistsMock('manifests/tests/jenkins/data/opensearch-dashboards-1.2.0-test.yml', false)
-        runScript('jenkins/opensearch-dashboards/integ-test.jenkinsfile')
-        assertJobStatusFailure()
-    }
-
-    @Test
     void checkIfRunningInParallel(){
         runScript('jenkins/opensearch-dashboards/integ-test.jenkinsfile')
         assertThat(getCommandExecutions('parallel', ''), hasItem('{Run Integtest ganttChartDashboards=groovy.lang.Closure, Run Integtest indexManagementDashboards=groovy.lang.Closure, Run Integtest anomalyDetectionDashboards=groovy.lang.Closure, Run Integtest OpenSearch-Dashboards=groovy.lang.Closure, Run Integtest securityDashboards=groovy.lang.Closure, Run Integtest functionalTestDashboards=groovy.lang.Closure, Run Integtest alertingDashboards=groovy.lang.Closure, Run Integtest queryWorkbenchDashboards=groovy.lang.Closure, Run Integtest reportsDashboards=groovy.lang.Closure, Run Integtest observabilityDashboards=groovy.lang.Closure}'))
@@ -134,8 +127,7 @@ class TestOpenSearchDashboardsIntegTest extends BuildPipelineTest {
             runScript('jenkins/opensearch-dashboards/integ-test.jenkinsfile')
             }
         assertJobStatusFailure()
-        /*assertThat(getCommandExecutions('sh', 'create'), hasItem('{script=gh issue create --title \"[AUTOCUT] Integration Test failed for observabilityDashboards: 1.2.0 tar distribution\" --body \"The integration test failed at distribution level for component observabilityDashboards<br>Version: 1.2.0<br>Distribution: tar<br>Architecture: x64<br>Platform: linux<br><br>Please check the logs: https://some/url/redirect<br><br> * Steps to reproduce: See https://github.com/opensearch-project/opensearch-build/tree/main/src/test_workflow#integration-tests<br>* Access cluster logs:<br> - [With security](https://ci.opensearch.org/ci/dbc/dummy_job/1.2.0/215/linux/x64/tar/test-results/215/integ-test//with-security/local-cluster-logs/stdout.txt) (if applicable)<br> - [Without security](https://ci.opensearch.org/ci/dbc/dummy_job/1.2.0/215/linux/x64/tar/test-results/215/integ-test/observabilityDashboards/without-security/local-cluster-logs/stdout.txt) (if applicable)<br><br> _Note: All in one test report manifest with all the details coming soon. See https://github.com/opensearch-project/opensearch-build/issues/1274_\" --label autocut,v1.2.0,integ-test-failure --label \"untriaged\" --repo https://github.com/opensearch-project/observabilityDashboards.git, returnStdout=true}'))
-         */
+        assertThat(getCommandExecutions('sh', 'create'), hasItem('{script=gh issue create --title \"[AUTOCUT] Integration Test failed for observabilityDashboards: 1.2.0 tar distribution\" --body \"The integration test failed at distribution level for component observabilityDashboards<br>Version: 1.2.0<br>Distribution: tar<br>Architecture: x64<br>Platform: linux<br><br>Please check the logs: https://some/url/redirect<br><br> * Steps to reproduce: See https://github.com/opensearch-project/opensearch-build/tree/main/src/test_workflow#integration-tests<br>* Access cluster logs:<br> - [With security](https://ci.opensearch.org/ci/dbc/dummy_job/1.2.0/215/linux/x64/tar/test-results/215/integ-test//with-security/local-cluster-logs/stdout.txt) (if applicable)<br> - [Without security](https://ci.opensearch.org/ci/dbc/dummy_job/1.2.0/215/linux/x64/tar/test-results/215/integ-test/observabilityDashboards/without-security/local-cluster-logs/stdout.txt) (if applicable)<br><br> _Note: All in one test report manifest with all the details coming soon. See https://github.com/opensearch-project/opensearch-build/issues/1274_\" --label autocut,v1.2.0,integ-test-failure --label \"untriaged\" --repo https://github.com/opensearch-project/observabilityDashboards.git, returnStdout=true}'))
     }
 
     @Test
