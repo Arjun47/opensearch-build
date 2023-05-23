@@ -98,7 +98,6 @@ pipeline {
                                             script {
                                                        buildInfo = rtGradle.run switches: gradleParams , tasks: 'clean deploy'
 
-                                                   }
                                             }
                                         }
                                     }
@@ -108,7 +107,6 @@ pipeline {
                                         dir("") {
                                             script {
                                                 buildInfo2 = rtGradle2.run switches: gradleParams , tasks: 'unitTests'
-                                                }
                                             }
                                         }
                                     }
