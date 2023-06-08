@@ -78,7 +78,7 @@ pipeline {
                         error('Provide version number for the artifacts')
                     }
 
-                    if (('docker' in DISTRIBUTION)  && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
+                    if (("docker" in DISTRIBUTION)  && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
                         currentBuild.result = 'ABORTED'
                         error("Provide OS_BUILD_NUMBER and OSD_BUILD_NUMBER for Docker Validation")
                     }
