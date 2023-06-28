@@ -41,28 +41,31 @@ class TestOpenSearchDashboardsIntegTest extends BuildPipelineTest {
         def agentLabel = "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host"
         def bucketName = 'job-s3-bucket-name'
 
-        binding.setVariable('env', ['BUILD_NUMBER': '215'])
-        binding.setVariable('ARTIFACT_BUCKET_NAME', 'DUMMY_BUCKET_NAME')
+        binding.setVariable('ARTIFACT_DOWNLOAD_ROLE_NAME', 'Dummy_Download_Role')
+        binding.setVariable('AWS_ACCOUNT_PUBLIC', 'dummy_account')
         binding.setVariable('AWS_ACCOUNT_PUBLIC', 'DUMMY_AWS_ACCOUNT_PUBLIC')
+        binding.setVariable('env', ['BUILD_NUMBER': '215', 'PUBLIC_ARTIFACT_URL': 'DUMMY_PUBLIC_ARTIFACT_URL', 'JOB_NAME': 'dummy_job', 'DOCKER_AGENT':[image:'opensearchstaging/ci-runner:ci-runner-centos7-v1', args:'-e JAVA_HOME=/opt/java/openjdk-11'] ])
+        binding.setVariable('ARTIFACT_BUCKET_NAME', 'DUMMY_BUCKET_NAME')
         binding.setVariable('ARTIFACT_BUCKET_NAME', 'DUMMY_ARTIFACT_BUCKET_NAME')
         binding.setVariable('PUBLIC_ARTIFACT_URL', 'DUMMY_PUBLIC_ARTIFACT_URL')
-        binding.setVariable('env', ['BUILD_NUMBER': '215'])
         binding.setVariable('STAGE_NAME', 'DUMMY_STAGE_NAME')
         binding.setVariable('JOB_NAME', 'dummy_job')
         binding.setVariable('distribution', 'tar')
-        binding.setVariable('BUILD_NUMBER', '215')
         binding.setVariable('BUILD_URL', 'htth://BUILD_URL_dummy.com')
         binding.setVariable('WEBHOOK_URL', 'htth://WEBHOOK_URL_dummy.com')
         binding.setVariable('TEST_MANIFEST', testManifest)
         binding.setVariable('BUILD_MANIFEST_URL', buildManifestUrl)
+        binding.setVariable('BUILD_NUMBER', '215')
+        binding.setVariable('ARTIFACT_BUCKET_NAME', bucketName)
+        binding.setVariable('RUN_DISPLAY_URL', 'https://some/url/redirect')
         binding.setVariable('AGENT_LABEL', agentLabel)
         binding.setVariable('BUILD_MANIFEST', buildManifest)
         binding.setVariable('BUILD_ID', "${buildId}")
+        binding.getVariable('currentBuild').upstreamBuilds = [[fullProjectName: jobName]]
         def env = binding.getVariable('env')
         env['DOCKER_AGENT'] = [image:'opensearchstaging/opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2', args:'-e JAVA_HOME=/opt/java/openjdk-11']
         env['PUBLIC_ARTIFACT_URL'] = 'DUMMY_PUBLIC_ARTIFACT_URL'
         env['JOB_NAME'] = 'dummy_job'
-        binding.getVariable('currentBuild').upstreamBuilds = [[fullProjectName: jobName]]
 
         helper.registerAllowedMethod("s3Download", [Map])
         helper.registerAllowedMethod("withCredentials", [Map])
@@ -124,20 +127,18 @@ class TestOpenSearchDashboardsIntegTest extends BuildPipelineTest {
 
     @Test
     void checkGHissueCreation() {
-        super.setUp()
         helper.addShMock('env PATH=$PATH  ./test.sh integ-test manifests/tests/jenkins/data/opensearch-dashboards-3.0.0-test.yml --component observabilityDashboards --test-run-id 215 --paths opensearch=/tmp/workspace/tar opensearch-dashboards=/tmp/workspace/tar --base-path DUMMY_PUBLIC_ARTIFACT_URL/dummy_job/3.0.0/215/linux/x64/tar ', '', 1)
         helper.addShMock('gh issue list --repo https://github.com/opensearch-project/dashboards-observability.git -S "[AUTOCUT] Integration Test failed for observabilityDashboards: 3.0.0 tar distribution in:title" --label autocut,v3.0.0,integ-test-failure', '', 0)
         assertThrows(Exception) {
             runScript('jenkins/opensearch-dashboards/integ-test.jenkinsfile')
         }
         assertJobStatusFailure()
-        /*assertThat(getCommandExecutions('sh', 'create'), hasItem('{script=gh issue create --title \"[AUTOCUT] Integration Test failed for observabilityDashboards: 3.0.0 tar distribution\" --body \"The integration test failed at distribution level for component observabilityDashboards<br>Version: 3.0.0<br>Distribution: tar<br>Architecture: x64<br>Platform: linux<br><br>Please check the logs: https://some/url/redirect<br><br> * Steps to reproduce: See https://github.com/opensearch-project/opensearch-build/tree/main/src/test_workflow#integration-tests<br>* Access components yml file:<br> - [With security](https://ci.opensearch.org/ci/dbc/dummy_job/3.0.0/717/linux/x64/tar/test-results/234/integ-test/OpenSearch/with-security/OpenSearch.yml) (if applicable)<br> - [Without security](https://ci.opensearch.org/ci/dbc/dummy_job/3.0.0/717/linux/x64/tar/test-results/234/integ-test/OpenSearch/without-security/OpenSearch.yml) (if applicable)<br><br> _Note: All in one test report manifest with all the details coming soon. See https://github.com/opensearch-project/opensearch-build/issues/1274_\" --label autocut,v3.0.0,integ-test-failure --label \"untriaged\" --repo https://github.com/opensearch-project/dashboards-observability.git , returnStdout=true}'))*/
+        assertThat(getCommandExecutions('sh', 'create'), hasItem('{script=gh issue create --title \"[AUTOCUT] Integration Test failed for observabilityDashboards: 3.0.0 tar distribution\" --body \"The integration test failed at distribution level for component observabilityDashboards<br>Version: 3.0.0<br>Distribution: tar<br>Architecture: x64<br>Platform: linux<br><br>Please check the logs: https://some/url/redirect<br><br> * Steps to reproduce: See https://github.com/opensearch-project/opensearch-build/tree/main/src/test_workflow#integration-tests<br>* Access cluster logs:<br> - [With security](https://ci.opensearch.org/ci/dbc/dummy_job/3.0.0/215/linux/x64/tar/test-results/215/integ-test/observabilityDashboards/with-security/local-cluster-logs/stdout.txt) (if applicable)<br> - [Without security](https://ci.opensearch.org/ci/dbc/dummy_job/3.0.0/215/linux/x64/tar/test-results/215/integ-test/observabilityDashboards/without-security/local-cluster-logs/stdout.txt) (if applicable)<br><br> _Note: All in one test report manifest with all the details coming soon. See https://github.com/opensearch-project/opensearch-build/issues/1274_\" --label autocut,v3.0.0,integ-test-failure --label \"untriaged\" --repo https://github.com/opensearch-project/dashboards-observability.git, returnStdout=true}'))
 
     }
 
     @Test
     void checkGHexistingIssue() {
-        super.setUp()
         helper.addShMock('env PATH=$PATH  ./test.sh integ-test manifests/tests/jenkins/data/opensearch-dashboards-3.0.0-test.yml --component observabilityDashboards --test-run-id 215 --paths opensearch=/tmp/workspace/tar opensearch-dashboards=/tmp/workspace/tar --base-path DUMMY_PUBLIC_ARTIFACT_URL/dummy_job/3.0.0/215/linux/x64/tar ', '', 1)
         assertThrows(Exception) {
             runScript('jenkins/opensearch-dashboards/integ-test.jenkinsfile')
