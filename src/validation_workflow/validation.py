@@ -7,6 +7,8 @@
 
 
 import logging
+import shutil
+
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -25,6 +27,13 @@ class Validation(ABC):
             return True
         else:
             raise Exception(f"Invalid url - {url}")
+
+    def copy_artifact(self, filepath: str, tempdir_path: str) -> bool:
+        if filepath:
+            shutil.copy2(filepath, tempdir_path)
+            return True
+        else:
+            raise Exception("Provide local file path")
 
     def run(self) -> Any:
         try:

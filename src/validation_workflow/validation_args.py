@@ -26,8 +26,8 @@ class ValidationArgs:
         parser.add_argument(
             "--version",
             type=str,
-            required=True,
-            help="(manadatory) Product version to validate"
+            required=False,
+            help="(manadatory for production) Product version to validate"
         )
         parser.add_argument(
             "-d",
@@ -44,6 +44,16 @@ class ValidationArgs:
             choices=self.SUPPORTED_PLATFORMS,
             help="(optional) Platform to validate.",
             default="linux"
+        )
+        parser.add_argument(
+            "-ds",
+            "--download-source",
+            type=str,
+            choices="staging, production, local",
+            required=True,
+            help="(mandatory) Provide the source to fetch the artifacts",
+            default="production",
+            dest="download_source",
         )
         parser.add_argument(
             "--os-build-number",
@@ -85,6 +95,13 @@ class ValidationArgs:
             choices=["x64", "arm64"],
             default="x64"
         )
+        parser.add_argument(
+            "-u",
+            "--path",
+            type=str,
+            required=False,
+            help="Provide path or url to the artifacts",
+        )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "--validate-digest-only",
@@ -101,7 +118,9 @@ class ValidationArgs:
         self.version = args.version
         self.logging_level = args.logging_level
         self.distribution = args.distribution
+        self.download_source = args.download_source
         self.platform = args.platform
+        self.path = args.path
         self.projects = ["opensearch", "opensearch-dashboards"]
         self.arch = args.arch
         self.OS_image = 'opensearchproject/opensearch'

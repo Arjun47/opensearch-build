@@ -23,6 +23,8 @@ class ValidateYum(Validation, DownloadUtils):
         self.base_url = "https://artifacts.opensearch.org/releases/bundle/"
         self.tmp_dir = TemporaryDirectory()
 
+        # shutil.copy2(localfilepath, temporaryfile_path)
+
     def download_artifacts(self) -> bool:
         for project in self.args.projects:
             url = f"{self.base_url}{project}/{self.args.version[0:1]}.x/{project}-{self.args.version[0:1]}.x.repo"
