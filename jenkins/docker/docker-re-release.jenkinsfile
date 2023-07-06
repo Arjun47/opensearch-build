@@ -1,0 +1,59 @@
+lib = library(identifier: 'jenkins@4.2.2', retriever: modernSCM([
+    $class: 'GitSCMSource',
+    remote: 'https://github.com/opensearch-project/opensearch-build-libraries.git',
+]))
+
+pipeline {
+    options {
+        timeout(time: 30)
+    }
+    agent none
+    parameters {
+        string(
+            name: 'PRODUCT',
+            description: "OpenSearch / OpenSearch-Dashboards",
+            trim: true
+        )
+        string(
+            name: 'VERSION',
+            description: "Enter version of the Product",
+            trim: true
+        )
+        string(
+            name: 'CVE_MITIGATION_LEVEL',
+            description: "Enter the level of CVEs get migrated when comparing old and new images, Ex: HIGH, CRITICAL",
+            trim: true
+        )
+    }
+    stages {
+        stage("Docker re-release") {
+            agent {
+                docker {
+                    label 'Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host'
+                    image 'opensearchstaging/ci-runner:ubuntu2004-x64-docker-buildx0.9.1-qemu5.0-awscli1.22-jdk11-v1'
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
+                    registryUrl 'https://public.ecr.aws/'
+                    alwaysPull true
+                }
+            }
+            stages {
+                stage('Patch Docker Image') {
+                    steps {
+                        script {
+                            patchDockerImage(
+                                product: "${PRODUCT}",
+                                version: "${VERSION}",
+                                cveMitigationLevel: "${CVE_MITIGATION_LEVEL}",
+                            )
+                        }
+                    }
+                    post {
+                        always {
+                            postCleanup()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
