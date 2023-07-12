@@ -31,6 +31,7 @@ class ValidateTar(Validation, DownloadUtils):
     def download_artifacts(self) -> bool:
         for project in self.args.projects:
             if (self.args.download_source == "local"):
+                #get the file name from os.path.basename(url)
                 self.filename = os.path.basename(self.filename)
                 self.copy_artifact(self.args.path, str(self.tmp_dir.path))
                 file_name1 = os.path.basename('/root/file.ext')
@@ -45,6 +46,7 @@ class ValidateTar(Validation, DownloadUtils):
             for project in self.args.projects:
 
                 fileName = f"{project}-{self.args.version}-{self.args.platform}-{self.args.arch}"
+                # tar -xzf opensearch-dashboards-2.8.0-linux-x64.tar.gz  -C dir --strip-components=1
                 execute('tar -zxf ' + os.path.join(str(self.tmp_dir.path), fileName) + '.tar.gz -C ' + str(self.tmp_dir.path), ".", True, False)
         except:
             raise Exception('Failed to Install Opensearch')
