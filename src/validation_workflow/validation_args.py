@@ -27,7 +27,16 @@ class ValidationArgs:
             "--version",
             type=str,
             required=False,
-            help="(manadatory for production) Product version to validate"
+            help="(manadatory for production) Product version to validate",
+            default=""
+        )
+        parser.add_argument(
+            "--file-path",
+            type=str,
+            required=False,
+            help="(manadatory for production) Product URL or file-path to validate",
+            default="",
+            dest="file_path"
         )
         parser.add_argument(
             "-d",
@@ -44,16 +53,6 @@ class ValidationArgs:
             choices=self.SUPPORTED_PLATFORMS,
             help="(optional) Platform to validate.",
             default="linux"
-        )
-        parser.add_argument(
-            "-ds",
-            "--download-source",
-            type=str,
-            choices="staging, production, local",
-            required=True,
-            help="(mandatory) Provide the source to fetch the artifacts",
-            default="production",
-            dest="download_source",
         )
         parser.add_argument(
             "--os-build-number",
@@ -96,6 +95,12 @@ class ValidationArgs:
             default="x64"
         )
         parser.add_argument(
+            "--project",
+            help="Enter type of projects to be validated, ",
+            choices=["opensearch", "opensearch-dashboards"],
+            default=["opensearch"]
+        )
+        parser.add_argument(
             "-u",
             "--path",
             type=str,
@@ -115,13 +120,22 @@ class ValidationArgs:
             help="(optional) Use only staging artifact to run docker and API test, will not validate digest")
 
         args = parser.parse_args()
+
+        if (not (args.version or args.file_path)):
+            raise Exception("Provide either version number or File Path")
+        if(args.file_path != ""):
+            args.distribution = self.get_distribution_type(args.file_path)
+            if ("opensearch-dashboards" in args.file_path):
+                args.project.append('opensearch-dashboards')
+
         self.version = args.version
+        self.file_path = args.file_path
         self.logging_level = args.logging_level
         self.distribution = args.distribution
-        self.download_source = args.download_source
+        print(self.distribution)
         self.platform = args.platform
         self.path = args.path
-        self.projects = ["opensearch", "opensearch-dashboards"]
+        self.projects = args.project
         self.arch = args.arch
         self.OS_image = 'opensearchproject/opensearch'
         self.OSD_image = 'opensearchproject/opensearch-dashboards'
@@ -130,6 +144,16 @@ class ValidationArgs:
         self.docker_source = args.docker_source
         self.validate_digest_only = args.validate_digest_only
         self.using_staging_artifact_only = args.using_staging_artifact_only
+
+    def get_distribution_type(self, file_path: str) -> str:
+        if ("tar" in file_path):
+            return 'tar'
+        elif ("rpm" in file_path):
+            return 'rpm'
+        elif ("repo" in file_path):
+            return 'yum'
+        else:
+            raise Exception("Provided distribution is not supported")
 
     def stg_tag(self, image_type: str) -> str:
         return " ".join(

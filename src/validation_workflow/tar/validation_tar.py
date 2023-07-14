@@ -22,42 +22,44 @@ class ValidateTar(Validation, DownloadUtils):
 
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
-        self.base_url = "https://artifacts.opensearch.org/releases/bundle/"
+        self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
+        self.base_url_staging = "https://ci.opensearch.org/ci/dbc/distribution-build-"
         self.tmp_dir = TemporaryDirectory()
         self.file_name = ""
         self.os_process = Process()
         self.osd_process = Process()
 
+        #if (self.args.file_path == "local"):
+        #get the file name from os.path.basename(url)
+        #self.filename = os.path.basename(self.filename)
+        #self.copy_artifact(self.args.path, str(self.tmp_dir.path))
+        #file_name1 = os.path.basename('/root/file.ext')
+        #print(self.filename, type(self.filename[0]), "1")
+
     def download_artifacts(self) -> bool:
         for project in self.args.projects:
-            if (self.args.download_source == "local"):
-                #get the file name from os.path.basename(url)
-                self.filename = os.path.basename(self.filename)
-                self.copy_artifact(self.args.path, str(self.tmp_dir.path))
-                file_name1 = os.path.basename('/root/file.ext')
-                print(self.filename, type(self.filename[0]), "1")
+            if (self.args.file_path):
+                self.check_url(self.args.file_path)
             else:
-                url = f"{self.base_url}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
-                self.check_url(url)
+                self.args.file_path = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
+                self.check_url(self.args.file_path)
         return True
 
     def installation(self) -> bool:
         try:
-            for project in self.args.projects:
+            self.filename = os.path.basename(self.args.file_path)
+            print(self.filename)
 
-                fileName = f"{project}-{self.args.version}-{self.args.platform}-{self.args.arch}"
-                # tar -xzf opensearch-dashboards-2.8.0-linux-x64.tar.gz  -C dir --strip-components=1
-                execute('tar -zxf ' + os.path.join(str(self.tmp_dir.path), fileName) + '.tar.gz -C ' + str(self.tmp_dir.path), ".", True, False)
+            execute('tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C opensearch --strip-components=1' + str(self.tmp_dir.path), ".", True, False)
         except:
             raise Exception('Failed to Install Opensearch')
         return True
 
     def start_cluster(self) -> bool:
         try:
-            self.os_process.start(os.path.join(self.tmp_dir.path, "opensearch-" + self.args.version, "opensearch-tar-install.sh"), ".")
+            self.os_process.start(os.path.join(self.tmp_dir.path, "opensearch", "opensearch-tar-install.sh"), ".")
             time.sleep(85)
             logging.info('Started cluster')
-            self.osd_process.start(os.path.join(str(self.tmp_dir.path), "opensearch-dashboards-" + self.args.version, "bin", "opensearch-dashboards"), ".")
             time.sleep(20)
         except:
             raise Exception('Failed to Start Cluster')
@@ -74,7 +76,6 @@ class ValidateTar(Validation, DownloadUtils):
     def cleanup(self) -> bool:
         try:
             self.os_process.terminate()
-            self.osd_process.terminate()
         except:
             raise Exception('Failed to terminate the processes that started OS and OSD')
         return True
