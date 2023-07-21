@@ -19,11 +19,6 @@ pipeline {
             description: "Enter version of the Product",
             trim: true
         )
-        string(
-            name: 'CVE_MITIGATION_LEVEL',
-            description: "Enter the level of CVEs get migrated when comparing old and new images, Ex: HIGH, CRITICAL",
-            trim: true
-        )
     }
     stages {
         stage("Docker re-release") {
@@ -42,8 +37,7 @@ pipeline {
                         script {
                             patchDockerImage(
                                 product: "${PRODUCT}",
-                                version: "${VERSION}",
-                                cveMitigationLevel: "${CVE_MITIGATION_LEVEL}",
+                                version: "${VERSION}"
                             )
                         }
                     }
