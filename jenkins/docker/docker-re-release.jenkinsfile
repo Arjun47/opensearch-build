@@ -37,7 +37,7 @@ pipeline {
                         script {
                             patchDockerImage(
                                 product: "${PRODUCT}",
-                                version: "${VERSION}"
+                                version: "${VERSION}",
                             )
                         }
                     }
