@@ -43,7 +43,7 @@ pipeline {
                             patchDockerImage(
                                 project: "${PRODUCT}",
                                 version: "${VERSION}",
-                                rerelease: "${RE-RELEASE}}"
+                                rerelease: "${RERELEASE}"
                             )
                         }
                     }
