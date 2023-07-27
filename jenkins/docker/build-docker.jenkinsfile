@@ -50,13 +50,6 @@ pipeline {
                     echo "${DOCKER_BUILD_GIT_REPOSITORY} ${DOCKER_BUILD_GIT_REPOSITORY_REFERENCE} ${DOCKER_BUILD_SCRIPT_WITH_COMMANDS}"
                 }
             }
-            post() {
-                always {
-                    script {
-
-                    }
-                }
-            }
         }
     }
 }
