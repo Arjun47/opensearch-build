@@ -19,6 +19,11 @@ pipeline {
             description: "Enter version of the Product",
             trim: true
         )
+        booleanParam(
+            name: 'RERELEASE',
+            description: "Forces to create a Docker-Copy if the Docker Build is successful",
+            defaultValue: true
+        )
     }
     stages {
         stage("Docker re-release") {
@@ -38,6 +43,7 @@ pipeline {
                             patchDockerImage(
                                 project: "${PRODUCT}",
                                 version: "${VERSION}",
+                                rerelease: "${RE-RELEASE}}"
                             )
                         }
                     }
