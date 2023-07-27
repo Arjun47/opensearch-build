@@ -11,7 +11,7 @@ pipeline {
     parameters {
         string(
             name: 'PRODUCT',
-            description: "OpenSearch  OpenSearch-Dashboards",
+            description: "OpenSearch / OpenSearch-Dashboards",
             trim: true
         )
         string(
@@ -19,12 +19,6 @@ pipeline {
             description: "Enter version of the Product",
             trim: true
         )
-        booleanParam(
-            name: 'RE-RELEASE',
-            description: 'Forces to create a Docker-Copy if the Docker Build is successful',
-            defaultValue: true
-        )
-
     }
     stages {
         stage("Docker re-release") {
@@ -44,7 +38,6 @@ pipeline {
                             patchDockerImage(
                                 project: "${PRODUCT}",
                                 version: "${VERSION}",
-                                rerelease: "${RE-RELEASE}"
                             )
                         }
                     }
