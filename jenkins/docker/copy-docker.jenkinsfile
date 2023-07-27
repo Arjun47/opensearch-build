@@ -1,0 +1,74 @@
+lib = library(identifier: 'jenkins@dockerpackerlib', retriever: modernSCM([
+    $class: 'GitSCMSource',
+    remote: 'https://github.com/Divyaasm/opensearch-build-libraries.git',
+]))
+
+pipeline {
+    options {
+        timeout(time: 30)
+    }
+    agent none
+    parameters {
+        booleanParam(
+            name: 'ALL_TAGS',
+            description: 'If true, will copy all the tags of SOURCE_IMAGE_REGISTRY/SOURCE_IMAGE to DESTINATION_IMAGE_REGISTRY/DESTINATION_IMAGE, while ignoring IMAGE_TAG even if specified, default to false',
+            defaultValue: false
+        )
+        choice(
+            name: 'SOURCE_IMAGE_REGISTRY',
+            choices: ['opensearchstaging', 'public.ecr.aws/opensearchstaging', 'opensearchproject', 'public.ecr.aws/opensearchproject', 'public.ecr.aws/t2m2d0w1'],
+            description: 'Choose the source image registry'
+        )
+        string(
+            name: 'SOURCE_IMAGE',
+            description: 'Image name and tag <IMAGE_NAME>:<IMAGE_TAG>, Eg: opensearch:1.3.2, tag is ignored when ALL_TAGS=true, since all tags will be copied over',
+            trim: true
+        )
+        choice(
+            name: 'DESTINATION_IMAGE_REGISTRY',
+            choices: ['opensearchstaging', 'public.ecr.aws/opensearchstaging', 'opensearchproject', 'public.ecr.aws/opensearchproject'],
+            description: 'Choose the destination image registry'
+        )
+        string(
+            name: 'DESTINATION_IMAGE',
+            description: 'Image name and tag <IMAGE_NAME>:<IMAGE_TAG>, Eg: opensearch:1.3.2, tag is ignored when ALL_TAGS=true, since all tags will be copied over',
+            trim: true
+        )
+    }
+    stages {
+        stage("Image Copy") {
+            agent {
+                docker {
+                    label 'Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host'
+                    image 'opensearchstaging/ci-runner:ubuntu2004-x64-docker-buildx0.9.1-qemu5.0-awscli1.22-jdk11-v1'
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
+                    registryUrl 'https://public.ecr.aws/'
+                    alwaysPull true
+                }
+            }
+            stages {
+                stage('Parameters Check') {
+                    steps {
+                        script {
+                            currentBuild.description = """ALL_TAGS: ${ALL_TAGS}<br>Copying: ${SOURCE_IMAGE_REGISTRY}/${SOURCE_IMAGE} to ${DESTINATION_IMAGE_REGISTRY}/${DESTINATION_IMAGE}"""
+                            if( SOURCE_IMAGE.isEmpty() || DESTINATION_IMAGE.isEmpty()) {
+                                        currentBuild.result = 'ABORTED'
+                                        error('Make sure all the parameters are passed in.')
+                            }
+                        }
+                    }
+                }
+                stage('Copy Image to ECR/DockerHub') {
+                    steps {
+                        script {
+                            echo 'Inside Jenkins Stage'
+                            echo "${ALL_TAGS} ${SOURCE_IMAGE_REGISTRY} ${SOURCE_IMAGE} ${DESTINATION_IMAGE_REGISTRY} ${DESTINATION_IMAGE}"
+                        }
+                    }
+                }
+            }
+            post() {
+            }
+        }
+    }
+}
