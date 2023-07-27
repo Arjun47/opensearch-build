@@ -1,0 +1,62 @@
+pipeline {
+    options {
+        timeout(time: 5, unit: 'HOURS')
+    }
+    agent none
+    parameters {
+        string(
+            defaultValue: 'https://github.com/opensearch-project/opensearch-build',
+            name: 'DOCKER_BUILD_GIT_REPOSITORY',
+            description: 'The git repository name that contains dockerfiles and the docker build script.',
+            trim: true
+        )
+        string(
+            defaultValue: 'main',
+            name: 'DOCKER_BUILD_GIT_REPOSITORY_REFERENCE',
+            description: 'The git reference (branch/tag/commit_id) of above repository.',
+            trim: true
+        )
+        string(
+            defaultValue: 'Example: cd docker/ci && bash build-image-multi-arch.sh -r <REPO_NAME> -v <TAG_NAME> -f <DOCKERFILE PATH>',
+            name: 'DOCKER_BUILD_SCRIPT_WITH_COMMANDS',
+            description: 'The script path of the docker build script, assuming you are already in root dir of DOCKER_BUILD_GIT_REPOSITORY.',
+            trim: true
+        )
+    }
+    stages {
+        stage('Parameters Check') {
+            steps {
+                script {
+                    if(! DOCKER_BUILD_GIT_REPOSITORY.startsWith('https://github.com/opensearch-project/')) {
+                        currentBuild.result = 'ABORTED'
+                        error('The repository needs to be an opensearch-project repository')
+                    }
+                }
+            }
+        }
+        stage('docker-build') {
+            agent {
+                docker {
+                    label 'Jenkins-Agent-Ubuntu2004-X64-M52xlarge-Docker-Builder'
+                    image 'opensearchstaging/ci-runner:ubuntu2004-x64-docker-buildx0.9.1-qemu5.0-awscli1.22-jdk11-v1'
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
+                    registryUrl 'https://public.ecr.aws/'
+                    alwaysPull true
+                }
+            }
+            steps {
+                script {
+                    echo 'The docker-build workflow will only push docker images to staging, please use docker-copy to move the image to other repositories'
+                    echo "${DOCKER_BUILD_GIT_REPOSITORY} ${DOCKER_BUILD_GIT_REPOSITORY_REFERENCE} ${DOCKER_BUILD_SCRIPT_WITH_COMMANDS}"
+                }
+            }
+            post() {
+                always {
+                    script {
+
+                    }
+                }
+            }
+        }
+    }
+}
