@@ -43,7 +43,7 @@ pipeline {
                         script {
                             patchDocker(
                                 project: "${PRODUCT}",
-                                version: "${TAG}",
+                                tag: "${TAG}",
                                 rerelease: "${RERELEASE}"
                             )
                         }
