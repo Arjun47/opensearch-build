@@ -17,6 +17,7 @@ pipeline {
         string(
             name: 'TAG',
             description: "Enter tag/version of the Product",
+            defaultValue: "latest",
             trim: true
         )
         booleanParam(
