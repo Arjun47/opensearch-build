@@ -5,7 +5,7 @@ lib = library(identifier: 'jenkins@dockerpackerlib', retriever: modernSCM([
 
 pipeline {
     options {
-        timeout(time: 30)
+        timeout(time: 5, unit: 'HOURS')
     }
     agent none
     parameters {
@@ -15,8 +15,8 @@ pipeline {
             trim: true
         )
         string(
-            name: 'VERSION',
-            description: "Enter version of the Product",
+            name: 'TAG',
+            description: "Enter tag/version of the Product",
             trim: true
         )
         booleanParam(
@@ -41,8 +41,8 @@ pipeline {
                     steps {
                         script {
                             patchDockerImage(
-                                project: "${PRODUCT}",
-                                version: "${VERSION}",
+                                product: "${PRODUCT}",
+                                version: "${TAG}",
                                 rerelease: "${RERELEASE}"
                             )
                         }
