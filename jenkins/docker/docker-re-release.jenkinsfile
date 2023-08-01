@@ -41,7 +41,7 @@ pipeline {
                 stage('Patch Docker Image') {
                     steps {
                         script {
-                            patchDockerImage(
+                            patchDocker(
                                 project: "${PRODUCT}",
                                 version: "${TAG}",
                                 rerelease: "${RERELEASE}"
