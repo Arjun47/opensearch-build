@@ -17,13 +17,12 @@ pipeline {
         string(
             name: 'TAG',
             description: "Enter tag/version of the Product",
-            defaultValue: "latest",
             trim: true
         )
-        booleanParam(
+        choice(
             name: 'RERELEASE',
             description: "Forces to create a Docker-Copy if the Docker Build is successful",
-            defaultValue: true
+            choices: ['re_release_docker_image','build_docker_image']
         )
     }
     stages {
