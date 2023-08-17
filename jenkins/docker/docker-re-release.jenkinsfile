@@ -19,10 +19,10 @@ pipeline {
             description: "Enter tag/version of the Product",
             trim: true
         )
-        choice(
-            name: 'RERELEASE',
-            description: "Forces to create a Docker-Copy if the Docker Build is successful",
-            choices: ['re_release_docker_image','build_docker_image']
+        booleanParam(
+            name: 'RE_RELEASE',
+            defaultValue: true,
+            description: "Forces to create a Docker-Copy if the Docker Build is successful"
         )
     }
     stages {
@@ -43,7 +43,7 @@ pipeline {
                             patchDockerImage(
                                 product: "${PRODUCT}",
                                 tag: "${TAG}",
-                                re_release: "${RERELEASE}"
+                                re_release: "${RE_RELEASE}"
                             )
                         }
                     }
