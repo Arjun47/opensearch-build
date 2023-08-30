@@ -12,7 +12,7 @@ pipeline {
         choice(
             name: 'PRODUCT',
             choices: ['opensearch', 'opensearch-dashboards'],
-            description: "Choose the product type among OpenSearch / OpenSearch-Dashboards.",
+            description: "Choose the product type among OpenSearch / OpenSearch-Dashboards."
         )
         choice(
             name: 'TAG',
