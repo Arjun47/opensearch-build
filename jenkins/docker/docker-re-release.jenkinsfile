@@ -19,11 +19,6 @@ pipeline {
             choices: ['1', '2'],
             description: "Choose the tag of the Product.",
         )
-        booleanParam(
-            name: 'BUILD_OPTION',
-            defaultValue: true,
-            description: "To Build docker image with re_release_docker_image build option."
-        )
     }
     stages {
         stage("Docker re-release") {
@@ -43,7 +38,7 @@ pipeline {
                             patchDockerImage(
                                 product: "${PRODUCT}",
                                 tag: "${TAG}",
-                                re_release: "${BUILD_OPTION}"
+                                re_release: true
                             )
                         }
                     }

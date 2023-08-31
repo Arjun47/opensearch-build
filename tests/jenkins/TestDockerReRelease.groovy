@@ -37,7 +37,6 @@ class TestDockerReRelease extends BuildPipelineTest {
         // Variables
         addParam('PRODUCT', 'opensearch')
         addParam('TAG', '1')
-        addParam('BUILD_OPTION', 'true')
 
         def inputManifest = "tests/data/opensearch-1.3.0.yml"
         helper.registerAllowedMethod('readYaml', [Map.class], { args ->
