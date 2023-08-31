@@ -14,9 +14,9 @@ pipeline {
             choices: ['opensearch', 'opensearch-dashboards'],
             description: "Choose the product type among OpenSearch / OpenSearch-Dashboards."
         )
-        choice(
+        string(
             name: 'TAG',
-            choices: ['1', 'latest'],
+            choices: ['1', '1.3.12', '2'],
             description: "Choose the tag of the Product.",
         )
         booleanParam(
