@@ -118,7 +118,8 @@ class ValidationArgs:
 
         if (not (args.version or args.file_path)):
             raise Exception("Provide either version number or File Path")
-        if(args.file_path != ""):
+        if(args.file_path):
+            print(type(args.file_path))
             args.distribution = self.get_distribution_type(args.file_path)
             if ("opensearch-dashboards" in args.file_path):
                 args.project.append('opensearch-dashboards')

@@ -38,6 +38,8 @@ class ValidateTar(Validation, DownloadUtils):
 
     def download_artifacts(self) -> bool:
         for project in self.args.projects:
+            print(project)
+            print(args.file_path)
             if (self.args.file_path):
                 self.check_url(self.args.file_path)
             else:
