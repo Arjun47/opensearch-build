@@ -9,6 +9,8 @@ import argparse
 import logging
 import textwrap
 
+from test_workflow.test_kwargs import TestKwargs
+
 
 class ValidationArgs:
     SUPPORTED_PLATFORMS = ["linux"]
@@ -32,10 +34,10 @@ class ValidationArgs:
         )
         parser.add_argument(
             "--file-path",
-            type=str,
-            required=False,
+            nargs='*',
+            action=TestKwargs,
             help="(manadatory for production) Product URL or file-path to validate",
-            default="",
+            default={},
             dest="file_path"
         )
         parser.add_argument(
@@ -100,13 +102,6 @@ class ValidationArgs:
             choices=["opensearch", "opensearch-dashboards"],
             default=["opensearch"]
         )
-        parser.add_argument(
-            "-u",
-            "--path",
-            type=str,
-            required=False,
-            help="Provide path or url to the artifacts",
-        )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "--validate-digest-only",
@@ -134,7 +129,6 @@ class ValidationArgs:
         self.distribution = args.distribution
         print(self.distribution)
         self.platform = args.platform
-        self.path = args.path
         self.projects = args.project
         self.arch = args.arch
         self.OS_image = 'opensearchproject/opensearch'

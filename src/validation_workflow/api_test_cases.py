@@ -22,7 +22,7 @@ class ApiTestCases:
         self.opensearch_image_version = ValidationArgs().stg_tag('opensearch').split(' ')[0]
         self.opensearch_dashboards_image_version = ValidationArgs().stg_tag('opensearch_dashboards').split(' ')[0]
 
-    def test_cases(self) -> Any:
+    def test_cases(self, projects: list) -> Any:
         pass_counter, fail_counter = 0, 0
 
         # the test case parameters are formated as ['<request_url>',<success_status_code>,'<validate_string(optional)>']
@@ -31,6 +31,8 @@ class ApiTestCases:
             ['https://localhost:9200/_cat/plugins?v', 200, ''],
             ['https://localhost:9200/_cat/health?v', 200, 'green'],
         ]
+        if ("opensearch-dashboards" in projects):
+            test_cases.append(['http://localhost:5601/api/status', 200, '"number":"' + self.opensearch_dashboards_image_version + '"'])
 
         for test_case in test_cases:
             request_url = test_case.__getitem__(0)

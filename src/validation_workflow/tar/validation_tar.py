@@ -29,12 +29,12 @@ class ValidateTar(Validation, DownloadUtils):
         self.os_process = Process()
         self.osd_process = Process()
 
-        #if (self.args.file_path == "local"):
-        #get the file name from os.path.basename(url)
-        #self.filename = os.path.basename(self.filename)
-        #self.copy_artifact(self.args.path, str(self.tmp_dir.path))
-        #file_name1 = os.path.basename('/root/file.ext')
-        #print(self.filename, type(self.filename[0]), "1")
+        # if (self.args.file_path == "local"):
+        # get the file name from os.path.basename(url)
+        # self.filename = os.path.basename(self.filename)
+        # self.copy_artifact(self.args.path, str(self.tmp_dir.path))
+        # file_name1 = os.path.basename('/root/file.ext')
+        # print(self.filename, type(self.filename[0]), "1")
 
     def download_artifacts(self) -> bool:
         for project in self.args.projects:
@@ -50,7 +50,7 @@ class ValidateTar(Validation, DownloadUtils):
             self.filename = os.path.basename(self.args.file_path)
             print(self.filename)
 
-            execute('tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C opensearch --strip-components=1' + str(self.tmp_dir.path), ".", True, False)
+            execute('mkdir ' + str(self.tmp_dir.path) + '/opensearch | tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C ' + str(self.tmp_dir.path) + '/opensearch --strip-components=1', ".", True, False)  # noqa: E501
         except:
             raise Exception('Failed to Install Opensearch')
         return True
@@ -66,7 +66,7 @@ class ValidateTar(Validation, DownloadUtils):
         return True
 
     def validation(self) -> bool:
-        test_result, counter = ApiTestCases().test_cases()
+        test_result, counter = ApiTestCases().test_cases(self.args.projects)
         if (test_result):
             logging.info(f'All tests Pass : {counter}')
         else:

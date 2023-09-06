@@ -18,7 +18,7 @@ class TestTestCases(unittest.TestCase):
         mock_validation_args.return_value.stg_tag.return_value = '1.0.0.1000'
         mock_api_get.return_value = (200, 'green')
         testcases = ApiTestCases()
-        result = testcases.test_cases()
+        result = testcases.test_cases(['opensearch'])
 
         self.assertEqual(result[1], 'There are 2/4 test cases Pass')
         self.assertEqual(mock_api_get.call_count, 4)
