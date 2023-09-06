@@ -39,12 +39,10 @@ class ValidateTar(Validation, DownloadUtils):
     def download_artifacts(self) -> bool:
         for project in self.args.projects:
             print(project)
-            print(args.file_path)
-            if (self.args.file_path):
-                self.check_url(self.args.file_path)
-            else:
+            print(self.args.file_path)
+            if (not any (self.args.file_path)):
                 self.args.file_path = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
-                self.check_url(self.args.file_path)
+            self.check_url(self.args.file_path)
         return True
 
     def installation(self) -> bool:

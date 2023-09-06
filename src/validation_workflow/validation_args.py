@@ -121,7 +121,7 @@ class ValidationArgs:
         if(args.file_path):
             print(type(args.file_path))
             args.distribution = self.get_distribution_type(args.file_path)
-            if ("opensearch-dashboards" in args.file_path):
+            if ("opensearch-dashboards" in args.file_path.keys()):
                 args.project.append('opensearch-dashboards')
 
         self.version = args.version
@@ -131,6 +131,7 @@ class ValidationArgs:
         print(self.distribution)
         self.platform = args.platform
         self.projects = args.project
+        print(args.project)
         self.arch = args.arch
         self.OS_image = 'opensearchproject/opensearch'
         self.OSD_image = 'opensearchproject/opensearch-dashboards'
