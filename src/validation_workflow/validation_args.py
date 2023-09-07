@@ -98,9 +98,9 @@ class ValidationArgs:
         )
         parser.add_argument(
             "--projects",
-            help="Enter type of projects to be validated, ",
+            help="Enter type of projects to be validated",
             choices=["opensearch", "opensearch-dashboards"],
-            default=["opensearch"]
+            default=""
         )
         parser.add_argument(
             "--artifact-type",
