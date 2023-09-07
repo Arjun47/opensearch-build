@@ -106,7 +106,8 @@ class ValidationArgs:
             "--artifact-type",
             help="Enter type of artifacts that needs to be validated",
             choices=["staging", "production"],
-            default=["production"]
+            default=["production"],
+            dest="artifact_type",
         )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
