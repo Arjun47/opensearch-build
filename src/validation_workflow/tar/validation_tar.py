@@ -48,6 +48,7 @@ class ValidateTar(Validation, DownloadUtils):
             else:
                 if (self.args.artifact_type == "staging"):
                     self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
+                    print(self.args.file_path.get(project))
                 else:
                     self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
                     print(self.args.file_path[project])

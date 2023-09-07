@@ -23,6 +23,7 @@ class Validation(ABC):
 
     def check_url(self, url: str) -> bool:
         if self.is_url_valid(url) and self.download(url, self.tmp_dir):  # type: ignore
+            print(url)
             logging.info(f"Valid URL - {url} and Download Successful !")
             return True
         else:
