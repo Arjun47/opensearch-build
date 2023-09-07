@@ -39,6 +39,8 @@ class ApiTestCases:
             success_status_code = test_case.__getitem__(1)
             validate_string = test_case.__getitem__(2)
 
+            print(self.opensearch_image_version, self.opensearch_dashboards_image_version)
+
             status_code, response_text = ApiTest(str(request_url)).api_get()
             logging.info(f"\nRequest_url ->{str(request_url)} \n")
             logging.info(f"\nStatus_code ->{status_code} \nresponse_text ->{response_text}")

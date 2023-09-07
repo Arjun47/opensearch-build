@@ -102,6 +102,12 @@ class ValidationArgs:
             choices=["opensearch", "opensearch-dashboards"],
             default=["opensearch"]
         )
+        parser.add_argument(
+            "--artifact-type",
+            help="Enter type of artifacts that needs to be validated",
+            choices=["staging", "production"],
+            default=["production"]
+        )
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
             "--validate-digest-only",
@@ -126,6 +132,7 @@ class ValidationArgs:
 
         self.version = args.version
         self.file_path = args.file_path
+        self.artifact_type = args.artifact_type
         self.logging_level = args.logging_level
         self.distribution = args.distribution
         print(self.distribution)
@@ -135,6 +142,7 @@ class ValidationArgs:
         self.arch = args.arch
         self.OS_image = 'opensearchproject/opensearch'
         self.OSD_image = 'opensearchproject/opensearch-dashboards'
+        self.build_number = {'opensearch': args.os_build_number, 'opensearch-dashboards': args.osd_build_number}
         self.os_build_number = args.os_build_number
         self.osd_build_number = args.osd_build_number
         self.docker_source = args.docker_source
