@@ -49,7 +49,6 @@ class ValidationArgs:
             dest="distribution"
         )
         parser.add_argument(
-            "-p",
             "--platform",
             type=str,
             choices=self.SUPPORTED_PLATFORMS,
@@ -97,6 +96,7 @@ class ValidationArgs:
             default="x64"
         )
         parser.add_argument(
+            "-p"
             "--projects",
             help="Enter type of projects to be validated",
             choices=["opensearch", "opensearch-dashboards"],
