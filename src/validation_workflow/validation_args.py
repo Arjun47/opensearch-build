@@ -95,9 +95,6 @@ class ValidationArgs:
             choices=["x64", "arm64"],
             default="x64"
         )
-
-        parser.add_argument('-l', '--list', nargs='+', help='<Required> Set flag', required=True)
-
         parser.add_argument(
             "-p",
             "--projects",
