@@ -97,7 +97,7 @@ class ValidationArgs:
             default="x64"
         )
         parser.add_argument(
-            "--project",
+            "--projects",
             help="Enter type of projects to be validated, ",
             choices=["opensearch", "opensearch-dashboards"],
             default=["opensearch"]
@@ -137,8 +137,8 @@ class ValidationArgs:
         self.distribution = args.distribution
         print(self.distribution)
         self.platform = args.platform
-        self.projects = args.project
-        print(args.project)
+        self.projects = args.projects
+        print(args.projects)
         self.arch = args.arch
         self.OS_image = 'opensearchproject/opensearch'
         self.OSD_image = 'opensearchproject/opensearch-dashboards'
