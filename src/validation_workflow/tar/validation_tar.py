@@ -50,6 +50,7 @@ class ValidateTar(Validation, DownloadUtils):
                     self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
                 elif (self.args.artifact_type == "production"):
                     self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
+                print(self.args.file_path[project])
                 self.check_url(self.args.file_path.get(project))
         return True
 
