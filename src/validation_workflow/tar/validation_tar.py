@@ -39,7 +39,7 @@ class ValidateTar(Validation, DownloadUtils):
     def download_artifacts(self) -> bool:
         for project in self.args.projects:
             print(project)
-            print("name": project)
+            print("name:" project)
             if (any(self.args.file_path)):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
