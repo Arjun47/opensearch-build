@@ -95,12 +95,16 @@ class ValidationArgs:
             choices=["x64", "arm64"],
             default="x64"
         )
+
+        parser.add_argument('-l', '--list', nargs='+', help='<Required> Set flag', required=True)
+
         parser.add_argument(
             "-p",
             "--projects",
+            nargs='+',
             help="Enter type of projects to be validated",
             choices=["opensearch", "opensearch-dashboards"],
-            default=""
+            default=["opensearch", "opensearch-dashboards"]
         )
         parser.add_argument(
             "--artifact-type",
