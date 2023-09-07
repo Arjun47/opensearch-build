@@ -96,7 +96,7 @@ class ValidationArgs:
             default="x64"
         )
         parser.add_argument(
-            "-p"
+            "-p",
             "--projects",
             help="Enter type of projects to be validated",
             choices=["opensearch", "opensearch-dashboards"],
