@@ -143,7 +143,7 @@ class ValidationArgs:
         self.arch = args.arch
         self.OS_image = 'opensearchproject/opensearch'
         self.OSD_image = 'opensearchproject/opensearch-dashboards'
-        self.build_number = {'opensearch': args.os_build_number, 'opensearch-dashboards': args.osd_build_number}
+        self.build_number = {"opensearch": args.os_build_number, "opensearch-dashboards": args.osd_build_number}
         self.os_build_number = args.os_build_number
         self.osd_build_number = args.osd_build_number
         self.docker_source = args.docker_source
