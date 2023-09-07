@@ -100,13 +100,13 @@ class ValidationArgs:
             "--projects",
             help="Enter type of projects to be validated",
             choices=["opensearch", "opensearch-dashboards"],
-            default=""
+            default=["opensearch"]
         )
         parser.add_argument(
             "--artifact-type",
             help="Enter type of artifacts that needs to be validated",
             choices=["staging", "production"],
-            default=["production"],
+            default="production",
             dest="artifact_type",
         )
         group = parser.add_mutually_exclusive_group()
@@ -129,7 +129,7 @@ class ValidationArgs:
             print(type(args.file_path))
             args.distribution = self.get_distribution_type(args.file_path)
             if ("opensearch-dashboards" in args.file_path.keys()):
-                args.project.append('opensearch-dashboards')
+                args.projects.append('opensearch-dashboards')
 
         self.version = args.version
         self.file_path = args.file_path
