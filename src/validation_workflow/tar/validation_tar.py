@@ -40,15 +40,17 @@ class ValidateTar(Validation, DownloadUtils):
         for project in self.args.projects:
             print(project)
             print(self.args.file_path.get(project))
-            if (not any(self.args.file_path)):
-                if ("https:" in self.args.file_path.get(project)):
-                    if (self.args.artifact_type == "staging"):
-                        self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
-                    elif (self.args.artifact_type == "production"):
-                        self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
-                    self.check_url(self.args.file_path.get(project))
-                else:
+            if (any(self.args.file_path)):
+                if ("https:" not in self.args.file_path.get(project))
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
+                else:
+                    self.check_url(self.args.file_path.get(project))
+            else:
+                if (self.args.artifact_type == "staging"):
+                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
+                elif (self.args.artifact_type == "production"):
+                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
+                self.check_url(self.args.file_path.get(project))
         return True
 
     def installation(self) -> bool:

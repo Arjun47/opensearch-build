@@ -61,7 +61,7 @@ class ValidationArgs:
             type=str,
             required=False,
             help="(optional) The opensearchstaging OpenSearch image build number if required, for example : 6039\n",
-            default="",
+            default="latest",
             dest="os_build_number",
         )
         parser.add_argument(
@@ -69,7 +69,7 @@ class ValidationArgs:
             type=str,
             required=False,
             help="(optional) The opensearchstaging OpenSearchDashboard image build number if required, for example : 4104\n",
-            default="",
+            default="latest",
             dest="osd_build_number",
         )
         parser.add_argument(
