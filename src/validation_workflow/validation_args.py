@@ -128,7 +128,7 @@ class ValidationArgs:
             raise Exception("Provide either version number or File Path")
         if(args.file_path):
             print(type(args.file_path))
-            args.distribution = self.get_distribution_type(args.file_path)
+            args.distribution = self.get_distribution_type(args.file_path.values())
             if ("opensearch" not in args.projects or "opensearch" not in args.file_path.keys()):
                 raise Exception("Provide OpenSearch Artifact details along with OpenSearch DashBoards to validate")
 
@@ -151,12 +151,13 @@ class ValidationArgs:
         self.validate_digest_only = args.validate_digest_only
         self.using_staging_artifact_only = args.using_staging_artifact_only
 
-    def get_distribution_type(self, file_path: str) -> str:
-        if ("tar" in file_path):
+    def get_distribution_type(self, file_path: list) -> str:
+        if (any(filter(lambda x: 'tar' in x, file_path))):
+            print("True tar")
             return 'tar'
-        elif ("rpm" in file_path):
+        elif (any(filter(lambda x: 'rpm' in x, file_path))):
             return 'rpm'
-        elif ("repo" in file_path):
+        elif (any(filter(lambda x: 'yum' in x, file_path))):
             return 'yum'
         else:
             raise Exception("Provided distribution is not supported")
