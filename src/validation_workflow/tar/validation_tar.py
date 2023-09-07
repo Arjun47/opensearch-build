@@ -41,7 +41,7 @@ class ValidateTar(Validation, DownloadUtils):
             print(project)
             print(self.args.file_path.get(project))
             if (any(self.args.file_path)):
-                if ("https:" not in self.args.file_path.get(project))
+                if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
                 else:
                     self.check_url(self.args.file_path.get(project))
