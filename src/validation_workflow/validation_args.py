@@ -138,7 +138,6 @@ class ValidationArgs:
 
         self.version = args.version
         self.file_path = args.file_path
-        print("file_path: " + self.file_path)
         self.artifact_type = args.artifact_type
         self.logging_level = args.logging_level
         self.distribution = args.distribution
