@@ -17,6 +17,7 @@ class DownloadUtils:
     @staticmethod
     def is_url_valid(url: str) -> bool:
         response = requests.head(url)
+        print(response.status_code)
         status = bool(response.status_code == 200)
         return status
 
