@@ -37,7 +37,7 @@ class ValidateTar(Validation, DownloadUtils):
         # print(self.filename, type(self.filename[0]), "1")
 
     def download_artifacts(self) -> bool:
-        isFilePathEmpty = not bool(self.args.file_path)
+        isFilePathEmpty = bool(self.args.file_path)
         for project in self.args.projects:
             print(project)
             print("name:" + project)
