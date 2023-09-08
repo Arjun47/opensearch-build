@@ -40,6 +40,7 @@ class ValidateTar(Validation, DownloadUtils):
         for project in self.args.projects:
             print(project)
             print("name:" + project)
+            print(self.args.version)
             if (self.args.version != ""):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
