@@ -133,6 +133,7 @@ class ValidationArgs:
                 args.projects.append("opensearch-dashboards")
             if (('opensearch' not in args.projects) or ('opensearch' not in args.file_path.keys())):
                 raise Exception("Provide OpenSearch Artifact details along with OpenSearch DashBoards to validate")
+            print(args.projects)
             if ('opensearch' not in args.projects):
                 print("True")
 
