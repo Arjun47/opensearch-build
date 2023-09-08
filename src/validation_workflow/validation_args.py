@@ -126,13 +126,13 @@ class ValidationArgs:
 
         if (not (args.version or args.file_path)):
             raise Exception("Provide either version number or File Path")
-        if (("opensearch" not in args.file_path.keys()) or ('opensearch' not in args.projects)):
-            raise Exception("Provide OpenSearch Artifact details along with OpenSearch DashBoards to validate")
         if(args.file_path):
             print(type(args.file_path))
             args.distribution = self.get_distribution_type(args.file_path.values())
             if("opensearch-dashboards" in args.file_path.keys()):
                 args.projects.append("opensearch-dashboards")
+        if (('opensearch' not in args.projects)):
+            raise Exception("Provide OpenSearch Artifact details along with OpenSearch DashBoards to validate")
         print(args.projects)
 
         self.version = args.version
