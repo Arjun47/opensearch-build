@@ -134,9 +134,11 @@ class ValidationArgs:
         if (('opensearch' not in args.projects)):
             raise Exception("Provide OpenSearch Artifact details along with OpenSearch DashBoards to validate")
         print(args.projects)
+        print(args.file_path)
 
         self.version = args.version
         self.file_path = args.file_path
+        print("file_path: " + self.file_path)
         self.artifact_type = args.artifact_type
         self.logging_level = args.logging_level
         self.distribution = args.distribution
