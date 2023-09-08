@@ -9,6 +9,7 @@ import argparse
 import logging
 import textwrap
 
+from typing import Callable
 from test_workflow.test_kwargs import TestKwargs
 
 
@@ -156,7 +157,7 @@ class ValidationArgs:
         self.using_staging_artifact_only = args.using_staging_artifact_only
 
     def get_distribution_type(self, file_path: list) -> str:
-        if (any(filter(lambda x: 'tar' in x, file_path))):
+        if (index for index, item in enumerate(file_path) if "tar" == item):
             print("True tar")
             return 'tar'
         elif (any(filter(lambda x: 'rpm' in x, file_path))):
