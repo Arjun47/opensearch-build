@@ -76,7 +76,6 @@ class ValidateDocker(Validation):
         if not self.args.validate_digest_only:
             return_code, self._target_yml_file = self.run_container(
                 self.image_ids[0],
-                self.image_ids[1],
                 self.args.version
             )
             if return_code:
@@ -236,7 +235,7 @@ class ValidateDocker(Validation):
         else:
             raise Exception(f'error on pulling image : return code {str(result_pull.returncode)}')
 
-    def run_container(self, OpenSearch_image_id: str, OpenSearchDashboard_image_id: str, version: str) -> Any:
+    def run_container(self, OpenSearch_image_id: str,, version: str) -> Any:
         self.docker_compose_files = {
             '1': 'docker-compose-1.x.yml',
             '2': 'docker-compose-2.x.yml'
@@ -251,8 +250,7 @@ class ValidateDocker(Validation):
         shutil.copy2(self.source_file, self.target_yml_file)
 
         self.replacements = [
-            (f'opensearchproject/opensearch:{self.major_version_number}', f'{OpenSearch_image_id}'),
-            (f'opensearchproject/opensearch-dashboards:{self.major_version_number}', f'{OpenSearchDashboard_image_id}')
+            (f'opensearchproject/opensearch:{self.major_version_number}', f'{OpenSearch_image_id}')
         ]
         list(map(lambda r: self.inplace_change(self.target_yml_file, r[0], r[1]), self.replacements))
 
