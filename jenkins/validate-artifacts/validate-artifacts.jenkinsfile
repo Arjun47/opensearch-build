@@ -115,7 +115,7 @@ pipeline {
                                 // Using scripted pipelines to trigger dynamic parallel stages
                                 timeout(time: 30) {
                                     if ("${local_distribution}" == "docker"){
-                                        node(agent_nodes_docker["$local_architecture"]) {
+                                        node(agent_nodes["$local_architecture"]) {
                                             try {
                                                 stage("${local_distribution}") {
                                                     unstash "validate-artifacts-$BUILD_NUMBER"
