@@ -40,9 +40,12 @@ class ValidateDocker(Validation):
                 self.get_artifact_image_name(product, using_staging_artifact_only),
                 print(product)
                 self.args.version if not self.args.using_staging_artifact_only else ValidationArgs().stg_tag(product).replace(" ", ""))
-            self.image_ids = dict(map(get_image_id, product_names))
-            for key, value in self.image_ids.items():
-                logging.info(f'the {key}image ID is : {value}')
+            image_ids = list(map(get_image_id, product_names))
+            for i in self.image_ids:
+                print(i)
+            self.image_ids = {key: value for key, value in zip(image_ids, product_names)}
+            print(self.image_ids)
+
             return True
 
         except AssertionError as e:
