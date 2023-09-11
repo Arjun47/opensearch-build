@@ -156,13 +156,12 @@ class ValidationArgs:
         self.using_staging_artifact_only = args.using_staging_artifact_only
 
     def get_distribution_type(self, file_path: list) -> str:
-        if (index for index, item in enumerate(file_path) if "tar" == item):
-            print(index)
+        if (any("tar" in value for value in my_dict.values())):
             print("True tar")
             return 'tar'
-        elif (index for index, item in enumerate(file_path) if "rpm" == item):
+        elif (any("rpm" in value for value in my_dict.values())):
             return 'rpm'
-        elif (index for index, item in enumerate(file_path) if "repo" == item):
+        elif (any("repo" in value for value in my_dict.values())):
             return 'yum'
         else:
             raise Exception("Provided distribution is not supported")
