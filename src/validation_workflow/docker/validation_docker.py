@@ -40,7 +40,7 @@ class ValidateDocker(Validation):
                 self.get_artifact_image_name(product, using_staging_artifact_only),
                 self.args.version if not self.args.using_staging_artifact_only else ValidationArgs().stg_tag(product).replace(" ", ""))
             self.image_ids = list(map(get_image_id, product_names))
-            logging.info(f'the {product} image ID is : {self.image_ids[0]}')
+            logging.info(f'the opensearch image ID is : {self.image_ids[0]}')
             logging.info(f'the opensearch-dashboards image ID is : {self.image_ids[1]} \n\n')
             return True
 
