@@ -25,16 +25,8 @@ class ValidateTar(Validation, DownloadUtils):
         self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
         self.base_url_staging = "https://ci.opensearch.org/ci/dbc/distribution-build-"
         self.tmp_dir = TemporaryDirectory()
-        self.file_name = ""
         self.os_process = Process()
         self.osd_process = Process()
-
-        # if (self.args.file_path == "local"):
-        # get the file name from os.path.basename(url)
-        # self.filename = os.path.basename(self.filename)
-        # self.copy_artifact(self.args.path, str(self.tmp_dir.path))
-        # file_name1 = os.path.basename('/root/file.ext')
-        # print(self.filename, type(self.filename[0]), "1")
 
     def download_artifacts(self) -> bool:
         isFilePathEmpty = bool(self.args.file_path)

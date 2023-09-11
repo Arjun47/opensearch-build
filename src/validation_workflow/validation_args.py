@@ -9,7 +9,6 @@ import argparse
 import logging
 import textwrap
 
-from typing import Callable
 from test_workflow.test_kwargs import TestKwargs
 
 
@@ -160,9 +159,9 @@ class ValidationArgs:
         if (index for index, item in enumerate(file_path) if "tar" == item):
             print("True tar")
             return 'tar'
-        elif (any(filter(lambda x: 'rpm' in x, file_path))):
+        elif (index for index, item in enumerate(file_path) if "rpm" == item):
             return 'rpm'
-        elif (any(filter(lambda x: 'yum' in x, file_path))):
+        elif (index for index, item in enumerate(file_path) if "repo" == item):
             return 'yum'
         else:
             raise Exception("Provided distribution is not supported")
