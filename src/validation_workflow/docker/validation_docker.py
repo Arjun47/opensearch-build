@@ -39,8 +39,9 @@ class ValidateDocker(Validation):
             get_image_id = lambda product: self.get_image_id(  # noqa: E731
                 self.get_artifact_image_name(product, using_staging_artifact_only),
                 self.args.version if not self.args.using_staging_artifact_only else ValidationArgs().stg_tag(product).replace(" ", ""))
-            self.image_ids = list(map(get_image_id, product_names))
-            logging.info(f'the opensearch image ID is : {self.image_ids[0]}')
+            self.image_ids = dict(map(get_image_id, product_names))
+            for key, value in self.image_ids.items():
+                logging.info(f'the {key}image ID is : {value}')
             return True
 
         except AssertionError as e:
@@ -62,7 +63,8 @@ class ValidateDocker(Validation):
         # STEP 2 . inspect image digest between opensearchproject(downloaded/local) and opensearchstaging(dockerHub)
         if not self.args.using_staging_artifact_only:
             self.image_names_list = [self.args.OS_image, self.args.OSD_image]
-            self.image_digests = list(map(lambda x: self.inspect_docker_image(x[0], x[1]), zip(self.image_ids, self.image_names_list)))  # type: ignore
+            self.image_names_list = [x for x in self.image_names_list if (os.path.basename(x) in args.projects)]
+            self.image_digests = list(map(lambda x: self.inspect_docker_image(x[0], x[1]), zip(self.image_ids.values(), self.image_names_list)))  # type: ignore
 
             if all(self.image_digests):
                 logging.info('Image digest is validated.\n\n')
@@ -75,7 +77,7 @@ class ValidateDocker(Validation):
         # STEP 3 . spin-up OS/OSD cluster
         if not self.args.validate_digest_only:
             return_code, self._target_yml_file = self.run_container(
-                self.image_ids[0],
+                self.image_ids,
                 self.args.version
             )
             if return_code:
@@ -235,7 +237,7 @@ class ValidateDocker(Validation):
         else:
             raise Exception(f'error on pulling image : return code {str(result_pull.returncode)}')
 
-    def run_container(self, OpenSearch_image_id: str, version: str) -> Any:
+    def run_container(self, image_ids: dict, version: str) -> Any:
         self.docker_compose_files = {
             '1': 'docker-compose-1.x.yml',
             '2': 'docker-compose-2.x.yml'
@@ -250,7 +252,8 @@ class ValidateDocker(Validation):
         shutil.copy2(self.source_file, self.target_yml_file)
 
         self.replacements = [
-            (f'opensearchproject/opensearch:{self.major_version_number}', f'{OpenSearch_image_id}')
+            (f'opensearchproject/opensearch:{self.major_version_number}', f'{image_ids["opensearch"]}')
+            (f'opensearchproject/opensearch-dashboards:{self.major_version_number}', f'{image_ids["opensearch-dashboards"]}')
         ]
         list(map(lambda r: self.inplace_change(self.target_yml_file, r[0], r[1]), self.replacements))
 
