@@ -42,8 +42,8 @@ class ValidateDocker(Validation):
             self.image_ids = list(map(get_image_id, product_names))
             for i in self.image_ids:
                 print(i)
-            self.image_ids = {key: value for key, value in zip(self.image_ids, product_names)}
-            print(self.image_ids)
+            self.image_ids = {key: value for key, value in zip(product_names, self.image_ids)}
+            print("dict" + self.image_ids)
 
             return True
 
