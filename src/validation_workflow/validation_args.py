@@ -157,6 +157,7 @@ class ValidationArgs:
 
     def get_distribution_type(self, file_path: list) -> str:
         if (index for index, item in enumerate(file_path) if "tar" == item):
+            print(index)
             print("True tar")
             return 'tar'
         elif (index for index, item in enumerate(file_path) if "rpm" == item):
