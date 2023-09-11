@@ -38,6 +38,7 @@ class ValidateDocker(Validation):
             using_staging_artifact_only = 'staging' if self.args.using_staging_artifact_only else 'production'
             get_image_id = lambda product: self.get_image_id(  # noqa: E731
                 self.get_artifact_image_name(product, using_staging_artifact_only),
+                print(product)
                 self.args.version if not self.args.using_staging_artifact_only else ValidationArgs().stg_tag(product).replace(" ", ""))
             self.image_ids = dict(map(get_image_id, product_names))
             for key, value in self.image_ids.items():
