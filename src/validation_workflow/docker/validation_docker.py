@@ -43,7 +43,7 @@ class ValidateDocker(Validation):
             for i in self.image_ids:
                 print(i)
             self.image_ids = {key: value for key, value in zip(product_names, self.image_ids)}
-            print("dict" + self.image_ids)
+            print(self.image_ids)
 
             return True
 
