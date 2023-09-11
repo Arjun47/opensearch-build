@@ -235,7 +235,7 @@ class ValidateDocker(Validation):
         else:
             raise Exception(f'error on pulling image : return code {str(result_pull.returncode)}')
 
-    def run_container(self, OpenSearch_image_id: str,, version: str) -> Any:
+    def run_container(self, OpenSearch_image_id: str, version: str) -> Any:
         self.docker_compose_files = {
             '1': 'docker-compose-1.x.yml',
             '2': 'docker-compose-2.x.yml'
