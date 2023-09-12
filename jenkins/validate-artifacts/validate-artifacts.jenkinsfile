@@ -133,7 +133,7 @@ pipeline {
                                                         arch: "${local_architecture}",
                                                         "os-build-number": "$OS_BUILD_NUMBER",
                                                         "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                        "projects": "$PROJECTS"
+                                                        "projects": "$PROJECTS",
                                                         "$OPTIONAL_ARGS" : ""
                                                     )
                                                 }
