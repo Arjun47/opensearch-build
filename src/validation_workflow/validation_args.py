@@ -101,7 +101,7 @@ class ValidationArgs:
             nargs='+',
             help="Enter type of projects to be validated",
             choices=["opensearch", "opensearch-dashboards"],
-            default=["opensearch-dashboards", "opensearch"]
+            default=['opensearch-dashboards', 'opensearch']
         )
         parser.add_argument(
             "--artifact-type",
