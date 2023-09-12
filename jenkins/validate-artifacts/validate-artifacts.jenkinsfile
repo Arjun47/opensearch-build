@@ -4,9 +4,9 @@ lib = library(identifier: 'jenkins@4.2.2', retriever: modernSCM([
 ]))
 
 def docker_images = [
-    "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v4",
-    "rpm": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v3",
-    "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v3",
+    "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2",
+    "rpm": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
+    "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
 ]
 
 def docker_args = [
@@ -16,13 +16,13 @@ def docker_args = [
 ]
 
 def agent_nodes_docker = [
-    "x64": "Jenkins-Agent-AL2023-X64-C54xlarge-Single-Host",
-    "arm64": "Jenkins-Agent-AL2023-Arm64-C6g4xlarge-Single-Host",
+    "x64": "Jenkins-Agent-AL2-X64-C54xlarge-Single-Host",
+    "arm64": "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Single-Host",
 ]
 
 def agent_nodes = [
-    "x64": "Jenkins-Agent-AL2023-X64-C54xlarge-Docker-Host",
-    "arm64": "Jenkins-Agent-AL2023-Arm64-C6g4xlarge-Docker-Host",
+    "x64": "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host",
+    "arm64": "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host",
 ]
 
 pipeline {
@@ -65,6 +65,13 @@ pipeline {
             trim: true,
             defaultValue: "using-staging-artifact-only"
         )
+        string(
+            name: 'PROJECTS',
+            description: 'Enter opensearch or opensearch-dashboards',
+            trim: true,
+            defaultValue: "opensearch"
+        )
+
 
     }
 
@@ -115,7 +122,7 @@ pipeline {
                                 // Using scripted pipelines to trigger dynamic parallel stages
                                 timeout(time: 30) {
                                     if ("${local_distribution}" == "docker"){
-                                        node(agent_nodes_docker["$local_architecture"]) {
+                                        node(agent_nodes["$local_architecture"]) {
                                             try {
                                                 stage("${local_distribution}") {
                                                     unstash "validate-artifacts-$BUILD_NUMBER"
@@ -126,6 +133,7 @@ pipeline {
                                                         arch: "${local_architecture}",
                                                         "os-build-number": "$OS_BUILD_NUMBER",
                                                         "osd-build-number": "$OSD_BUILD_NUMBER",
+                                                        "projects": "$PROJECTS"
                                                         "$OPTIONAL_ARGS" : ""
                                                     )
                                                 }
