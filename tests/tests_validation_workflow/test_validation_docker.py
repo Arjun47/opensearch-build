@@ -22,6 +22,7 @@ class TestValidateDocker(unittest.TestCase):
         mock_validation_args = Mock()
         mock_validation_args.return_value.docker_source = 'dockerhub'
         mock_validation_args.return_value.using_staging_artifact_only = True
+        mock_validation_args.return_value.projects = ["opensearch"]
 
         # create instance of ValidateDocker
         validate_docker = ValidateDocker(mock_validation_args.return_value)
