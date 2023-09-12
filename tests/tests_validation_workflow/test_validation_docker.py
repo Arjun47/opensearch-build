@@ -59,7 +59,7 @@ class TestValidateDocker(unittest.TestCase):
 
         # Create instance of ValidateDocker class
         validate_docker = ValidateDocker(mock_validation_args.return_value)
-        validate_docker.image_ids = ['images_id_0', 'images_id_0']
+        validate_docker.image_ids = {'opensearch': 'images_id_0', 'opensearch-dashboards': 'images_id_0'}
 
         # Call validation method and assert the result
         result = validate_docker.validation()
