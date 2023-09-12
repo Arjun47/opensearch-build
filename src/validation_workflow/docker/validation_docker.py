@@ -34,7 +34,7 @@ class ValidateDocker(Validation):
 
             # STEP 1 . pull the images for OS and OSD
             product_names = ["opensearch", "opensearch-dashboards"]
-            print(self.args.projects)
+            print(product_names)
             using_staging_artifact_only = 'staging' if self.args.using_staging_artifact_only else 'production'
             get_image_id = lambda product: self.get_image_id(  # noqa: E731
                 self.get_artifact_image_name(product, using_staging_artifact_only),
