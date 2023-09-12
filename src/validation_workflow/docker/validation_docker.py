@@ -63,7 +63,7 @@ class ValidateDocker(Validation):
         # STEP 2 . inspect image digest between opensearchproject(downloaded/local) and opensearchstaging(dockerHub)
         if not self.args.using_staging_artifact_only:
             self.image_names_list = [self.args.OS_image, self.args.OSD_image]
-            self.image_names_list = [x for x in self.image_names_list if (os.path.basename(x) in args.projects)]
+            self.image_names_list = [x for x in self.image_names_list if (os.path.basename(x) in self.args.projects)]
             self.image_digests = list(map(lambda x: self.inspect_docker_image(x[0], x[1]), zip(self.image_ids.values(), self.image_names_list)))  # type: ignore
 
             if all(self.image_digests):
