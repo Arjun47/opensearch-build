@@ -33,7 +33,7 @@ class ValidateDocker(Validation):
             assert self.is_container_daemon_running(), 'Docker daemon is not running. Exiting the docker validation.'
 
             # STEP 1 . pull the images for OS and OSD
-            product_names = ["opensearch"]
+            product_names = ["opensearch", "opensearch-dashboards"]
             print(self.args.projects)
             using_staging_artifact_only = 'staging' if self.args.using_staging_artifact_only else 'production'
             get_image_id = lambda product: self.get_image_id(  # noqa: E731
