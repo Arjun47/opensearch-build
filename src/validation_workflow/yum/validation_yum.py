@@ -55,18 +55,6 @@ class ValidateYum(Validation, DownloadUtils):
             for project in self.args.projects:
                 self.filename = os.path.basename(self.args.file_path.get(project))
                 execute(f'sudo yum remove {project} -y', ".")
-                print(self.filename)
-                execute(f'sudo rpm -ivh {os.path.join(self.tmp_dir.path, self.filename)}', str(self.tmp_dir.path), True, False)
-        except:
-            raise Exception('Failed to Install Opensearch')
-        return True
-
-    def installation(self) -> bool:
-        try:
-            execute('sudo rpm --import https://artifacts.opensearch.org/publickeys/opensearch.pgp', str(self.tmp_dir.path), True, False)
-            for project in self.args.projects:
-                self.filename = os.path.basename(self.args.file_path.get(project))
-                execute(f'sudo yum remove {project} -y', ".")
                 logging.info('Removed previous versions of Opensearch')
                 urllink = f"{self.args.file_path.get(project)}.x.repo -o /etc/yum.repos.d/{os.path.basename(self.args.file_path.get(project))}"
                 execute(f'sudo curl -SL {urllink}', ".")
