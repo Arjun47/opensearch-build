@@ -65,6 +65,13 @@ pipeline {
             trim: true,
             defaultValue: "using-staging-artifact-only"
         )
+        string(
+            name: 'PROJECTS',
+            description: 'Enter opensearch or opensearch-dashboards',
+            trim: true,
+            defaultValue: "opensearch"
+        )
+
 
     }
 
@@ -126,6 +133,7 @@ pipeline {
                                                         arch: "${local_architecture}",
                                                         "os-build-number": "$OS_BUILD_NUMBER",
                                                         "osd-build-number": "$OSD_BUILD_NUMBER",
+                                                        "projects": "$PROJECTS",
                                                         "$OPTIONAL_ARGS" : ""
                                                     )
                                                 }
