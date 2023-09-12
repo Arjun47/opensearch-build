@@ -33,7 +33,7 @@ class ValidateDocker(Validation):
             assert self.is_container_daemon_running(), 'Docker daemon is not running. Exiting the docker validation.'
 
             # STEP 1 . pull the images for OS and OSD
-            product_names = self.args.projects
+            product_names = ["opensearch", "opensearch-dashboards"]
             print(self.args.projects)
             using_staging_artifact_only = 'staging' if self.args.using_staging_artifact_only else 'production'
             get_image_id = lambda product: self.get_image_id(  # noqa: E731
@@ -254,10 +254,8 @@ class ValidateDocker(Validation):
         self.source_file = os.path.join('docker', 'release', 'dockercomposefiles', self.docker_compose_files[self.major_version_number])
         shutil.copy2(self.source_file, self.target_yml_file)
 
-        self.replacements = [
-            (f'opensearchproject/opensearch:{self.major_version_number}', f'{image_ids["opensearch"]}')
-            (f'opensearchproject/opensearch-dashboards:{self.major_version_number}', f'{image_ids["opensearch-dashboards"]}')
-        ]
+        self.replacements = [(f'opensearchproject/{key}:{self.major_version_number}', f'{image_ids[key]}') for key, value in image_ids]
+
         list(map(lambda r: self.inplace_change(self.target_yml_file, r[0], r[1]), self.replacements))
 
         # spin up containers
