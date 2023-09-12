@@ -33,7 +33,7 @@ class ValidateDocker(Validation):
             assert self.is_container_daemon_running(), 'Docker daemon is not running. Exiting the docker validation.'
 
             # STEP 1 . pull the images for OS and OSD
-            product_names = ["opensearch", "opensearch_dashboards"]
+            product_names = self.args.projects
             print(product_names)
             using_staging_artifact_only = 'staging' if self.args.using_staging_artifact_only else 'production'
             get_image_id = lambda product: self.get_image_id(  # noqa: E731
@@ -168,7 +168,7 @@ class ValidateDocker(Validation):
                     'staging': 'opensearchstaging/opensearch',
                     'production': 'opensearchproject/opensearch'
                 },
-                'opensearch_dashboards': {
+                'opensearch-dashboards': {
                     'staging': 'opensearchstaging/opensearch-dashboards',
                     'production': 'opensearchproject/opensearch-dashboards'
                 }
@@ -178,7 +178,7 @@ class ValidateDocker(Validation):
                     'staging': 'public.ecr.aws/opensearchstaging/opensearch',
                     'production': 'public.ecr.aws/opensearchproject/opensearch'
                 },
-                'opensearch_dashboards': {
+                'opensearch-dashboards': {
                     'staging': 'public.ecr.aws/opensearchstaging/opensearch-dashboards',
                     'production': 'public.ecr.aws/opensearchproject/opensearch-dashboards'
                 }
