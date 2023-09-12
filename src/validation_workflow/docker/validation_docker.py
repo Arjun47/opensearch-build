@@ -254,7 +254,7 @@ class ValidateDocker(Validation):
         self.source_file = os.path.join('docker', 'release', 'dockercomposefiles', self.docker_compose_files[self.major_version_number])
         shutil.copy2(self.source_file, self.target_yml_file)
 
-        self.replacements = [(f'opensearchproject/{key}:{self.major_version_number}', f'{image_ids[key]}') for key, value in image_ids]
+        self.replacements = [(f'opensearchproject/{key}:{self.major_version_number}', value) for key, value in image_ids.items()]
 
         list(map(lambda r: self.inplace_change(self.target_yml_file, r[0], r[1]), self.replacements))
 
