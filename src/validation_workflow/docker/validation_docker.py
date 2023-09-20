@@ -66,8 +66,10 @@ class ValidateDocker(Validation):
             self.image_names_list = [x for x in self.image_names_list if (os.path.basename(x) in self.args.projects)]
             self.image_digests = list(map(lambda x: self.inspect_docker_image(x[0], x[1]), zip(self.image_ids.values(), self.image_names_list)))  # type: ignore
 
-            print(self.image_names_list + ": image_names_list")
-            print(self.image_digests + ":image_digests")
+            print(": image_names_list")
+            print(self.image_names_list)
+            print(self.image_digests)
+            print(":image_digests")
 
             if all(self.image_digests):
                 logging.info('Image digest is validated.\n\n')
@@ -256,7 +258,8 @@ class ValidateDocker(Validation):
 
         self.replacements = [(f'opensearchproject/{key}:{self.major_version_number}', value) for key, value in image_ids.items()]
 
-        print(self.replacements + ": replacements")
+        print("self.replacements")
+        print(self.replacements)
 
         list(map(lambda r: self.inplace_change(self.target_yml_file, r[0], r[1]), self.replacements))
 
