@@ -41,6 +41,8 @@ class ValidateDocker(Validation):
                 self.args.version if not self.args.using_staging_artifact_only else ValidationArgs().stg_tag(product).replace(" ", ""))
             self.image_ids = {key: value for key, value in zip(product_names, list(map(get_image_id, product_names)))}
             print(self.image_ids)
+            self.image_ids = {key: value.strip() for key, value in self.image_ids.items()}
+            print(self.image_ids)
 
             return True
 
