@@ -45,6 +45,7 @@ class ValidateYum(Validation, DownloadUtils):
                 else:
                     self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version[0:1]}.x/{project}-{self.args.version[0:1]}.x.repo"
                     print("name:" + project)
+
                 print(self.args.file_path[project])
                 self.check_url(self.args.file_path.get(project))
         return True
@@ -57,7 +58,7 @@ class ValidateYum(Validation, DownloadUtils):
                 logging.info('Removed previous versions of Opensearch')
                 urllink = f"{self.args.file_path.get(project)} -o /etc/yum.repos.d/{os.path.basename(self.args.file_path.get(project))}"
                 execute(f'sudo curl -SL {urllink}', ".")
-                execute(f"sudo yum install '{project}' -y", ".")
+                execute(f"sudo yum install '{project}-{self.args.version}' -y", ".")
         except:
             raise Exception('Failed to install Opensearch')
         return True

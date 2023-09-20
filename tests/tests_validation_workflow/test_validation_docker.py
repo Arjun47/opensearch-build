@@ -47,7 +47,6 @@ class TestValidateDocker(unittest.TestCase):
     def test_validation(self, mock_time_sleep: Mock, mock_digest: Mock, mock_container: Mock, mock_test: Mock, mock_docker_image: Mock, mock_validation_args: Mock, mock_check_http: Mock) -> None:
         # Set up mock objects
         mock_validation_args.return_value.OS_image = 'opensearchstaging/opensearch-os'
-        mock_validation_args.return_value.OSD_image = 'opensearchstaging/opensearch-osd'
         mock_validation_args.return_value.version = '1.0.0.1000'
         mock_validation_args.return_value.validate_digest_only = False
         mock_validation_args.return_value.projects = ["opensearch"]
@@ -61,9 +60,9 @@ class TestValidateDocker(unittest.TestCase):
         # Create instance of ValidateDocker class
         validate_docker = ValidateDocker(mock_validation_args.return_value)
 
-        validate_docker.image_names_list['opensearchproject/opensearch']
+        validate_docker.image_names_list = ['opensearchproject/opensearch']
         validate_docker.image_ids = {'opensearch': 'images_id_0'}
-        validate_docker.replacements = [('opensearchproject/opensearch:1', 'sha256:774c2aae595fe9d725c10ee8918fcea90c0fbcda3146eec0f2b1b5d340594649')]
+        validate_docker.replacements = [('opensearchproject/opensearch:1', 'images_id_0')]
 
         # Call validation method and assert the result
         result = validate_docker.validation()
