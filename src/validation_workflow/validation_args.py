@@ -102,7 +102,7 @@ class ValidationArgs:
             nargs='+',
             help="Enter type of projects to be validated",
             choices=["opensearch", "opensearch-dashboards"],
-            default=["opensearch", "opensearch-dashboards"]
+            default=["opensearch"]
         )
         parser.add_argument(
             "--artifact-type",
@@ -130,8 +130,7 @@ class ValidationArgs:
         if(args.file_path):
             print(type(args.file_path))
             args.distribution = self.get_distribution_type(args.file_path)
-            if("opensearch-dashboards" in args.file_path.keys()):
-                args.projects.append("opensearch-dashboards")
+            args.projects = args.file_path.keys()
         if (('opensearch' not in args.projects)):
             raise Exception("Provide OpenSearch Artifact details along with OpenSearch DashBoards to validate")
         print(args.projects)

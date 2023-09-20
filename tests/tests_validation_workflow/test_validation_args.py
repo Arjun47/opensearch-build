@@ -23,6 +23,13 @@ class TestValidationArgs(unittest.TestCase):
         self.assertEqual(ValidationArgs().version, "2.3.0")
         self.assertNotEqual(ValidationArgs().version, "2.1.0")
 
+    @patch("argparse._sys.argv", [VALIDATION_PY])
+    def test_without_arguments(self) -> None:
+        with self.assertRaises(Exception) as ctx:
+            self.assertEqual(ValidationArgs().version, "")
+            self.assertEqual(ValidationArgs().file_path, "")
+        self.assertEqual(str(ctx.exception), "Provide either version number or File Path")
+
     @patch("argparse._sys.argv", [VALIDATION_PY, "--version", "2.1.0", "--distribution", "rpm"])
     def test_rpm_distribution(self) -> None:
         self.assertEqual(ValidationArgs().distribution, "rpm")
@@ -59,3 +66,20 @@ class TestValidationArgs(unittest.TestCase):
     @patch("argparse._sys.argv", [VALIDATION_PY, "--version", "1.3.6", "--distribution", "rpm", "--artifact-type", "staging", "--os-build-number", "1234", "--osd-build-number", "2312"])
     def test_artifact_type(self) -> None:
         self.assertNotEqual(ValidationArgs().artifact_type, "production")
+
+    @patch("argparse._sys.argv", [VALIDATION_PY, "--version", "1.3.0", "--projects", "opensearch"])
+    def test_set_projects(self) -> None:
+        self.assertEqual(ValidationArgs().projects, ["opensearch"])
+
+    @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path", "opensearch-dashboards=https://opensearch.org/releases/opensearch/2.8.0/opensearch-dashboards-2.8.0-linux-x64.rpm"])
+    def test_projects_exception(self) -> None:
+        with self.assertRaises(Exception) as ctx:
+            self.assertEqual(ValidationArgs().distribution, "rpm")
+            self.assertEqual(ValidationArgs().projects, ["opensearch-dashboards"])
+        self.assertEqual(str(ctx.exception), "Provide OpenSearch Artifact details along with OpenSearch DashBoards to validate")
+
+    @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path", "opensearch=https://opensearch.org/releases/opensearch/2.8.0/opensearch-2.8.0-linux-x64.zip"])
+    def test_file_path_distribution_type(self) -> None:
+        with self.assertRaises(Exception) as ctx:
+            self.assertEqual(ValidationArgs().projects, ["opensearch"])
+        self.assertEqual(str(ctx.exception), "Provided distribution is not supported")

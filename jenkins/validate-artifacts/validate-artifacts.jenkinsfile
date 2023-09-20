@@ -71,6 +71,12 @@ pipeline {
             trim: true,
             defaultValue: "opensearch"
         )
+        string(
+            name: 'ARTIFACT_TYPE',
+            description: 'Enter staging or production',
+            trim: true,
+            defaultValue: "production"
+        )
 
 
     }
@@ -133,7 +139,7 @@ pipeline {
                                                         arch: "${local_architecture}",
                                                         "os-build-number": "$OS_BUILD_NUMBER",
                                                         "osd-build-number": "$OSD_BUILD_NUMBER",
-                                                        "projects": "$PROJECTS",
+                                                        projects: "$PROJECTS",
                                                         "$OPTIONAL_ARGS" : ""
                                                     )
                                                 }
@@ -156,7 +162,9 @@ pipeline {
                                                             validateArtifacts(
                                                                 version: "$VERSION",
                                                                 distribution: "${local_distribution}",
-                                                                arch: "${local_architecture}"
+                                                                arch: "${local_architecture}",
+                                                                projects: "$PROJECTS",
+                                                                "artifact-type": "$ARTIFACT_TYPE"
                                                             )
                                                         }
                                                     } catch (e) {
