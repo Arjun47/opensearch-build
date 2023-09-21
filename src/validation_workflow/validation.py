@@ -8,6 +8,7 @@
 
 import logging
 import shutil
+
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -21,7 +22,7 @@ class Validation(ABC):
         self.args = args
 
     def check_url(self, url: str) -> bool:
-        if self.download(url, self.tmp_dir) and self.is_url_valid(url):  # type: ignore
+        if self.is_url_valid(url) and self.download(url, self.tmp_dir):  # type: ignore
             logging.info(f"Valid URL - {url} and Download Successful !")
             return True
         else:

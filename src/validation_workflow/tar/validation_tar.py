@@ -25,30 +25,32 @@ class ValidateTar(Validation, DownloadUtils):
         self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
         self.base_url_staging = "https://ci.opensearch.org/ci/dbc/distribution-build-"
         self.tmp_dir = TemporaryDirectory()
+        self.file_name = ""
         self.os_process = Process()
         self.osd_process = Process()
 
+        #if (self.args.file_path == "local"):
+        #get the file name from os.path.basename(url)
+        #self.filename = os.path.basename(self.filename)
+        #self.copy_artifact(self.args.path, str(self.tmp_dir.path))
+        #file_name1 = os.path.basename('/root/file.ext')
+        #print(self.filename, type(self.filename[0]), "1")
+
     def download_artifacts(self) -> bool:
-        isFilePathEmpty = bool(self.args.file_path)
         for project in self.args.projects:
-            if (isFilePathEmpty):
-                if ("https:" not in self.args.file_path.get(project)):
-                    self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
-                else:
-                    self.check_url(self.args.file_path.get(project))
+            if (self.args.file_path):
+                self.check_url(self.args.file_path)
             else:
-                if (self.args.artifact_type == "staging"):
-                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
-                else:
-                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
-                self.check_url(self.args.file_path.get(project))
+                self.args.file_path = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
+                self.check_url(self.args.file_path)
         return True
 
     def installation(self) -> bool:
         try:
-            for project in self.args.projects:
-                self.filename = os.path.basename(self.args.file_path.get(project))
-                execute('mkdir ' + os.path.join(self.tmp_dir.path, project) + ' | tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C ' + os.path.join(self.tmp_dir.path, project) + ' --strip-components=1', ".", True, False)  # noqa: E501
+            self.filename = os.path.basename(self.args.file_path)
+            print(self.filename)
+
+            execute('tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C opensearch --strip-components=1' + str(self.tmp_dir.path), ".", True, False)
         except:
             raise Exception('Failed to Install Opensearch')
         return True
@@ -57,16 +59,14 @@ class ValidateTar(Validation, DownloadUtils):
         try:
             self.os_process.start(os.path.join(self.tmp_dir.path, "opensearch", "opensearch-tar-install.sh"), ".")
             time.sleep(85)
-            if ("opensearch-dashboards" in self.args.projects):
-                self.osd_process.start(os.path.join(str(self.tmp_dir.path), "opensearch-dashboards", "bin", "opensearch-dashboards"), ".")
-                time.sleep(20)
             logging.info('Started cluster')
+            time.sleep(20)
         except:
             raise Exception('Failed to Start Cluster')
         return True
 
     def validation(self) -> bool:
-        test_result, counter = ApiTestCases().test_cases(self.args.projects)
+        test_result, counter = ApiTestCases().test_cases()
         if (test_result):
             logging.info(f'All tests Pass : {counter}')
         else:
@@ -76,8 +76,6 @@ class ValidateTar(Validation, DownloadUtils):
     def cleanup(self) -> bool:
         try:
             self.os_process.terminate()
-            if ("opensearch-dashboards" in self.args.projects):
-                self.osd_process.terminate()
         except:
             raise Exception('Failed to terminate the processes that started OS and OSD')
         return True
