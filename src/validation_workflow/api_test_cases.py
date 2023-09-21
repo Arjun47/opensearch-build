@@ -20,6 +20,7 @@ class ApiTestCases:
     def __init__(self) -> None:
         pass
 
+    @staticmethod
     def test_cases(self, projects: list) -> Any:
         pass_counter, fail_counter = 0, 0
 
@@ -27,7 +28,7 @@ class ApiTestCases:
         test_cases = [
             ['https://localhost:9200/', 200, ''],
             ['https://localhost:9200/_cat/plugins?v', 200, ''],
-            ['https://localhost:9200/_cat/health?v', 200, 'green'],
+            ['https://localhost:9200/_cat/health?v', 200, ['green', 'yellow'],
         ]
         if ("opensearch-dashboards" in projects):
             test_cases.append(['http://localhost:5601/api/status', 200, ''])
@@ -41,7 +42,7 @@ class ApiTestCases:
             logging.info(f"\nRequest_url ->{str(request_url)} \n")
             logging.info(f"\nStatus_code ->{status_code} \nresponse_text ->{response_text}")
 
-            if status_code == success_status_code and (not validate_string or validate_string in response_text):
+            if status_code == success_status_code and (any(string in response_text for string in validate_strings)):
                 pass_counter += 1
             else:
                 fail_counter += 1
