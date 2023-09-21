@@ -21,7 +21,7 @@ class ApiTestCases:
         pass
 
     @staticmethod
-    def test_cases(self, projects: list) -> Any:
+    def test_cases(projects: list) -> Any:
         pass_counter, fail_counter = 0, 0
 
         # the test case parameters are formated as ['<request_url>',<success_status_code>,'<validate_string(optional)>']
