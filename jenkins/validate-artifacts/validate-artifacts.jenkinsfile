@@ -91,7 +91,7 @@ pipeline {
             agent { label agent_nodes["x64"] }
             steps {
                 script {
-                    if (VERSION == '' || ) {
+                    if (VERSION == '' ||  FILE_PATH == '') {
                         currentBuild.result = 'ABORTED'
                         error('VERSION cannot be empty. Please provide version of the artifacts to validate')
                     }
