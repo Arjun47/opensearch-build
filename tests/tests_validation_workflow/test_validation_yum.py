@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import MagicMock, Mock, patch
 
 from validation_workflow.yum.validation_yum import ValidateYum
+from validation_workflow.api_test_cases import ApiTestCases
 
 
 class TestValidationYum(unittest.TestCase):

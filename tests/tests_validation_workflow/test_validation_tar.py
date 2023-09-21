@@ -6,7 +6,7 @@
 # compatible open source license.
 
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, MagicMock, patch
 
 from system.process import Process
 from validation_workflow.tar.validation_tar import ValidateTar
@@ -16,11 +16,13 @@ class TestValidationTar(unittest.TestCase):
 
     @patch("validation_workflow.download_utils.DownloadUtils.is_url_valid", return_value=True)
     @patch("validation_workflow.download_utils.DownloadUtils.download", return_value=True)
-    @patch("validation_workflow.validation.Validation.check_url", return_value=True)
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
-    def test_download_artifacts(self, mock_validation_args: Mock, mock_is_url_valid: Mock, mock_download: Mock, mock_check_url: Mock) -> None:
+    def test_download_artifacts(self, mock_validation_args: Mock, mock_is_url_valid: Mock, mock_download: Mock) -> None:
         mock_validation_args.return_value.projects.return_value = ["opensearch"]
-
+        mock_validation_args.return_value.version.return_value = "2.5.0"
+        mock_validation_args.return_value.arch.return_value = "x64"
+        mock_check_url = MagicMock()
+        mock_check_url.return_value = True
         validate_tar = ValidateTar(mock_validation_args)
 
         result = validate_tar.download_artifacts()
