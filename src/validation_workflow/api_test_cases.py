@@ -28,7 +28,7 @@ class ApiTestCases:
         test_cases = [
             ['https://localhost:9200/', 200, ''],
             ['https://localhost:9200/_cat/plugins?v', 200, ''],
-            ['https://localhost:9200/_cat/health?v', 200, ['green', 'yellow'],
+            ['https://localhost:9200/_cat/health?v', 200, ['green', 'yellow']],
         ]
         if ("opensearch-dashboards" in projects):
             test_cases.append(['http://localhost:5601/api/status', 200, ''])
