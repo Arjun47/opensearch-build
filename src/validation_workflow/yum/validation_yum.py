@@ -8,6 +8,7 @@
 import logging
 import time
 import os
+import re
 
 from system.execute import execute
 from system.temporary_directory import TemporaryDirectory
@@ -37,7 +38,9 @@ class ValidateYum(Validation, DownloadUtils):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
                 else:
+                    self.args.version = re.search(r'(\d+\.\d+\.\d+)', os.path.basename(self.args.file_path.get(project))).group(1)
                     self.check_url(self.args.file_path.get(project))
+
             else:
                 if (self.args.artifact_type == "staging"):
                     self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/rpm/dist/{project}/{project}-{self.args.version}.staging.repo"  # noqa: E501

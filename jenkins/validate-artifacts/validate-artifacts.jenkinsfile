@@ -37,6 +37,11 @@ pipeline {
             trim: true
         )
         string(
+            name: 'FILE_PATH',
+            description: 'Enter url link of the corresponding artifact',
+            trim: true
+        )
+        string(
             name: 'DISTRIBUTION',
             description: 'Enter the distribution type among tar, rpm, yum, docker separated by space. Defaults to "tar rpm yum docker"',
             trim: true,
@@ -86,7 +91,7 @@ pipeline {
             agent { label agent_nodes["x64"] }
             steps {
                 script {
-                    if (VERSION == '') {
+                    if (VERSION == '' || ) {
                         currentBuild.result = 'ABORTED'
                         error('VERSION cannot be empty. Please provide version of the artifacts to validate')
                     }
@@ -135,6 +140,7 @@ pipeline {
 
                                                     validateArtifacts(
                                                         version: "$VERSION",
+                                                        "file-path": "$FILE_PATH",
                                                         distribution: "${local_distribution}",
                                                         arch: "${local_architecture}",
                                                         "os-build-number": "$OS_BUILD_NUMBER",
