@@ -42,7 +42,7 @@ class ApiTestCases:
             logging.info(f"\nRequest_url ->{str(request_url)} \n")
             logging.info(f"\nStatus_code ->{status_code} \nresponse_text ->{response_text}")
 
-            if status_code == success_status_code and (any(string in response_text for string in validate_strings)):
+            if status_code == success_status_code and (any(string in response_text for string in validate_string)):
                 pass_counter += 1
             else:
                 fail_counter += 1
