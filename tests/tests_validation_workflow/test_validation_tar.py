@@ -77,25 +77,25 @@ class TestValidationTar(unittest.TestCase):
 
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     @patch('validation_workflow.tar.validation_tar.ApiTestCases')
-    def test_validation(self, mock_test_cases: Mock, mock_validation_args: Mock) -> None:
+    def test_validation(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
         mock_validation_args.return_value.version = '2.3.0'
-        mock_test_cases_instance = mock_test_cases.return_value
-        mock_test_cases_instance.test_cases.return_value = (True, 3)
+        mock_test_apis_instance = mock_test_apis.return_value
+        mock_test_apis_instance.test_apis.return_value = (True, 3)
 
         validate_tar = ValidateTar(mock_validation_args.return_value)
 
         result = validate_tar.validation()
         self.assertTrue(result)
 
-        mock_test_cases.assert_called_once()
+        mock_test_apis.assert_called_once()
 
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     @patch('validation_workflow.tar.validation_tar.ApiTestCases')
-    def test_failed_testcases(self, mock_test_cases: Mock, mock_validation_args: Mock) -> None:
+    def test_failed_testcases(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
         # Set up mock objects
         mock_validation_args.return_value.version = '2.3.0'
-        mock_test_cases_instance = mock_test_cases.return_value
-        mock_test_cases_instance.test_cases.return_value = (True, 1)
+        mock_test_apis_instance = mock_test_apis.return_value
+        mock_test_apis_instance.test_apis.return_value = (True, 1)
 
         # Create instance of ValidateRpm class
         validate_tar = ValidateTar(mock_validation_args.return_value)
@@ -105,7 +105,7 @@ class TestValidationTar(unittest.TestCase):
         self.assertRaises(Exception, "Not all tests Pass : 1")
 
         # Assert that the mock methods are called as expected
-        mock_test_cases.assert_called_once()
+        mock_test_apis.assert_called_once()
 
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     @patch.object(Process, 'terminate')

@@ -52,8 +52,8 @@ class TestValidateDocker(unittest.TestCase):
         mock_validation_args.return_value.projects = ["opensearch"]
         mock_docker_image.return_value = MagicMock()
         mock_container.return_value = (True, 'test_file.yml')
-        mock_test_cases_instance = mock_test.return_value
-        mock_test_cases_instance.test_cases.return_value = (True, 2)
+        mock_test_apis_instance = mock_test.return_value
+        mock_test_apis_instance.test_apis.return_value = (True, 2)
         mock_digest.return_value = True
         mock_check_http.return_value = True
 
@@ -71,7 +71,7 @@ class TestValidateDocker(unittest.TestCase):
         # Assert that the mock methods are called as expected
         mock_container.assert_called_once()
         mock_test.assert_called_once()
-        mock_test.assert_has_calls([call(), call().test_cases(['opensearch'])])
+        mock_test.assert_has_calls([call(), call().test_apis(['opensearch'])])
 
     @patch('validation_workflow.docker.validation_docker.ValidationArgs')
     def test_cleanup(self, mock_validation_args: Mock) -> None:
