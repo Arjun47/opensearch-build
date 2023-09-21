@@ -6,9 +6,9 @@
 # compatible open source license.
 
 import logging
-import time
 import os
 import re
+import time
 
 from system.execute import execute
 from system.temporary_directory import TemporaryDirectory
@@ -31,9 +31,6 @@ class ValidateYum(Validation, DownloadUtils):
     def download_artifacts(self) -> bool:
         isFilePathEmpty = bool(self.args.file_path)
         for project in self.args.projects:
-            print(project)
-            print("name:" + project)
-            print(self.args.version)
             if (isFilePathEmpty):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
@@ -44,12 +41,9 @@ class ValidateYum(Validation, DownloadUtils):
             else:
                 if (self.args.artifact_type == "staging"):
                     self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/rpm/dist/{project}/{project}-{self.args.version}.staging.repo"  # noqa: E501
-                    print("name:" + project)
                 else:
                     self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version[0:1]}.x/{project}-{self.args.version[0:1]}.x.repo"
-                    print("name:" + project)
 
-                print(self.args.file_path[project])
                 self.check_url(self.args.file_path.get(project))
         return True
 

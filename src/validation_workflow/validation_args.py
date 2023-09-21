@@ -128,23 +128,18 @@ class ValidationArgs:
         if (not (args.version or args.file_path)):
             raise Exception("Provide either version number or File Path")
         if(args.file_path):
-            print(type(args.file_path))
             args.distribution = self.get_distribution_type(args.file_path)
             args.projects = args.file_path.keys()
         if (('opensearch' not in args.projects)):
             raise Exception("Provide OpenSearch Artifact details along with OpenSearch DashBoards to validate")
-        print(args.projects)
-        print(args.file_path)
 
         self.version = args.version
         self.file_path = args.file_path
         self.artifact_type = args.artifact_type
         self.logging_level = args.logging_level
         self.distribution = args.distribution
-        print(self.distribution)
         self.platform = args.platform
         self.projects = args.projects
-        print(args.projects)
         self.arch = args.arch
         self.OS_image = 'opensearchproject/opensearch'
         self.OSD_image = 'opensearchproject/opensearch-dashboards'
@@ -157,7 +152,6 @@ class ValidationArgs:
 
     def get_distribution_type(self, file_path: dict) -> str:
         if (any("tar" in value for value in file_path.values())):
-            print("True tar")
             return 'tar'
         elif (any("rpm" in value for value in file_path.values())):
             return 'rpm'

@@ -9,7 +9,6 @@ import unittest
 from unittest.mock import MagicMock, Mock, patch
 
 from validation_workflow.yum.validation_yum import ValidateYum
-from validation_workflow.api_test_cases import ApiTestCases
 
 
 class TestValidationYum(unittest.TestCase):
@@ -35,7 +34,6 @@ class TestValidationYum(unittest.TestCase):
         mock_validation_args.return_value.version.return_value = '2.11.0'
 
         validate_yum = ValidateYum(mock_validation_args.return_value)
-        validate_yum.download_artifacts()
         self.assertRaises(Exception, validate_yum.download_artifacts())
 
     @patch('validation_workflow.yum.validation_yum.ValidationArgs')
@@ -43,7 +41,7 @@ class TestValidationYum(unittest.TestCase):
     def test_copy_artifacts(self, mock_validation_args: Mock, mock_isFilePathEmpty: Mock) -> None:
         mock_isFilePathEmpty.return_value = True
         mock_validation_args.return_value.projects = ["opensearch"]
-        mock_validation_args.return_value.file_path = {"opensearch": "/src/files/opensearch-tar.gz"}
+        mock_validation_args.return_value.file_path = {"opensearch": "/src/files/opensearch.staging.repo"}
         validate_yum = ValidateYum(mock_validation_args.return_value)
 
         # Call cleanup method
@@ -56,7 +54,7 @@ class TestValidationYum(unittest.TestCase):
     def test_exceptions(self, mock_validation_args: Mock) -> None:
         with self.assertRaises(Exception) as e1:
             mock_validation_args.return_value.projects = ["opensearch"]
-            mock_validation_args.return_value.file_path = {"opensearch": "/src/files/opensearch-tar.gz"}
+            mock_validation_args.return_value.file_path = {"opensearch": "/src/files/opensearch.staging.reop"}
             validate_yum = ValidateYum(mock_validation_args.return_value)
             validate_yum.installation()
         self.assertEqual(str(e1.exception), "Failed to install Opensearch")
@@ -135,17 +133,6 @@ class TestValidationYum(unittest.TestCase):
     @patch("validation_workflow.yum.validation_yum.execute", return_value=True)
     @patch('validation_workflow.yum.validation_yum.ValidationArgs')
     def test_cleanup(self, mock_validation_args: Mock, mock_execute: Mock) -> None:
-        mock_validation_args.return_value.version.return_value = '2.3.0'
-        mock_validation_args.return_value.projects.return_value = ["opensearch", "opensearch-dashboards"]
-
-        validate_yum = ValidateYum(mock_validation_args.return_value)
-
-        result = validate_yum.cleanup()
-        self.assertTrue(result)
-
-    @patch("validation_workflow.yum.validation_yum.execute", return_value=True)
-    @patch('validation_workflow.yum.validation_yum.ValidationArgs')
-    def test_cleanup_fail(self, mock_validation_args: Mock, mock_execute: Mock) -> None:
         mock_validation_args.return_value.version.return_value = '2.3.0'
         mock_validation_args.return_value.projects.return_value = ["opensearch", "opensearch-dashboards"]
 

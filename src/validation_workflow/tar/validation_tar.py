@@ -31,9 +31,6 @@ class ValidateTar(Validation, DownloadUtils):
     def download_artifacts(self) -> bool:
         isFilePathEmpty = bool(self.args.file_path)
         for project in self.args.projects:
-            print(project)
-            print("name:" + project)
-            print(self.args.version)
             if (isFilePathEmpty):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
@@ -42,11 +39,8 @@ class ValidateTar(Validation, DownloadUtils):
             else:
                 if (self.args.artifact_type == "staging"):
                     self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
-                    print("name:" + project)
                 else:
                     self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
-                    print("name:" + project)
-                print(self.args.file_path[project])
                 self.check_url(self.args.file_path.get(project))
         return True
 
@@ -54,7 +48,6 @@ class ValidateTar(Validation, DownloadUtils):
         try:
             for project in self.args.projects:
                 self.filename = os.path.basename(self.args.file_path.get(project))
-                print(self.filename)
                 execute('mkdir ' + os.path.join(self.tmp_dir.path, project) + ' | tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C ' + os.path.join(self.tmp_dir.path, project) + ' --strip-components=1', ".", True, False)  # noqa: E501
         except:
             raise Exception('Failed to Install Opensearch')

@@ -40,9 +40,7 @@ class ValidateDocker(Validation):
                 self.get_artifact_image_name(product, using_staging_artifact_only),
                 self.args.version if not self.args.using_staging_artifact_only else ValidationArgs().stg_tag(product).replace(" ", ""))
             self.image_ids = {key: value for key, value in zip(product_names, list(map(get_image_id, product_names)))}
-            print(self.image_ids)
             self.image_ids = {key: value.strip() for key, value in self.image_ids.items()}
-            print(self.image_ids)
 
             return True
 
@@ -67,11 +65,6 @@ class ValidateDocker(Validation):
             self.image_names_list = [self.args.OS_image, self.args.OSD_image]
             self.image_names_list = [x for x in self.image_names_list if (os.path.basename(x) in self.args.projects)]
             self.image_digests = list(map(lambda x: self.inspect_docker_image(x[0], x[1]), zip(self.image_ids.values(), self.image_names_list)))  # type: ignore
-
-            print(": image_names_list")
-            print(self.image_names_list)
-            print(self.image_digests)
-            print(":image_digests")
 
             if all(self.image_digests):
                 logging.info('Image digest is validated.\n\n')
@@ -259,9 +252,6 @@ class ValidateDocker(Validation):
         shutil.copy2(self.source_file, self.target_yml_file)
 
         self.replacements = [(f'opensearchproject/{key}:{self.major_version_number}', value) for key, value in image_ids.items()]
-
-        print("self.replacements")
-        print(self.replacements)
 
         list(map(lambda r: self.inplace_change(self.target_yml_file, r[0], r[1]), self.replacements))
 
