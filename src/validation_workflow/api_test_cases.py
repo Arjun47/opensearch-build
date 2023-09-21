@@ -20,7 +20,6 @@ class ApiTestCases:
     def __init__(self) -> None:
         pass
 
-    @staticmethod
     def test_cases(self, projects: list) -> Any:
         pass_counter, fail_counter = 0, 0
 
