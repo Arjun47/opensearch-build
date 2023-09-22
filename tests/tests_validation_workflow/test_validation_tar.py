@@ -10,28 +10,76 @@ from unittest.mock import MagicMock, Mock, patch
 
 from system.process import Process
 from validation_workflow.tar.validation_tar import ValidateTar
+from validation_workflow.validation import Validation
 
+class TestValidateTar(unittest.TestCase):
+    def setUp(self):
+        # Set up a mock instance for testing
+        self.args = Mock()
+        self.call_methods = ValidateTar(self.args)
 
-class TestValidationTar(unittest.TestCase):
-
-    @patch("validation_workflow.download_utils.DownloadUtils.is_url_valid", return_value=True)
-    @patch("validation_workflow.download_utils.DownloadUtils.download", return_value=True)
+    @patch("validation_workflow.download_utils.DownloadUtils", return_value=True)
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
-    def test_download_artifacts(self, mock_validation_args: Mock, mock_is_url_valid: Mock, mock_download: Mock) -> None:
+    def test_download_artifacts(self, mock_validation_args: Mock, mock_download_utils: Mock) -> None:
+        mock_isFilePathEmpty = Mock()
+        mock_isFilePathEmpty.return_value = False
+        mock_validation_args.return_value.artifact_type.return_value = "staging"
         mock_validation_args.return_value.projects.return_value = ["opensearch"]
         mock_validation_args.return_value.version.return_value = "2.5.0"
         mock_validation_args.return_value.arch.return_value = "x64"
-        mock_check_url = MagicMock()
-        mock_check_url.return_value = True
-        validate_tar = ValidateTar(mock_validation_args)
 
-        result = validate_tar.download_artifacts()
+        validate_tar = ValidateTar(mock_validation_args.return_value)
 
-        self.assertEqual(result, True)
+        with patch.object(validate_tar, 'check_url') as mock_check_url:
+            mock_check_url.return_value = True
+            result = validate_tar.download_artifacts()
+            self.assertTrue(result)
 
-    @patch("validation_workflow.download_utils.DownloadUtils.is_url_valid", return_value=False)
-    @patch("validation_workflow.download_utils.DownloadUtils.download", return_value=False)
-    @patch("validation_workflow.validation.Validation.check_url", return_value=False)
+    def test_empty_file_path_and_production_artifact_type(self):
+        self.args.projects = ["opensearch"]
+        self.args.version = "2.4.0"
+        self.args.file_path = {}
+        self.args.artifact_type = "production"
+
+        with patch.object(self.call_methods, 'check_url') as mock_check_url:
+            result = self.call_methods.download_artifacts()
+
+        self.assertTrue(result)
+        mock_check_url.assert_called_once()
+
+    def test_empty_file_path_and_staging_artifact_type(self):
+        self.args.projects = ["opensearch"]
+        self.args.version = "2.4.0"
+        self.args.artifact_type = "production"
+        self.args.file_path = {"opensearch": "https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/1.3.12/latest/linux/x64/rpm/dist/opensearch/opensearch-1.3.12.staging.repo"}
+
+        with patch.object(self.call_methods, 'check_url') as mock_check_url:
+            result = self.call_methods.download_artifacts()
+
+        self.assertTrue(result)
+
+        mock_check_url.assert_called_with(self.args.file_path["opensearch"])
+
+    @patch('shutil.copy2', return_value=True)
+    def test_local_artifacts(self, mock_mkdir):
+        self.args.file_path = {"opensearch": "tar.gz"}
+        self.args.projects = ["opensearch"]
+        self.args.version = ""
+        self.args.arch = "x64"
+
+        with patch.object(self.call_methods, 'copy_artifact') as mock_copy_artifact:
+            result = self.call_methods.download_artifacts()
+        self.assertTrue(result)
+        mock_copy_artifact.assert_called_once()
+
+
+
+
+
+
+    @patch("validation_workflow.download_utils.DownloadUtils.is_url_valid", return_value=True)
+    @patch("validation_workflow.download_utils.DownloadUtils.download", return_value=True)
+    @patch("validation_workflow.validation.Validation.check_url", return_value=True)
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     def test_download_artifacts_error(self, mock_validation_args: Mock, mock_is_url_valid: Mock, mock_download: Mock, mock_check_url: Mock) -> None:
         url = "https://opensearch.org/release/2.11.0/opensearch-2.11.0-linux-arm64.tar.gz"
@@ -41,9 +89,7 @@ class TestValidationTar(unittest.TestCase):
         self.assertRaises(Exception, validate_tar.check_url(url))
 
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
-    @patch('validation_workflow.validation.Validation.check_url')
-    def test_copy_artifacts(self, mock_validation_args: Mock, mock_isFilePathEmpty: Mock) -> None:
-        mock_isFilePathEmpty.return_value = True
+    def test_copy_artifacts(self, mock_validation_args: Mock) -> None:
         mock_validation_args.return_value.projects = ["opensearch", "opensearch-dashboards"]
         mock_validation_args.return_value.file_path = {"opensearch": "/src/files/opensearch-tar.gz", "opensearch-dashboards": "/src/files/opensearch-dashboards-tar.gz"}
         validate_tar = ValidateTar(mock_validation_args.return_value)
@@ -53,7 +99,6 @@ class TestValidationTar(unittest.TestCase):
             mock_copy_artifact.return_value = True
             result = validate_tar.download_artifacts()
             self.assertTrue(result)
-
     @patch("validation_workflow.tar.validation_tar.execute", return_value=True)
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     def test_installation(self, mock_validation_args: Mock, mock_system: Mock) -> None:
