@@ -84,23 +84,12 @@ class TestValidationArgs(unittest.TestCase):
             self.assertEqual(ValidationArgs().projects, ["opensearch"])
         self.assertEqual(str(ctx.exception), "Provided distribution is not supported")
 
-    def get_distribution_type(self, file_path: dict) -> str:
-        if (any("tar" in value for value in file_path.values())):
-            return 'tar'
-        elif (any("rpm" in value for value in file_path.values())):
-            return 'rpm'
-        elif (any("repo" in value for value in file_path.values())):
-            return 'yum'
-        else:
-            raise Exception("Provided distribution is not supported")
-
     @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path", "opensearch=https://opensearch.org/releases/opensearch/2.8.0/opensearch-2.8.0-linux-x64.tar.gz"])
     def test_get_distribution_type_tar(self) -> None:
         result = ValidationArgs().get_distribution_type(ValidationArgs().file_path)
         self.assertEqual(result, "tar")
 
-    @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path","opensearch=https://opensearch.org/releases/opensearch/2.8.0/opensearch-2.x.staging.repo "])
+    @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path", "opensearch=https://opensearch.org/releases/opensearch/2.8.0/opensearch-2.x.staging.repo "])
     def test_get_distribution_type_yum(self) -> None:
         result = ValidationArgs().get_distribution_type(ValidationArgs().file_path)
         self.assertEqual(result, "yum")
-

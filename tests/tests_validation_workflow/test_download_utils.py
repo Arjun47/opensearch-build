@@ -6,13 +6,14 @@
 # compatible open source license.
 
 import unittest
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock
 from system.temporary_directory import TemporaryDirectory
 from validation_workflow.download_utils import DownloadUtils
 
+
 class TestDownloadUtils(unittest.TestCase):
     @patch('requests.head')
-    def test_is_url_valid_true(self, mock_head):
+    def test_is_url_valid_true(self, mock_head: Mock) -> None:
         mock_head.return_value.status_code = 302
         url = "https://opensearch.org/release/2.11.0/opensearch-2.11.0-linux-arm64.tar.gz"
         result = DownloadUtils.is_url_valid(url)
@@ -22,9 +23,8 @@ class TestDownloadUtils(unittest.TestCase):
         result = DownloadUtils.is_url_valid(url)
         self.assertTrue(result)
 
-
     @patch('requests.head')
-    def test_is_url_valid_false(self, mock_head):
+    def test_is_url_valid_false(self, mock_head: Mock) -> None:
         mock_head.return_value.status_code = 404
 
         url = "https://opensearch.org/release/2.11.0/opensearch-2.11.0-linux-arm64.tar.gz"
@@ -35,7 +35,7 @@ class TestDownloadUtils(unittest.TestCase):
     @patch('requests.get')
     @patch('builtins.open', create=True)
     @patch('os.mkdir', return_value=None)
-    def test_download(self, mock_mkdir, mock_open, mock_get):
+    def test_download(self, mock_mkdir: Mock, mock_open: Mock, mock_get: Mock) -> None:
         mock_get.return_value.content = "exists"
         mock_response = Mock()
         mock_response.status_code = 200
@@ -49,6 +49,3 @@ class TestDownloadUtils(unittest.TestCase):
         self.assertTrue(result)
         mock_open.assert_called_once()
         mock_get.assert_called_once()
-
-
-
