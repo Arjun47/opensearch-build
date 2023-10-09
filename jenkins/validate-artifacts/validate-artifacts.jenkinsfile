@@ -98,8 +98,6 @@ pipeline {
                 script {
                     env.url_paths = [:]
 
-                    if(OPENSEARCH_DASHBOARDS_ARTIFACT_URL )
-
                     OPENSEARCH_ARTIFACT_URL ? url_paths['opensearch'] = OPENSEARCH_ARTIFACT_URL : null
                     OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = OPENSEARCH_DASHBOARDS_ARTIFACT_URL : null
 
