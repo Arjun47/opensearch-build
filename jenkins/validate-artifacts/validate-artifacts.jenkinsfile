@@ -99,6 +99,7 @@ pipeline {
                     echo "1"
                     env.url_paths = [:]
                     echo "2"
+                    url_paths["x"] = "abc"
 
                     echo OPENSEARCH_ARTIFACT_URL
                     echo "$OPENSEARCH_ARTIFACT_URL"
