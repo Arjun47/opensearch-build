@@ -100,8 +100,13 @@ pipeline {
                     env.url_paths = [:]
                     echo "2"
 
-                    OPENSEARCH_ARTIFACT_URL ? url_paths.put('opensearch', OPENSEARCH_ARTIFACT_URL) : None
-                    OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = OPENSEARCH_DASHBOARDS_ARTIFACT_URL : null
+                    if (OPENSEARCH_ARTIFACT_URL) {
+                        url_paths.put('opensearch', OPENSEARCH_ARTIFACT_URL)
+                    }
+
+                    if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL) {
+                        url_paths.put('opensearch-dashboards', OPENSEARCH_DASHBOARDS_ARTIFACT_URL)
+                    }
 
                     echo "3"
                     if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL && OPENSEARCH_ARTIFACT_URL == "") {
