@@ -117,7 +117,7 @@ pipeline {
                     }
                     echo "4"
 
-                    if(url_paths.isEmpty()) {
+                    if(!url_paths.isEmpty()) {
                         echo "5"
                         ARCHITECTURE = url_paths.values().find { it.contains("x64") } ? "x64" : "arm64"
                         DISTRIBUTION = url_paths.values().find { it.contains("tar.gz") } ? "tar" : (url_paths.values().find { it.contains("rpm") } ? "rpm" : "yum")
