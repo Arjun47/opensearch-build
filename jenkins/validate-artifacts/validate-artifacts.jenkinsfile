@@ -135,7 +135,7 @@ pipeline {
         stage('Validate') {
             when {
                 expression {
-                    params.VERSION != ''
+                    VERSION != ''
                 }
             }
             agent {label agent_nodes["x64"] }
@@ -226,7 +226,7 @@ pipeline {
         stage('Validate a distribution'){
             when {
                 expression {
-                params.VERSION == ''
+                VERSION == ''
                 }
             }
             agent {
@@ -244,7 +244,7 @@ pipeline {
                     if (OPENSEARCH_ARTIFACT_URL) {
                         env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()}"
                         if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL) {
-                            env.FILEPATH = env.FILEPATH + "opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
+                            env.FILEPATH = env.FILEPATH + " opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
                         }
                     }
 
