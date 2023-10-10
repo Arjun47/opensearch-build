@@ -100,7 +100,8 @@ pipeline {
                     env.url_paths = [:]
                     echo "2"
 
-                    OPENSEARCH_ARTIFACT_URL ? url_paths['opensearch'] = params.OPENSEARCH_ARTIFACT_URL : None
+                    OPENSEARCH_ARTIFACT_URL ? url_paths['opensearch'] = ${params.OPENSEARCH_ARTIFACT_URL} : None
+                    echo "3"
                     OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = params.OPENSEARCH_DASHBOARDS_ARTIFACT_URL : None
 
                     echo "3"
