@@ -112,8 +112,9 @@ pipeline {
                     }
                     if(!url_paths.isEmpty()){
                     echo url_paths
+                    }
 
-                    if (VERSION == '' && !url_paths.isEmpty()) {
+                    if (VERSION == '' && !url_paths) {
                         currentBuild.result = 'ABORTED'
                         error('VERSION cannot be empty. Please provide either version or url paths for the artifacts to validate')
                     }
@@ -123,9 +124,7 @@ pipeline {
                         currentBuild.result = 'ABORTED'
                         error("Provide OS_BUILD_NUMBER and OSD_BUILD_NUMBER args for Docker Validation")
                     }
-                    if(!url_paths.isEmpty()){
-                    echo url_paths
-                    }
+
 
                     if(url_paths.isEmpty()) {
                         echo "5"
