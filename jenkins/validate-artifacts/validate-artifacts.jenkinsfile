@@ -103,7 +103,7 @@ pipeline {
 
                     OPENSEARCH_ARTIFACT_URL ? url_paths["opensearch"] = OPENSEARCH_ARTIFACT_URL : None
                     echo "3"
-                    OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = params.OPENSEARCH_DASHBOARDS_ARTIFACT_URL : None
+                    OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = OPENSEARCH_DASHBOARDS_ARTIFACT_URL : None
 
                     echo "3"
                     if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL && OPENSEARCH_ARTIFACT_URL == "") {
@@ -111,7 +111,7 @@ pipeline {
                         error("Provide OPENSEARCH_ARTIFACT_URL to validate")
                     }
 
-                    if (VERSION == '' || !url_paths) {
+                    if (VERSION == '' || url_paths.isEmpty()) {
                         currentBuild.result = 'ABORTED'
                         error('VERSION cannot be empty. Please provide either version or url paths for the artifacts to validate')
                     }
