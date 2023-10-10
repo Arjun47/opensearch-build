@@ -97,7 +97,7 @@ pipeline {
             steps {
                 script {
                     echo "1"
-                    env.url_paths = [:]
+                    def url_paths = [:]
                     echo "2"
                     url_paths["x"] = "abc"
 
