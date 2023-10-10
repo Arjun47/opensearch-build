@@ -125,6 +125,8 @@ pipeline {
                     echo "$ARCHITECTURE"
                     echo "$DISTRIBUTION"
 
+                    env.FILE_PATH = url_paths
+
                     if (DISTRIBUTION.contains('docker') && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
                         currentBuild.result = 'ABORTED'
                         error("Provide OS_BUILD_NUMBER and OSD_BUILD_NUMBER args for Docker Validation")
@@ -156,7 +158,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        validateArtifacts("file-path": "$url_paths")
+                        validateArtifacts("file-path": "$FILE_PATH")
                     } catch (e) {
                         echo "Error occurred while validating $DISTRIBUTION-$ARCHITECTURE"
                         throw e
