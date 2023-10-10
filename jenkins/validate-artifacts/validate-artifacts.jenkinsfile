@@ -125,7 +125,7 @@ pipeline {
                     echo "$ARCHITECTURE"
                     echo "$DISTRIBUTION"
 
-                    if (params.DISTRIBUTION.contains('docker') && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
+                    if (DISTRIBUTION.contains('docker') && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
                         currentBuild.result = 'ABORTED'
                         error("Provide OS_BUILD_NUMBER and OSD_BUILD_NUMBER args for Docker Validation")
                     }
