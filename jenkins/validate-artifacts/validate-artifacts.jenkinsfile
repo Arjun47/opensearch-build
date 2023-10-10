@@ -135,7 +135,7 @@ pipeline {
         stage('Validate') {
             when {
                 expression {
-                    params.VERSION != null
+                    params.VERSION != ''
                 }
             }
             agent {label agent_nodes["x64"] }
