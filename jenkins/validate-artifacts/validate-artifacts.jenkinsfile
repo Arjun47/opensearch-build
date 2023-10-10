@@ -226,7 +226,7 @@ pipeline {
         stage('Validate a distribution'){
             when {
                 expression {
-                params.VERSION == null
+                params.VERSION == ''
                 }
             }
             agent {
