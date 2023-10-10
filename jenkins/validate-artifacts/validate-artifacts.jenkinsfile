@@ -32,18 +32,19 @@ pipeline {
     agent none
     parameters {
         string(
-            name: 'VERSION',
-            description: 'Enter the OpenSearch and OpenSearch Dashboards version that needs to be validated',
-            trim: true
-        )
-        string(
             name: 'OPENSEARCH_ARTIFACT_URL',
             description: 'Enter url link of the OpenSearch artifact',
             trim: true
         )
         string(
             name: 'OPENSEARCH_DASHBOARDS_ARTIFACT_URL',
-            description: 'Enter url link of the OpenSearch artifact',
+            description: 'Enter url link of the OpenSearch artifact, to be provided along with OPENSEARCH_ARTIFACT_URL for validation',
+            trim: true
+        )
+        string(
+            name: 'VERSION',
+            description: 'Enter the OpenSearch and OpenSearch Dashboards version to validate only when the URLs are not provided',
+            defaultValue: "",
             trim: true
         )
         string(
@@ -55,18 +56,18 @@ pipeline {
         )
         string(
             name: 'ARCHITECTURE',
-            description: 'Enter the architecture type among x64 and arm64 separated by space. Defaults "x64,arm64"',
+            description: 'Enter the architecture type among x64 and arm64 separated by space. Defaults "x64 arm64"',
             trim: true,
             defaultValue: "x64 arm64"
         )
         string(
             name: 'OS_BUILD_NUMBER',
-            description: 'Enter the build number for OpenSearch - This parameter is applicable only for Docker Validation',
+            description: 'Enter the build number for OpenSearch - This parameter is applicable only for Docker Validation and staging artifacts referred by build numbers',
             trim: true,
         )
         string(
             name: 'OSD_BUILD_NUMBER',
-            description: 'Enter the build number for OpenSearch Dashboards - This parameter is applicable only for Docker Validation',
+            description: 'Enter the build number for OpenSearch Dashboards - This parameter is applicable only for Docker Validation and staging artifacts referred by build numbers',
             trim: true,
         )
         string(
@@ -83,7 +84,7 @@ pipeline {
         )
         string(
             name: 'ARTIFACT_TYPE',
-            description: 'Enter staging or production',
+            description: 'Determine the artifact type among staging or production ',
             trim: true,
             defaultValue: "production"
         )
