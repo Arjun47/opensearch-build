@@ -116,6 +116,7 @@ pipeline {
                         ARCHITECTURE = url_paths.values().find { it.contains("x64") } ? "x64" : "arm64"
                         DISTRIBUTION = url_paths.values().find { it.contains("tar.gz") } ? "tar" : (url_paths.values().find { it.contains("rpm") } ? "rpm" : "yum")
                     }
+                    echo "$ARCHITECTURE $DISTRIBUTION"
 
                     if (DISTRIBUTION.contains('docker') && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
                         currentBuild.result = 'ABORTED'
@@ -182,6 +183,7 @@ pipeline {
             agent {label agent_nodes["x64"] }
             steps {
                 script {
+                    echo "1"
 
                     def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : ""
                     def architectureList = ARCHITECTURE ? ARCHITECTURE.trim().split(" ") as List : ""
