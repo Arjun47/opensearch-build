@@ -134,7 +134,7 @@ pipeline {
         stage('Validate a distribution'){
             when {
                 expression {
-                    VERSION == ''
+                    params.VERSION == ''
                 }
             }
             agent {
@@ -175,6 +175,11 @@ pipeline {
         }
 
         stage('Validate') {
+            when {
+                expression {
+                    params.VERSION
+                }
+            }
             agent {label agent_nodes["x64"] }
             steps {
                 script {
