@@ -110,6 +110,8 @@ pipeline {
                         currentBuild.result = 'ABORTED'
                         error("Provide OPENSEARCH_ARTIFACT_URL to validate")
                     }
+                    if(!url_paths.isEmpty()){
+                    echo url_paths
 
                     if (VERSION == '' && !url_paths.isEmpty()) {
                         currentBuild.result = 'ABORTED'
