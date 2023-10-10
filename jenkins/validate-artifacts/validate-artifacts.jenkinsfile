@@ -111,7 +111,7 @@ pipeline {
                         error("Provide OPENSEARCH_ARTIFACT_URL to validate")
                     }
 
-                    if (VERSION == '' && !url_paths.isEmpty()) {
+                    if (VERSION == '' && url_paths.isEmpty()) {
                         currentBuild.result = 'ABORTED'
                         error('VERSION cannot be empty. Please provide either version or url paths for the artifacts to validate')
                     }
