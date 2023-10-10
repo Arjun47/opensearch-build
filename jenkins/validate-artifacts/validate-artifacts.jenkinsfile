@@ -96,16 +96,12 @@ pipeline {
             agent { label agent_nodes["x64"] }
             steps {
                 script {
-                    echo "1"
                     def url_paths = [:]
-                    echo "2"
 
 
                     OPENSEARCH_ARTIFACT_URL ? url_paths["opensearch"] = OPENSEARCH_ARTIFACT_URL : null
-                    echo "3"
                     OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = OPENSEARCH_DASHBOARDS_ARTIFACT_URL : null
 
-                    echo "3"
                     if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL && OPENSEARCH_ARTIFACT_URL == "") {
                         currentBuild.result = 'ABORTED'
                         error("Provide OPENSEARCH_ARTIFACT_URL to validate")
@@ -115,20 +111,11 @@ pipeline {
                         currentBuild.result = 'ABORTED'
                         error('VERSION cannot be empty. Please provide either version or url paths for the artifacts to validate')
                     }
-                    echo "4"
 
-                    if(!url_paths.isEmpty()) {
-                        echo "5"
+                    if(OPENSEARCH_ARTIFACT_URL) {
                         ARCHITECTURE = url_paths.values().find { it.contains("x64") } ? "x64" : "arm64"
                         DISTRIBUTION = url_paths.values().find { it.contains("tar.gz") } ? "tar" : (url_paths.values().find { it.contains("rpm") } ? "rpm" : "yum")
                     }
-                    echo "$ARCHITECTURE"
-                    echo "$DISTRIBUTION"
-
-                    env.FILE_PATH = url_paths
-
-                    env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()} opensearch-dashboards=${OPENSEARCH_ARTIFACT_URL?.trim()}"
-
 
                     if (DISTRIBUTION.contains('docker') && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
                         currentBuild.result = 'ABORTED'
@@ -146,7 +133,7 @@ pipeline {
         stage('Validate a distribution'){
             when {
                 expression {
-                    params.VERSION == ''
+                    VERSION == ''
                 }
             }
             agent {
@@ -189,7 +176,7 @@ pipeline {
         stage('Validate') {
             when {
                 expression {
-                    params.VERSION
+                    VERSION
                 }
             }
             agent {label agent_nodes["x64"] }
