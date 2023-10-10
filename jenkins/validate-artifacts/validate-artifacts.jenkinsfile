@@ -126,49 +126,6 @@ pipeline {
             }
         }
 
-        stage('Validate a distribution'){
-            when {
-                expression {
-                    params.VERSION == ''
-                }
-            }
-            agent {
-                docker {
-                    label agent_nodes["$ARCHITECTURE"]
-                    image docker_images["$DISTRIBUTION"]
-                    args docker_args["$DISTRIBUTION"]
-                    registryUrl 'https://public.ecr.aws/'
-                    alwaysPull true
-                }
-            }
-            steps {
-                script {
-
-                    if (OPENSEARCH_ARTIFACT_URL) {
-                        env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()}"
-                        if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL) {
-                            env.FILEPATH = env.FILEPATH + "opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
-                        }
-                    }
-
-                    try {
-                        validateArtifacts("file-path": "$FILEPATH")
-                    } catch (e) {
-                        echo "Error occurred while validating $DISTRIBUTION-$ARCHITECTURE"
-                        throw e
-                    } finally {
-                        echo "Completed validation for $DISTRIBUTION-$ARCHITECTURE"
-                        postCleanup()
-                    }
-                }
-            }
-            post {
-                always {
-                    postCleanup()
-                }
-            }
-        }
-
         stage('Validate') {
             when {
                 expression {
