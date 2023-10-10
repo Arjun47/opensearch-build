@@ -106,6 +106,12 @@ pipeline {
                         currentBuild.result = 'ABORTED'
                         error("Provide OPENSEARCH_ARTIFACT_URL to validate")
                     }
+
+                    if(OPENSEARCH_ARTIFACT_URL) {
+                        ARCHITECTURE = url_paths.values().find { it.contains("x64") } ? "x64" : "arm64"
+                        DISTRIBUTION = url_paths.values().find { it.contains("tar.gz") } ? "tar" : (url_paths.values().find { it.contains("rpm") } ? "rpm" : "yum")
+                    }
+
                     echo "$VERSION"
 
                     echo "$ARCHITECTURE"
@@ -130,6 +136,7 @@ pipeline {
             when {
                 expression {
                     params.VERSION
+                    echo "1"
                 }
             }
             agent {label agent_nodes["x64"] }
@@ -221,6 +228,7 @@ pipeline {
             when {
                 expression {
                 params.VERSION == ''
+                echo "1"
                 }
             }
             agent {
