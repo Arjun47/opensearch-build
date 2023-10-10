@@ -127,7 +127,7 @@ pipeline {
 
                     env.FILE_PATH = url_paths
 
-                    env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()} opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
+                    env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()} opensearch-dashboards=${OPENSEARCH_ARTIFACT_URL?.trim()}"
 
 
                     if (DISTRIBUTION.contains('docker') && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
@@ -160,12 +160,6 @@ pipeline {
             }
             steps {
                 script {
-                    if (OPENSEARCH_ARTIFACT_URL) {
-                        env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()}"                    }
-                        if (OPENSEARCH_ARTIFACT_URL) {
-                            env.FILEPATH = env.FILEPATH + "opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
-                        }
-                    }
                     try {
                         validateArtifacts("file-path": "$FILEPATH")
                     } catch (e) {
