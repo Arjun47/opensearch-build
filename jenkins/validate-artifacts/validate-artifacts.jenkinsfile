@@ -127,6 +127,9 @@ pipeline {
 
                     env.FILE_PATH = url_paths
 
+                    env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()} opensearch-dashboards=${OPENSEARCH_ARTIFACT_URL?.trim()}"
+
+
                     if (DISTRIBUTION.contains('docker') && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
                         currentBuild.result = 'ABORTED'
                         error("Provide OS_BUILD_NUMBER and OSD_BUILD_NUMBER args for Docker Validation")
@@ -158,7 +161,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        validateArtifacts("file-path": "$FILE_PATH")
+                        validateArtifacts("file-path": "$FILEPATH")
                     } catch (e) {
                         echo "Error occurred while validating $DISTRIBUTION-$ARCHITECTURE"
                         throw e
