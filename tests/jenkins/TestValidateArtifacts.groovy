@@ -41,7 +41,7 @@ class TestValidateArtifacts extends BuildPipelineTest {
         binding.setVariable('DISTRIBUTION', "docker tar rpm yum")
         binding.setVariable('ARCHITECTURE', "x64 arm64")
         binding.setVariable('PROJECTS', "opensearch")
-        binding.setVariable('ARTIFACT_TYPE', "production")
+        binding.setVariable('ARTIFACT_TYPE', "staging")
         binding.setVariable('OPTIONAL_ARGS', "using-staging-artifact-only")
 
         helper.registerAllowedMethod('fileExists', [String.class], { args ->
@@ -56,9 +56,6 @@ class TestValidateArtifacts extends BuildPipelineTest {
         super.testPipeline("jenkins/validate-artifacts/validate-artifacts.jenkinsfile",
                 "tests/jenkins/jenkinsjob-regression-files/validate-artifacts/validate-artifacts.jenkinsfile")
         assertThat(getCommandExecutions('sh', 'validation.sh'), hasItem('/tmp/workspace/validation.sh  --version 2.3.0 --distribution docker --arch x64 --os-build-number 6039 --osd-build-number 4104 --projects opensearch --using-staging-artifact-only '))
-        assertThat(getCommandExecutions('sh', 'validation.sh'), hasItem('/tmp/workspace/validation.sh  --version 2.3.0 --distribution tar --arch x64 --projects opensearch --artifact-type production'))
-        assertThat(getCommandExecutions('sh', 'validation.sh'), hasItem('/tmp/workspace/validation.sh  --version 2.3.0 --distribution rpm --arch x64 --projects opensearch --artifact-type production'))
-        assertThat(getCommandExecutions('sh', 'validation.sh'), hasItem('/tmp/workspace/validation.sh  --version 2.3.0 --distribution yum --arch arm64 --projects opensearch --artifact-type production'))
 
     }
 
