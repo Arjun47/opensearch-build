@@ -103,7 +103,7 @@ pipeline {
                     echo OPENSEARCH_ARTIFACT_URL
                     echo "$OPENSEARCH_ARTIFACT_URL"
 
-                    OPENSEARCH_ARTIFACT_URL ? url_paths['opensearch'] = ${OPENSEARCH_ARTIFACT_URL} : None
+                    OPENSEARCH_ARTIFACT_URL ? url_paths["opensearch"] = OPENSEARCH_ARTIFACT_URL : None
                     echo "3"
                     OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = params.OPENSEARCH_DASHBOARDS_ARTIFACT_URL : None
 
