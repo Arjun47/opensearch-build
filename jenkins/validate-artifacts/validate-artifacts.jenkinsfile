@@ -163,8 +163,8 @@ pipeline {
 
                     if (OPENSEARCH_ARTIFACT_URL) {
                         env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()}"
-                        if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL) {
-                            env.FILEPATH = env.FILEPATH + " opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
+                        if (OPENSEARCH_ARTIFACT_URL) {
+                            env.FILEPATH = env.FILEPATH + "opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
                         }
                     }
 
