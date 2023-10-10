@@ -228,7 +228,6 @@ pipeline {
             when {
                 expression {
                 params.VERSION == ''
-                echo "1"
                 }
             }
             agent {
