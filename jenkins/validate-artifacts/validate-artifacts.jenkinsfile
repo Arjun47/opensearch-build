@@ -232,7 +232,7 @@ pipeline {
                     VERSION == ''
                 }
             }
-            agent any
+            agent {label agent_nodes["x64"] }
             steps {
                 script {
                     agent {
