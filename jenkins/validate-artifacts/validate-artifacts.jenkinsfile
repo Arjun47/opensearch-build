@@ -4,25 +4,25 @@ lib = library(identifier: 'jenkins@4.2.2', retriever: modernSCM([
 ]))
 
 def docker_images = [
-    "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v2",
-    "rpm": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
-    "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v1",
+    "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v4",
+    "rpm": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v3",
+    "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v3",
 ]
 
 def docker_args = [
     "tar": "-u 1000",
-    "rpm": "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro",
-    "yum": "--entrypoint=/usr/sbin/init -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:ro",
+    "rpm": "--entrypoint=/usr/lib/systemd/systemd -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host",
+    "yum": "--entrypoint=/usr/lib/systemd/systemd -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host",
 ]
 
 def agent_nodes_docker = [
-    "x64": "Jenkins-Agent-AL2-X64-C54xlarge-Single-Host",
-    "arm64": "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Single-Host",
+    "x64": "Jenkins-Agent-AL2023-X64-C54xlarge-Single-Host",
+    "arm64": "Jenkins-Agent-AL2023-Arm64-C6g4xlarge-Single-Host",
 ]
 
 def agent_nodes = [
-    "x64": "Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host",
-    "arm64": "Jenkins-Agent-AL2-Arm64-C6g4xlarge-Docker-Host",
+    "x64": "Jenkins-Agent-AL2023-X64-C54xlarge-Docker-Host",
+    "arm64": "Jenkins-Agent-AL2023-Arm64-C6g4xlarge-Docker-Host",
 ]
 
 pipeline {
@@ -32,18 +32,19 @@ pipeline {
     agent none
     parameters {
         string(
-            name: 'VERSION',
-            description: 'Enter the OpenSearch and OpenSearch Dashboards version that needs to be validated',
-            trim: true
-        )
-        string(
             name: 'OPENSEARCH_ARTIFACT_URL',
             description: 'Enter url link of the OpenSearch artifact',
             trim: true
         )
         string(
             name: 'OPENSEARCH_DASHBOARDS_ARTIFACT_URL',
-            description: 'Enter url link of the OpenSearch artifact',
+            description: 'Enter url link of the OpenSearch artifact, to be provided along with OPENSEARCH_ARTIFACT_URL for validation',
+            trim: true
+        )
+        string(
+            name: 'VERSION',
+            description: 'Enter the OpenSearch and OpenSearch Dashboards version to validate only when the URLs are not provided',
+            defaultValue: "",
             trim: true
         )
         string(
@@ -55,18 +56,18 @@ pipeline {
         )
         string(
             name: 'ARCHITECTURE',
-            description: 'Enter the architecture type among x64 and arm64 separated by space. Defaults "x64,arm64"',
+            description: 'Enter the architecture type among x64 and arm64 separated by space. Defaults "x64 arm64"',
             trim: true,
             defaultValue: "x64 arm64"
         )
         string(
             name: 'OS_BUILD_NUMBER',
-            description: 'Enter the build number for OpenSearch - This parameter is applicable only for Docker Validation',
+            description: 'Enter the build number for OpenSearch - This parameter is applicable only for Docker Validation and staging artifacts referred by build numbers',
             trim: true,
         )
         string(
             name: 'OSD_BUILD_NUMBER',
-            description: 'Enter the build number for OpenSearch Dashboards - This parameter is applicable only for Docker Validation',
+            description: 'Enter the build number for OpenSearch Dashboards - This parameter is applicable only for Docker Validation and staging artifacts referred by build numbers',
             trim: true,
         )
         string(
@@ -83,7 +84,7 @@ pipeline {
         )
         string(
             name: 'ARTIFACT_TYPE',
-            description: 'Enter staging or production',
+            description: 'Determine the artifact type among staging or production ',
             trim: true,
             defaultValue: "production"
         )
@@ -98,7 +99,6 @@ pipeline {
                 script {
                     def url_paths = [:]
 
-
                     OPENSEARCH_ARTIFACT_URL ? url_paths["opensearch"] = OPENSEARCH_ARTIFACT_URL : null
                     OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = OPENSEARCH_DASHBOARDS_ARTIFACT_URL : null
 
@@ -112,12 +112,10 @@ pipeline {
                         DISTRIBUTION = url_paths.values().find { it.contains("tar.gz") } ? "tar" : (url_paths.values().find { it.contains("rpm") } ? "rpm" : "yum")
                     }
 
-                    echo "$VERSION"
-
-                    echo "$ARCHITECTURE"
-                    echo "$DISTRIBUTION"
-
-                    env.FILE_PATH = url_paths
+                    if(VERSION == '' && OPENSEARCH_ARTIFACT_URL == '') {
+                        currentBuild.result = 'ABORTED'
+                        error("Provide either version or URLs to validate")
+                    }
 
                     if (DISTRIBUTION.contains('docker') && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
                         currentBuild.result = 'ABORTED'
@@ -132,7 +130,7 @@ pipeline {
             }
         }
 
-        stage('Validate') {
+        stage('Validate based on version') {
             when {
                 expression {
                     VERSION != ''
@@ -160,7 +158,7 @@ pipeline {
                                 // Using scripted pipelines to trigger dynamic parallel stages
                                 timeout(time: 30) {
                                     if ("${local_distribution}" == "docker"){
-                                        node(agent_nodes["$local_architecture"]) {
+                                        node(agent_nodes_docker["$local_architecture"]) {
                                             try {
                                                 stage("${local_distribution}") {
                                                     unstash "validate-artifacts-$BUILD_NUMBER"
@@ -195,6 +193,8 @@ pipeline {
                                                                 version: "$VERSION",
                                                                 distribution: "${local_distribution}",
                                                                 arch: "${local_architecture}",
+                                                                "os-build-number": "$OS_BUILD_NUMBER",
+                                                                "osd-build-number": "$OSD_BUILD_NUMBER",
                                                                 projects: "$PROJECTS",
                                                                 "artifact-type": "$ARTIFACT_TYPE"
                                                             )
@@ -223,23 +223,23 @@ pipeline {
                 }
             }
         }
-        stage('Validate a distribution'){
+        stage('Validate artifacts from urls'){
             when {
                 expression {
-                VERSION == ''
-                }
-            }
-            agent {
-                docker {
-                    label agent_nodes["$ARCHITECTURE"]
-                    image docker_images["$DISTRIBUTION"]
-                    args docker_args["$DISTRIBUTION"]
-                    registryUrl 'https://public.ecr.aws/'
-                    alwaysPull true
+                    VERSION == ''
                 }
             }
             steps {
                 script {
+                    agent {
+                        docker {
+                            label agent_nodes["$ARCHITECTURE"]
+                            image docker_images["$DISTRIBUTION"]
+                            args docker_args["$DISTRIBUTION"]
+                            registryUrl 'https://public.ecr.aws/'
+                            alwaysPull true
+                        }
+                    }
 
                     if (OPENSEARCH_ARTIFACT_URL) {
                         env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()}"
