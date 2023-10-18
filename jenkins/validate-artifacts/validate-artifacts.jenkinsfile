@@ -29,7 +29,7 @@ pipeline {
     options {
         timeout(time: 1, unit: 'HOURS')
     }
-    agent none
+    agent any
     parameters {
         string(
             name: 'OPENSEARCH_ARTIFACT_URL',
@@ -111,6 +111,7 @@ pipeline {
                         ARCHITECTURE = url_paths.values().find { it.contains("x64") } ? "x64" : "arm64"
                         DISTRIBUTION = url_paths.values().find { it.contains("tar.gz") } ? "tar" : (url_paths.values().find { it.contains("rpm") } ? "rpm" : "yum")
                     }
+                    echo "$ARCHITECTURE"
 
                     if(VERSION == '' && OPENSEARCH_ARTIFACT_URL == '') {
                         currentBuild.result = 'ABORTED'
