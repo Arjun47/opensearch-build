@@ -76,11 +76,10 @@ pipeline {
             trim: true,
             defaultValue: "using-staging-artifact-only"
         )
-        string(
+        choice(
             name: 'PROJECTS',
-            description: 'Enter opensearch or opensearch-dashboards',
-            trim: true,
-            defaultValue: "opensearch"
+            description: 'Enter the project to validate. Either OpenSearch or Both (validates both OpenSearch and OpenSearch-Dashboards).',
+            choices: ['opensearch', 'Both']
         )
         string(
             name: 'ARTIFACT_TYPE',
@@ -101,6 +100,10 @@ pipeline {
 
                     OPENSEARCH_ARTIFACT_URL ? url_paths["opensearch"] = OPENSEARCH_ARTIFACT_URL : null
                     OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = OPENSEARCH_DASHBOARDS_ARTIFACT_URL : null
+
+                    if (params.PROJECTS == 'Both') {
+                        PROJECTS = "opensearch opensearch-dashboards"
+                    }
 
                     if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL && OPENSEARCH_ARTIFACT_URL == "") {
                         currentBuild.result = 'ABORTED'
