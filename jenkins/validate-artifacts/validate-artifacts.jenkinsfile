@@ -33,12 +33,12 @@ pipeline {
     parameters {
         string(
             name: 'OPENSEARCH_ARTIFACT_URL',
-            description: 'Enter url link of the OpenSearch artifact',
+            description: 'Enter OpenSearch artifact URL',
             trim: true
         )
         string(
             name: 'OPENSEARCH_DASHBOARDS_ARTIFACT_URL',
-            description: 'Enter url link of the OpenSearch artifact, to be provided along with OPENSEARCH_ARTIFACT_URL for validation',
+            description: 'Enter OpenSearch-Dashboards artifact URL',
             trim: true
         )
         string(
@@ -189,6 +189,9 @@ pipeline {
                                                         stage("${local_distribution}") {
                                                             unstash "validate-artifacts-$BUILD_NUMBER"
 
+                                                            OS_BUILD_NUMBER ? null : OS_BUILD_NUMBER = "latest"
+                                                            OSD_BUILD_NUMBER ? null : OSD_BUILD_NUMBER = "latest"
+
                                                             validateArtifacts(
                                                                 version: "$VERSION",
                                                                 distribution: "${local_distribution}",
@@ -229,6 +232,7 @@ pipeline {
                     VERSION == ''
                 }
             }
+            agent {label agent_nodes["x64"] }
             steps {
                 script {
                     agent {
