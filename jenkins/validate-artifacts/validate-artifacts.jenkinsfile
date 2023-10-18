@@ -70,10 +70,10 @@ pipeline {
             description: 'Enter the build number for OpenSearch Dashboards - This parameter is applicable only for Docker Validation and staging artifacts referred by build numbers',
             trim: true,
         )
-        string(
+        choice(
             name: 'OPTIONAL_ARGS',
-            description: 'Optional args for docker validation. Currently supports validate-digest-only or using-staging-artifact-only. Defaults to using-staging-artifact-only',
-            trim: true,
+            description: 'Optional args for docker validation. Currently supports validate-digest-only or using-staging-artifact-only. Defaults to using-staging-artifact-only.',
+            choices: ['using-staging-artifact-only', 'validate-digest-only'],
             defaultValue: "using-staging-artifact-only"
         )
         choice(
@@ -81,13 +81,12 @@ pipeline {
             description: 'Enter the project to validate. Either OpenSearch or Both (validates both OpenSearch and OpenSearch-Dashboards).',
             choices: ['opensearch', 'Both']
         )
-        string(
+        choice(
             name: 'ARTIFACT_TYPE',
-            description: 'Determine the artifact type among staging or production ',
-            trim: true,
+            description: 'Determine the artifact type among staging or production.',
+            choices: ['production', 'staging'],
             defaultValue: "production"
         )
-
 
     }
 
@@ -101,7 +100,7 @@ pipeline {
                     OPENSEARCH_ARTIFACT_URL ? url_paths["opensearch"] = OPENSEARCH_ARTIFACT_URL : null
                     OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = OPENSEARCH_DASHBOARDS_ARTIFACT_URL : null
 
-                    if (params.PROJECTS == 'Both') {
+                    if (PROJECTS == 'Both') {
                         PROJECTS = "opensearch opensearch-dashboards"
                     }
 
@@ -117,7 +116,7 @@ pipeline {
 
                     if(VERSION == '' && OPENSEARCH_ARTIFACT_URL == '') {
                         currentBuild.result = 'ABORTED'
-                        error("Provide either version or URLs to validate")
+                        error("Both VERSION and OPENSEARCH_ARTIFACT_URL cannot be empty. Please provide either value")
                     }
 
                     if (DISTRIBUTION.contains('docker') && (OS_BUILD_NUMBER == '' || OSD_BUILD_NUMBER == '')) {
