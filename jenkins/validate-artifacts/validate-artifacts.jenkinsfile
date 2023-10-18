@@ -110,10 +110,9 @@ pipeline {
                     if(OPENSEARCH_ARTIFACT_URL) {
                         ARCHITECTURE = url_paths.values().find { it.contains("x64") } ? "x64" : "arm64"
                         DISTRIBUTION = url_paths.values().find { it.contains("tar.gz") } ? "tar" : (url_paths.values().find { it.contains("rpm") } ? "rpm" : "yum")
-                        FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()}"
+                        env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()}"
                         if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL) {
-                            env.FILEPATH = env.FILEPATH + " opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
-                            }
+                           FILEPATH = env.FILEPATH + " opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
                         }
                     }
                     echo "$ARCHITECTURE"
@@ -135,7 +134,6 @@ pipeline {
                 }
             }
         }
-
         stage('Validation Stage') {
             agent {label agent_nodes["x64"] }
             steps {
@@ -193,7 +191,7 @@ pipeline {
                                                             OS_BUILD_NUMBER = OS_BUILD_NUMBER ?: "latest"
                                                             OSD_BUILD_NUMBER = OSD_BUILD_NUMBER ?: "latest"
 
-                                                            if(VERSION) {
+                                                            if (VERSION) {
 
                                                                 validateArtifacts(
                                                                     version: "$VERSION",
