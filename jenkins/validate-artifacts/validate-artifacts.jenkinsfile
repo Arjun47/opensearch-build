@@ -189,8 +189,8 @@ pipeline {
                                                         stage("${local_distribution}") {
                                                             unstash "validate-artifacts-$BUILD_NUMBER"
 
-                                                            OS_BUILD_NUMBER ? null : OS_BUILD_NUMBER = "latest"
-                                                            OSD_BUILD_NUMBER ? null : OSD_BUILD_NUMBER = "latest"
+                                                            OS_BUILD_NUMBER = OS_BUILD_NUMBER ?: "latest"
+                                                            OSD_BUILD_NUMBER = OSD_BUILD_NUMBER ?: "latest"
 
                                                             validateArtifacts(
                                                                 version: "$VERSION",
