@@ -74,7 +74,6 @@ pipeline {
             name: 'OPTIONAL_ARGS',
             description: 'Optional args for docker validation. Currently supports validate-digest-only or using-staging-artifact-only. Defaults to using-staging-artifact-only.',
             choices: ['using-staging-artifact-only', 'validate-digest-only'],
-            defaultValue: "using-staging-artifact-only"
         )
         choice(
             name: 'PROJECTS',
@@ -85,7 +84,6 @@ pipeline {
             name: 'ARTIFACT_TYPE',
             description: 'Determine the artifact type among staging or production.',
             choices: ['production', 'staging'],
-            defaultValue: "production"
         )
 
     }
