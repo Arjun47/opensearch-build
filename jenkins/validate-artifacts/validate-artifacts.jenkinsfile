@@ -116,6 +116,7 @@ pipeline {
                         }
                     }
                     echo "$ARCHITECTURE"
+                    echo "$DISTRIBUTION"
 
                     if(VERSION == '' && OPENSEARCH_ARTIFACT_URL == '') {
                         currentBuild.result = 'ABORTED'
