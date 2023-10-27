@@ -46,8 +46,7 @@ pipeline {
                         script {
                             patchDockerImage(
                                 product: "${PRODUCT}",
-                                tag: "${TAG}",
-                                re_release: true
+                                tag: "${TAG}"
                             )
                         }
                     }
