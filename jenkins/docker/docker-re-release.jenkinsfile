@@ -48,11 +48,19 @@ pipeline {
                                 product: "${PRODUCT}",
                                 tag: "${TAG}"
                             )
+
+                            env.STAGE_STATUS = currentBuild.resultIsBetterOrEqualTo('SUCCESS') ? 'SUCCESS' : 'FAILURE'
                         }
                     }
                     post {
                         always {
-                            postCleanup()
+                            script {
+                                def stageStatuses = currentBuild.rawBuild.getBuildVariables()['STAGE_STATUS']
+
+                                stageStatuses.each { stage, status ->
+                                echo "Stage: $stage, Status: $status"
+                                postCleanup()
+                            }
                         }
                     }
                 }
