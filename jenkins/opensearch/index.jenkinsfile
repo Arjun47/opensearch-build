@@ -159,13 +159,9 @@ pipeline {
                             "${STAGE_NAME}",
                             lib.jenkins.Messages.new(this).get(["${STAGE_NAME}"])
                         )
-                        postCleanup()
                     }
                 }
             }
         }
-    }
-    post {
-        postCleanup()
     }
 }
