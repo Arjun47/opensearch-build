@@ -120,7 +120,7 @@ pipeline {
                 }
             }
         }
-        stage('build-and-test-linux-x64-tar') {
+        stage('build-and-test-linux-x64-zip') {
             when {
                 beforeAgent true
                 expression {
@@ -130,8 +130,7 @@ pipeline {
             agent {
                 docker {
                     label AGENT_LINUX_X64
-                    image dockerAgent.image
-                    args dockerAgent.args
+                    image 'opensearchstaging/ci-runner:ci-runner-windows2019-servercore-opensearch-build-v1'
                     registryUrl 'https://public.ecr.aws/'
                     alwaysPull true
                 }
@@ -139,7 +138,7 @@ pipeline {
             steps {
                 script {
 
-                    echo "In build-and-test-linux-x64-tar stage"
+                    echo "In build-and-test-windows-x64-zip stage"
 
                 }
             }
