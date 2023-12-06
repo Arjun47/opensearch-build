@@ -98,6 +98,8 @@ pipeline {
             steps {
                 script {
                     echo('Detect Docker Images and Related Parameters')
+                    dockerAgent = detectDockerAgent()
+                    env.javaVersionNumber = dockerAgent.javaVersion.replaceAll('[^0-9]', '') // Only get number
                     currentBuild.description = INPUT_MANIFEST
 
                     echo('Verify Build Platforms')
@@ -129,8 +131,9 @@ pipeline {
             }
             agent {
                 docker {
-                    label AGENT_WINDOWS_X64
-                    image 'opensearchstaging/ci-runner:ci-runner-windows2019-servercore-opensearch-build-v1'
+                    label AGENT_LINUX_X64
+                    image dockerAgent.image
+                    args dockerAgent.args
                     registryUrl 'https://public.ecr.aws/'
                     alwaysPull true
                 }
@@ -138,29 +141,15 @@ pipeline {
             steps {
                 script {
 
-                    echo "In build-and-test-windows-x64-zip stage"
-
-                }
-            }
-            post {
-                success {
-                    script {
-                        if (params.UPDATE_LATEST_URL) {
+                    if (params.UPDATE_LATEST_URL) {
                             uploadIndexFile(
                                 indexFilePath: "distribution-build-opensearch/2.11.0"
                             )
-                        }
                     }
-                }
-                always {
-                    script {
-                        lib.jenkins.Messages.new(this).add(
-                            "${STAGE_NAME}",
-                            lib.jenkins.Messages.new(this).get(["${STAGE_NAME}"])
-                        )
-                    }
+
                 }
             }
+
         }
     }
 }
