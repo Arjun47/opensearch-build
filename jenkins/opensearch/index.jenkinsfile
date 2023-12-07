@@ -143,10 +143,9 @@ pipeline {
 
                     if (params.UPDATE_LATEST_URL) {
                             uploadIndexFile(
-                                indexFilePath: "distribution-build-opensearch/2.11.0"
+                                indexFilePath: "distribution-build-opensearch/2.11.0/index/windows/x64/zip"
                             )
                     }
-
                 }
             }
 
