@@ -124,7 +124,7 @@ pipeline {
         }
         stage('build') {
             parallel {
-                stage('build-and-test-linux-arm64-tar') {
+                stage('build-and-test-linux-x64-tar') {
                     when {
                         beforeAgent true
                         expression {
@@ -146,7 +146,7 @@ pipeline {
                                 componentName: "${COMPONENT_NAME}",
                                 inputManifest: "manifests/${INPUT_MANIFEST}",
                                 platform: 'linux',
-                                architecture: 'arm64',
+                                architecture: 'x64',
                                 distribution: 'tar',
                                 continueOnError: params.CONTINUE_ON_ERROR
                             )
@@ -155,8 +155,8 @@ pipeline {
                             env.ARTIFACT_URL_LINUX_ARM64_TAR = artifactUrl
                             env.INDEX_FILE_PATH = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
 
-                            echo "buildManifestUrl (linux, arm64, tar): ${buildManifestUrl}"
-                            echo "artifactUrl (linux, arm64, tar): ${artifactUrl}"
+                            echo "buildManifestUrl (linux, x64, tar): ${buildManifestUrl}"
+                            echo "artifactUrl (linux, x64, tar): ${artifactUrl}"
                         }
                     }
                     post {
