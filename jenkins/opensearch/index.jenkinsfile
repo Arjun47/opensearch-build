@@ -141,7 +141,7 @@ pipeline {
             steps {
                 script {
                     echo "inside stage"
-                    def x = "index-path"
+                    env.var = "indextest/2.11.0/index/windows/x64/zip"
 
                 }
             }
@@ -150,11 +150,10 @@ pipeline {
                     script{
                         if (params.UPDATE_LATEST_URL) {
                             echo "1"
-                            def variable = currentBuild.rawBuild.getBuildVariables().get('x')
                             echo "2"
                             echo "variable: '${variable}'"
                             uploadIndexFile(
-                                indexFilePath: "indextest/2.11.0/index/windows/x64/zip"
+                                indexFilePath: env.var
                             )
                         }
                     }
