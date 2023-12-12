@@ -141,7 +141,7 @@ pipeline {
             steps {
                 script {
                     echo "inside stage"
-
+                    String x = "index-path"
                     error "Forcing the stage to fail"
                 }
             }
@@ -149,6 +149,7 @@ pipeline {
                 success {
                     script{
                         if (params.UPDATE_LATEST_URL) {
+                            echo("x: '${index-path}'")
                             uploadIndexFile(
                                 indexFilePath: "indextest/2.11.0/index/windows/x64/zip"
                             )
