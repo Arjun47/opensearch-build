@@ -141,7 +141,7 @@ pipeline {
             steps {
                 script {
                     echo "inside stage"
-                    String x = "index-path"
+                    def x = "index-path"
 
                 }
             }
