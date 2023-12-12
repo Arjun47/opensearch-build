@@ -148,7 +148,26 @@ pipeline {
                     }
                 }
             }
-
+            post {
+                always {
+                    script {
+                        lib.jenkins.Messages.new(this).add(
+                            "${STAGE_NAME}",
+                            lib.jenkins.Messages.new(this).get(["${STAGE_NAME}"])
+                        )
+                        postCleanup()
+                    }
+                }
+                success {
+                    script{
+                        if (params.UPDATE_LATEST_URL) {
+                            uploadIndexFile(
+                                indexFilePath: "distribution-build-opensearch/2.11.0/index/windows/x64/zip"
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
