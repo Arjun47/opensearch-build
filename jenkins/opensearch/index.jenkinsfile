@@ -142,7 +142,7 @@ pipeline {
                 script {
                     echo "inside stage"
                     String x = "index-path"
-                    error "Forcing the stage to fail"
+
                 }
             }
             post {
