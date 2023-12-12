@@ -151,7 +151,6 @@ pipeline {
                         if (params.UPDATE_LATEST_URL) {
                             echo "1"
                             echo "2"
-                            echo "variable: '${variable}'"
                             uploadIndexFile(
                                 indexFilePath: env.var
                             )
