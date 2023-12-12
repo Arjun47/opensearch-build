@@ -149,7 +149,9 @@ pipeline {
                 success {
                     script{
                         if (params.UPDATE_LATEST_URL) {
-                        def variable = currentBuild.rawBuild.getBuildVariables().get('x')
+                            echo "1"
+                            def variable = currentBuild.rawBuild.getBuildVariables().get('x')
+                            echo "2"
                             echo "variable: '${variable}'"
                             uploadIndexFile(
                                 indexFilePath: "indextest/2.11.0/index/windows/x64/zip"
