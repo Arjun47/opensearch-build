@@ -142,7 +142,7 @@ pipeline {
                 script {
                     echo "inside stage"
 
-                    """ error "Forcing the stage to fail """
+                    error "Forcing the stage to fail"
                 }
             }
             post {
