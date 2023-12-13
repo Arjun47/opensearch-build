@@ -131,7 +131,7 @@ pipeline {
             }
             agent {
                 docker {
-                    label AGENT_LINUX_X64
+                    label AGENT_WINDOWS_X64
                     image dockerAgent.image
                     args dockerAgent.args
                     registryUrl 'https://public.ecr.aws/'
