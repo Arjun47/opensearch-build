@@ -681,7 +681,7 @@ pipeline {
                                     script {
                                         if (params.UPDATE_LATEST_URL) {
                                             uploadIndexFile(
-                                                indexFilePath: env.INDEX_FILE_PATH_ARM64_DE
+                                                indexFilePath: env.INDEX_FILE_PATH_ARM64_DEB
                                             )
                                         }
                                     }
