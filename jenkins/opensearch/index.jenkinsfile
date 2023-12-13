@@ -131,9 +131,8 @@ pipeline {
             }
             agent {
                 docker {
-                    label AGENT_LINUX_X64
-                    image dockerAgent.image
-                    args dockerAgent.args
+                    label AGENT_WINDOWS_X64
+                    image IMAGE_WINDOWS_ZIP
                     registryUrl 'https://public.ecr.aws/'
                     alwaysPull true
                 }
