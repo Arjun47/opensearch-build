@@ -525,7 +525,7 @@ pipeline {
                                     String buildManifestUrlOpenSearch = [buildManifestObj.getArtifactRootUrl(JOB_NAME_OPENSEARCH, "latest"), "builds", "opensearch", "manifest.yml"].join("/")
                                     String artifactUrl = buildManifestObj.getArtifactUrl(JOB_NAME, BUILD_NUMBER)
                                     env.ARTIFACT_URL_LINUX_ARM64_TAR = artifactUrl
-                                    env.INDEX_FILE_PATH_X64_DEB = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
+                                    env.INDEX_FILE_PATH_ARM64_TAR = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
 
                                     echo "buildManifestUrl (linux, arm64, tar): ${buildManifestUrl}"
                                     echo "artifactUrl (linux, arm64, tar): ${artifactUrl}"
@@ -569,7 +569,7 @@ pipeline {
                                     script {
                                         if (params.UPDATE_LATEST_URL) {
                                             uploadIndexFile(
-                                                indexFilePath: env.INDEX_FILE_PATH_X64_DEB
+                                                indexFilePath: env.INDEX_FILE_PATH_ARM64_TAR
                                             )
                                         }
                                     }
