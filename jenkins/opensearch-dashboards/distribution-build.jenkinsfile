@@ -184,7 +184,7 @@ pipeline {
                             String buildManifestUrlOpenSearch = [buildManifestObj.getArtifactRootUrl(JOB_NAME_OPENSEARCH, "latest"), "builds", "opensearch", "manifest.yml"].join("/")
                             String artifactUrl = buildManifestObj.getArtifactUrl(JOB_NAME, BUILD_NUMBER)
                             env.ARTIFACT_URL_LINUX_X64_TAR = artifactUrl
-                            env.INDEX_FILE_PATH = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
+                            env.INDEX_FILE_PATH_X64_TAR = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
 
                             echo "buildManifestUrl (linux, x64, tar): ${buildManifestUrl}"
                             echo "artifactUrl (linux, x64, tar): ${artifactUrl}"
@@ -224,6 +224,15 @@ pipeline {
                         }
                     }
                     post {
+                        success {
+                            script {
+                                if (params.UPDATE_LATEST_URL) {
+                                    uploadIndexFile(
+                                        indexFilePath: env.INDEX_FILE_PATH_X64_TAR
+                                    )
+                                }
+                            }
+                        }
                         always {
                             script {
                                 lib.jenkins.Messages.new(this).add(
@@ -301,6 +310,7 @@ pipeline {
                                     String buildManifestUrl = buildManifestObj.getUrl(JOB_NAME, BUILD_NUMBER)
                                     String artifactUrl = buildManifestObj.getArtifactUrl(JOB_NAME, BUILD_NUMBER)
                                     env.ARTIFACT_URL_LINUX_X64_RPM = artifactUrl
+                                    env.INDEX_FILE_PATH_X64_RPM = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
 
                                     echo "buildManifestUrl (linux, x64, rpm): ${buildManifestUrl}"
                                     echo "artifactUrl (linux, x64, rpm): ${artifactUrl}"
@@ -319,6 +329,15 @@ pipeline {
                                 }
                             }
                             post {
+                                success {
+                                    script {
+                                        if (params.UPDATE_LATEST_URL) {
+                                            uploadIndexFile(
+                                                indexFilePath: env.INDEX_FILE_PATH_X64_RPM
+                                            )
+                                        }
+                                    }
+                                }
                                 always {
                                     script {
                                         lib.jenkins.Messages.new(this).add(
@@ -398,6 +417,7 @@ pipeline {
                                     String buildManifestUrl = buildManifestObj.getUrl(JOB_NAME, BUILD_NUMBER)
                                     String artifactUrl = buildManifestObj.getArtifactUrl(JOB_NAME, BUILD_NUMBER)
                                     env.ARTIFACT_URL_LINUX_X64_DEB = artifactUrl
+                                    env.INDEX_FILE_PATH_X64_DEB = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
 
                                     echo "buildManifestUrl (linux, x64, deb): ${buildManifestUrl}"
                                     echo "artifactUrl (linux, x64, deb): ${artifactUrl}"
@@ -407,6 +427,15 @@ pipeline {
                                 }
                             }
                             post {
+                                success {
+                                    script {
+                                        if (params.UPDATE_LATEST_URL) {
+                                            uploadIndexFile(
+                                                indexFilePath: env.INDEX_FILE_PATH_X64_DEB
+                                            )
+                                        }
+                                    }
+                                }
                                 always {
                                     script {
                                         lib.jenkins.Messages.new(this).add(
@@ -496,6 +525,8 @@ pipeline {
                                     String buildManifestUrlOpenSearch = [buildManifestObj.getArtifactRootUrl(JOB_NAME_OPENSEARCH, "latest"), "builds", "opensearch", "manifest.yml"].join("/")
                                     String artifactUrl = buildManifestObj.getArtifactUrl(JOB_NAME, BUILD_NUMBER)
                                     env.ARTIFACT_URL_LINUX_ARM64_TAR = artifactUrl
+                                    env.INDEX_FILE_PATH_ARM64_TAR = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
+
                                     echo "buildManifestUrl (linux, arm64, tar): ${buildManifestUrl}"
                                     echo "artifactUrl (linux, arm64, tar): ${artifactUrl}"
 
@@ -534,6 +565,15 @@ pipeline {
                                 }
                             }
                             post {
+                                success {
+                                    script {
+                                        if (params.UPDATE_LATEST_URL) {
+                                            uploadIndexFile(
+                                                indexFilePath: env.INDEX_FILE_PATH_ARM64_TAR
+                                            )
+                                        }
+                                    }
+                                }
                                 always {
                                     script {
                                         lib.jenkins.Messages.new(this).add(
@@ -619,6 +659,8 @@ pipeline {
                                     String buildManifestUrl = buildManifestObj.getUrl(JOB_NAME, BUILD_NUMBER)
                                     String artifactUrl = buildManifestObj.getArtifactUrl(JOB_NAME, BUILD_NUMBER)
                                     env.ARTIFACT_URL_LINUX_ARM64_RPM = artifactUrl
+                                    env.INDEX_FILE_PATH_ARM64_RPM = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
+
                                     echo "buildManifestUrl (linux, arm64, rpm): ${buildManifestUrl}"
                                     echo "artifactUrl (linux, arm64, rpm): ${artifactUrl}"
 
@@ -636,6 +678,15 @@ pipeline {
                                 }
                             }
                             post {
+                                success {
+                                    script {
+                                        if (params.UPDATE_LATEST_URL) {
+                                            uploadIndexFile(
+                                                indexFilePath: env.INDEX_FILE_PATH_ARM64_RPM
+                                            )
+                                        }
+                                    }
+                                }
                                 always {
                                     script {
                                         lib.jenkins.Messages.new(this).add(
@@ -715,6 +766,7 @@ pipeline {
                                     String buildManifestUrl = buildManifestObj.getUrl(JOB_NAME, BUILD_NUMBER)
                                     String artifactUrl = buildManifestObj.getArtifactUrl(JOB_NAME, BUILD_NUMBER)
                                     env.ARTIFACT_URL_LINUX_ARM64_DEB = artifactUrl
+                                    env.INDEX_FILE_PATH_ARM64_DEB = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
 
                                     echo "buildManifestUrl (linux, arm64, deb): ${buildManifestUrl}"
                                     echo "artifactUrl (linux, arm64, deb): ${artifactUrl}"
@@ -724,6 +776,15 @@ pipeline {
                                 }
                             }
                             post {
+                                success {
+                                    script {
+                                        if (params.UPDATE_LATEST_URL) {
+                                            uploadIndexFile(
+                                                indexFilePath: env.INDEX_FILE_PATH_ARM64_DEB
+                                            )
+                                        }
+                                    }
+                                }
                                 always {
                                     script {
                                         lib.jenkins.Messages.new(this).add(
@@ -771,7 +832,7 @@ pipeline {
                             String buildManifestUrl = buildManifestObj.getUrl(JOB_NAME, BUILD_NUMBER)
                             String artifactUrl = buildManifestObj.getArtifactUrl(JOB_NAME, BUILD_NUMBER)
                             env.ARTIFACT_URL_LINUX_WINDOWS_X64_ZIP = artifactUrl
-                            env.INDEX_FILE_PATH = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
+                            env.INDEX_FILE_PATH_X64_ZIP = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
 
                             echo "buildManifestUrl (windows, x64, zip): ${buildManifestUrl}"
                             echo "artifactUrl (windows, x64, zip): ${artifactUrl}"
@@ -779,6 +840,15 @@ pipeline {
                         }
                     }
                     post {
+                        success {
+                            script {
+                                if (params.UPDATE_LATEST_URL) {
+                                    uploadIndexFile(
+                                        indexFilePath: env.INDEX_FILE_PATH_X64_ZIP
+                                    )
+                                }
+                            }
+                        }
                         always {
                             script {
                                 lib.jenkins.Messages.new(this).add(
@@ -788,26 +858,6 @@ pipeline {
                                 postCleanup()
                             }
                         }
-                    }
-                }
-            }
-        }
-        stage('update index file') {
-            agent {
-                docker {
-                    label AGENT_LINUX_X64
-                    image dockerAgent.image
-                    args dockerAgent.args
-                    registryUrl 'https://public.ecr.aws/'
-                    alwaysPull true
-                }
-            }
-            steps {
-                script {
-                    if (params.UPDATE_LATEST_URL) {
-                        uploadIndexFile(
-                            indexFilePath: env.INDEX_FILE_PATH
-                        )
                     }
                 }
             }
@@ -934,4 +984,3 @@ pipeline {
         }
     }
 }
-
