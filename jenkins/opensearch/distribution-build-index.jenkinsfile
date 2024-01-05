@@ -145,7 +145,14 @@ pipeline {
                 }
             }
             post {
-                success {
+                always{
+                    script {
+                        if (params.CONTINUE_ON_ERROR) {
+                            markStageUnstableIfPluginsFailedToBuild()
+                        }
+                    }
+                }
+                success, unstable {
                     script{
                         if (params.UPDATE_LATEST_URL) {
                             echo "1"
@@ -154,14 +161,6 @@ pipeline {
                                 indexFilePath: env.var
                             )
                         }
-                    }
-                }
-                always{
-                    script {
-                        if (params.CONTINUE_ON_ERROR) {
-                            markStageUnstableIfPluginsFailedToBuild()
-                        }
-                        postCleanup()
                     }
                 }
             }
