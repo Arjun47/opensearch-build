@@ -7,14 +7,14 @@
  * compatible open source license.
  */
 
-lib = library(identifier: 'jenkins@index', retriever: modernSCM([
+lib = library(identifier: 'jenkins@5.11.1', retriever: modernSCM([
     $class: 'GitSCMSource',
-    remote: 'https://github.com/divyaasm/opensearch-build-libraries.git',
+    remote: 'https://github.com/opensearch-project/opensearch-build-libraries.git',
 ]))
 
 pipeline {
     options {
-        timeout(time: 1, unit: 'HOURS')
+        timeout(time: 4, unit: 'HOURS')
     }
     agent none
     environment {
@@ -77,7 +77,7 @@ pipeline {
         booleanParam(
             name: 'CREATE_GITHUB_ISSUE',
             description: 'To create a github issue for failing component or not.',
-            defaultValue: true
+            defaultValue: false
         )
         booleanParam(
             name: 'CONTINUE_ON_ERROR',
@@ -122,41 +122,104 @@ pipeline {
                 }
             }
         }
-        stage('build-and-test-linux-x64-zip') {
-            when {
-                beforeAgent true
-                expression {
-                    params.BUILD_PLATFORM.contains('linux')
-                }
-            }
-            agent {
-                docker {
-                    label AGENT_WINDOWS_X64
-                    image IMAGE_WINDOWS_ZIP
-                    registryUrl 'https://public.ecr.aws/'
-                    alwaysPull true
-                }
-            }
-            steps {
-                script {
-                    echo "inside stage"
-                    env.var = "indextest/2.11.0/index/windows/x64/zip"
+        stage('build') {
+                stage('build-and-test-linux-x64-rpm') {
+                    when {
+                        beforeAgent true
+                        expression {
+                            params.BUILD_PLATFORM.contains('linux')
+                        }
+                    }
+                    agent { label AGENT_LINUX_X64 }
+                    stages {
+                        stage('build-archive-linux-x64-rpm') {
+                            agent {
+                                docker {
+                                    label AGENT_LINUX_X64
+                                    image dockerAgent.image
+                                    args dockerAgent.args
+                                    registryUrl 'https://public.ecr.aws/'
+                                    alwaysPull true
+                                }
+                            }
+                            steps {
+                                script {
+                                    buildArchive(
+                                        componentName: "${COMPONENT_NAME}",
+                                        inputManifest: "manifests/${INPUT_MANIFEST}",
+                                        platform: 'linux',
+                                        architecture: 'x64',
+                                        distribution: 'rpm',
+                                        continueOnError: params.CONTINUE_ON_ERROR,
+                                        stashName: "build-archive-linux-x64-rpm-${JOB_NAME}-${BUILD_NUMBER}"
+                                    )
+                                }
+                            }
+                            post {
+                                always {
+                                    postCleanup()
+                                }
+                            }
+                        }
+                        stage('assemble-archive-and-test-linux-x64-rpm') {
+                            agent {
+                                docker {
+                                    label AGENT_LINUX_X64
+                                    image IMAGE_LINUX_RPM
+                                    registryUrl 'https://public.ecr.aws/'
+                                    alwaysPull true
+                                }
+                            }
+                            steps {
+                                script {
+                                    def buildManifestObj = archiveAssembleUpload(
+                                        componentName: "${COMPONENT_NAME}",
+                                        inputManifest: "manifests/${INPUT_MANIFEST}",
+                                        platform: 'linux',
+                                        architecture: 'x64',
+                                        distribution: 'rpm',
+                                        continueOnError: params.CONTINUE_ON_ERROR,
+                                        stashName: "build-archive-linux-x64-rpm-${JOB_NAME}-${BUILD_NUMBER}"
+                                    )
+                                    String buildManifestUrl = buildManifestObj.getUrl(JOB_NAME, BUILD_NUMBER)
+                                    String artifactUrl = buildManifestObj.getArtifactUrl(JOB_NAME, BUILD_NUMBER)
+                                    env.ARTIFACT_URL_LINUX_X64_RPM = artifactUrl
+                                    env.INDEX_FILE_PATH_X64_RPM = buildManifestObj.getIndexFileRoot("${JOB_NAME}")
 
-                }
-            }
-            post {
-                success {
-                    script{
-                        if (params.UPDATE_LATEST_URL) {
-                            echo "1"
-                            echo "2"
-                            uploadIndexFile(
-                                indexFilePath: env.var
-                            )
+                                    echo "buildManifestUrl (linux, x64, rpm): ${buildManifestUrl}"
+                                    echo "artifactUrl (linux, x64, rpm): ${artifactUrl}"
+
+                                    String bundleManifestUrl = buildManifestObj.getBundleManifestUrl(JOB_NAME, BUILD_NUMBER)
+
+                                    echo "Trigger rpm validation for linux x64 rpm ${bundleManifestUrl}"
+                                    def rpmValidationResults =
+                                        build job: 'rpm-validation',
+                                        propagate: false,
+                                        wait: false,
+                                        parameters: [
+                                            string(name: 'BUNDLE_MANIFEST_URL', value: bundleManifestUrl),
+                                            string(name: 'AGENT_LABEL', value: AGENT_LINUX_X64)
+                                        ]
+                                }
+                            }
+                            post {
+                                success {
+                                    script {
+                                        if (params.UPDATE_LATEST_URL) {
+                                            uploadIndexFile(
+                                                indexFilePath: env.INDEX_FILE_PATH_X64_RPM
+                                            )
+                                        }
+                                    }
+                                }
+                                always {
+                                        postCleanup()
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-            }
         }
     }
 }
