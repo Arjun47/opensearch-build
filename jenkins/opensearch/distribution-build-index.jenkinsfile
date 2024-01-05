@@ -131,8 +131,9 @@ pipeline {
             }
             agent {
                 docker {
-                    label AGENT_WINDOWS_X64
-                    image IMAGE_WINDOWS_ZIP
+                    label AGENT_LINUX_X64
+                    image dockerAgent.image
+                    args dockerAgent.args
                     registryUrl 'https://public.ecr.aws/'
                     alwaysPull true
                 }
@@ -141,8 +142,6 @@ pipeline {
                 script {
                     echo "inside stage"
                     env.var = "indextest/2.11.0/index/windows/x64/zip"
-
-
                 }
             }
             post {
