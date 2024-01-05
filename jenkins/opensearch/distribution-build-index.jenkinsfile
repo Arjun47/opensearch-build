@@ -145,7 +145,7 @@ pipeline {
                 }
             }
             post {
-                always{
+                failure{
                     script {
                         if (params.CONTINUE_ON_ERROR) {
                             markStageUnstableIfPluginsFailedToBuild()
@@ -153,6 +153,17 @@ pipeline {
                     }
                 }
                 unstable {
+                    script{
+                        if (params.UPDATE_LATEST_URL) {
+                            echo "1"
+                            echo "2"
+                            uploadIndexFile(
+                                indexFilePath: env.var
+                            )
+                        }
+                    }
+                }
+                success {
                     script{
                         if (params.UPDATE_LATEST_URL) {
                             echo "1"
