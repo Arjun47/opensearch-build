@@ -152,8 +152,8 @@ pipeline {
                         }
                     }
                 }
-                success | unstable {
-                    script{
+                script{
+                    if (currentBuild.resultIsBetterOrEqualTo('SUCCESS')) {
                         if (params.UPDATE_LATEST_URL) {
                             echo "1"
                             echo "2"
