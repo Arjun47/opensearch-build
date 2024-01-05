@@ -122,7 +122,6 @@ pipeline {
                 }
             }
         }
-        stage('build') {
                 stage('build-and-test-linux-x64-rpm') {
                     when {
                         beforeAgent true
@@ -220,6 +219,6 @@ pipeline {
                         }
                     }
                 }
-        }
+
     }
 }
