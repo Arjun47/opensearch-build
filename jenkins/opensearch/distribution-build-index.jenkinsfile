@@ -152,7 +152,7 @@ pipeline {
                         }
                     }
                 }
-                [success, unstable] {
+                unstable {
                     script{
                         if (params.UPDATE_LATEST_URL) {
                             echo "1"
