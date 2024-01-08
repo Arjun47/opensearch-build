@@ -213,7 +213,7 @@ pipeline {
                         }
                     }
                     post {
-                        success {
+                        success,unstable {
                             script {
                                 if (params.UPDATE_LATEST_URL) {
                                     uploadIndexFile(
