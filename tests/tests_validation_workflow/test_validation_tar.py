@@ -66,11 +66,13 @@ class TestValidateTar(unittest.TestCase):
 
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     @patch('os.path.basename')
-    @patch("validation_workflow.tar.validation_tar.execute")
-    def test_installation(self, mock_system: Mock, mock_basename: Mock, mock_validation_args: Mock) -> None:
+    @patch('validation_workflow.tar.validation_tar.execute')
+    @patch('validation_workflow.validation.Validation.is_allow_with_security')
+    def test_installation(self, mock_security: Mock, mock_system: Mock, mock_basename: Mock, mock_validation_args: Mock) -> None:
         mock_validation_args.return_value.version = '2.3.0'
         mock_validation_args.return_value.arch = 'x64'
         mock_validation_args.return_value.platform = 'linux'
+        mock_validation_args.return_value.allow_without_security = False
         mock_validation_args.return_value.projects = ["opensearch"]
 
         validate_tar = ValidateTar(mock_validation_args.return_value)
@@ -80,22 +82,47 @@ class TestValidateTar(unittest.TestCase):
         self.assertTrue(result)
 
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
+    @patch('os.path.basename')
+    @patch('validation_workflow.tar.validation_tar.execute')
+    @patch('validation_workflow.validation.Validation.is_allow_with_security')
+    def test_installation_with_security_parameter(self, mock_security: Mock, mock_system: Mock, mock_basename: Mock, mock_validation_args: Mock) -> None:
+        # Set up mock objects
+        mock_validation_args.return_value.version = '2.3.0'
+        mock_validation_args.return_value.allow_without_security = True
+        validate_tar = ValidateTar(mock_validation_args.return_value)
+        mock_basename.side_effect = lambda path: "mocked_filename"
+        mock_system.side_effect = lambda *args, **kwargs: (0, "stdout_output", "stderr_output")
+        mock_security.return_value = True
+
+        result = validate_tar.installation()
+        self.assertTrue(result)
+        mock_security.assert_called_once()
+
+    @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     @patch.object(Process, 'start')
     @patch('time.sleep')
-    def test_start_cluster(self, mock_sleep: Mock, mock_start: Mock, mock_validation_args: Mock) -> None:
+    @patch('validation_workflow.tar.validation_tar.get_password')
+    def test_start_cluster(self, mock_password: Mock, mock_sleep: Mock, mock_start: Mock, mock_validation_args: Mock) -> None:
         mock_validation_args.return_value.version = '2.3.0'
         mock_validation_args.return_value.arch = 'x64'
-        mock_validation_args.return_value.platforme = 'linux'
+        mock_validation_args.return_value.platforms = 'linux'
+        mock_validation_args.return_value.allow_without_security = True
         mock_validation_args.return_value.projects = ["opensearch", "opensearch-dashboards"]
+        mock_password.return_value = "admin"
 
         validate_tar = ValidateTar(mock_validation_args.return_value)
         result = validate_tar.start_cluster()
         self.assertTrue(result)
+        mock_password.assert_called_once()
 
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     @patch('time.sleep')
-    def test_start_cluster_exception_os(self, mock_sleep: Mock, mock_validation_args: Mock) -> None:
+    @patch('src.test_workflow.integ_test.utils.get_password')
+    def test_start_cluster_exception_os(self, mock_password: Mock, mock_sleep: Mock, mock_validation_args: Mock) -> None:
         mock_validation_args.return_value.projects = ["opensearch"]
+        mock_validation_args.return_value.version = '2.3.0'
+        mock_validation_args.return_value.allow_without_security = True
+        mock_password.return_value = "admin"
 
         validate_tar = ValidateTar(mock_validation_args.return_value)
         validate_tar.os_process.start = MagicMock(side_effect=Exception('Failed to Start Cluster'))  # type: ignore
@@ -106,24 +133,8 @@ class TestValidateTar(unittest.TestCase):
 
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     @patch('validation_workflow.tar.validation_tar.ApiTestCases')
-    def test_validation_with_security_parameter(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
-        # Set up mock objects
-        mock_validation_args.return_value.version = '2.3.0'
-        mock_validation_args.return_value.allow_without_security = True
-        mock_test_apis_instance = mock_test_apis.return_value
-        mock_test_apis_instance.test_apis.return_value = (True, 4)
-
-        with patch.object(self.call_methods, 'is_allow_with_security') as mock_security:
-            result = self.call_methods.validation()
-            mock_test_apis.assert_called_once()
-        self.assertTrue(result)
-        mock_security.assert_called_once()
-
-    @patch('validation_workflow.tar.validation_tar.ValidationArgs')
-    @patch('validation_workflow.tar.validation_tar.ApiTestCases')
     def test_validation(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
         mock_validation_args.return_value.version = '2.3.0'
-        mock_validation_args.return_value.allow_without_security = False
         mock_test_apis_instance = mock_test_apis.return_value
         mock_test_apis_instance.test_apis.return_value = (True, 3)
 
@@ -139,7 +150,6 @@ class TestValidateTar(unittest.TestCase):
     def test_failed_testcases(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
         # Set up mock objects
         mock_validation_args.return_value.version = '2.3.0'
-        mock_validation_args.return_value.allow_without_security = False
         mock_test_apis_instance = mock_test_apis.return_value
         mock_test_apis_instance.test_apis.return_value = (False, 1)
 
