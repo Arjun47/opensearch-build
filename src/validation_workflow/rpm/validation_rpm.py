@@ -15,6 +15,7 @@ from validation_workflow.api_test_cases import ApiTestCases
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
+from test_workflow.integ_test.utils import get_password
 
 
 class ValidateRpm(Validation, DownloadUtils):
@@ -44,6 +45,7 @@ class ValidateRpm(Validation, DownloadUtils):
     def installation(self) -> bool:
         try:
             execute('sudo rpm --import https://artifacts.opensearch.org/publickeys/opensearch.pgp', str(self.tmp_dir.path), True, False)
+            execute(f'sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(self.args.version)}', ".", True, False)
             for project in self.args.projects:
                 self.filename = os.path.basename(self.args.file_path.get(project))
                 execute(f'sudo yum remove {project} -y', ".")
