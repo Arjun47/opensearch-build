@@ -17,12 +17,12 @@ class TestApiTest(unittest.TestCase):
     def test_api_get(self, mock_get: Mock) -> None:
         mock_get.return_value.status_code = 200
         mock_get.return_value.text = '{"key": "value"}'
-        request_url = 'http://localhost:9200'
-        api_test = ApiTest(request_url, "2.3.0")
+        request_url = 'https://localhost:9200'
+        api_test = ApiTest(request_url, "2.12.0")
         status_code, response_text = api_test.api_get()
         self.assertEqual(status_code, 200)
         self.assertEqual(response_text, '{"key": "value"}')
-        mock_get.assert_called_once_with(request_url, headers={'Authorization': 'Basic YWRtaW46YWRtaW4=', 'Accept': '*/*', 'Content-Type': 'application/json'}, verify=False)
+        mock_get.assert_called_once_with(request_url, headers={'Authorization': 'Basic YWRtaW46bXlTdHJvbmdQYXNzd29yZDEyMyE=', 'Accept': '*/*', 'Content-Type': 'application/json'}, verify=False)
 
 
 if __name__ == '__main__':
