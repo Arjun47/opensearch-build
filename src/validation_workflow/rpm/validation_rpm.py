@@ -45,7 +45,9 @@ class ValidateRpm(Validation, DownloadUtils):
     def installation(self) -> bool:
         try:
             execute('sudo rpm --import https://artifacts.opensearch.org/publickeys/opensearch.pgp', str(self.tmp_dir.path), True, False)
-            execute(f'sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(self.args.version)}', ".", True, False)
+            execute(f'sudo export OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(self.args.version)}', ".", True, False)
+            (_, env_var, _) = execute(f'echo $OPENSEARCH_INITIAL_ADMIN_PASSWORD', ".", True, False)
+            logging.info(f"$OPENSEARCH_INITIAL_ADMIN_PASSWORD: {env_var}")
             for project in self.args.projects:
                 self.filename = os.path.basename(self.args.file_path.get(project))
                 execute(f'sudo yum remove {project} -y', ".")
@@ -57,6 +59,7 @@ class ValidateRpm(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             for project in self.args.projects:
+
                 (_, env_var, _) = execute(f'echo $OPENSEARCH_INITIAL_ADMIN_PASSWORD', ".", True, False)
                 logging.info(f"$OPENSEARCH_INITIAL_ADMIN_PASSWORD: {env_var}")
                 execute(f'sudo systemctl start {project}', ".")
