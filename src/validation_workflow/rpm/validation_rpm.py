@@ -57,10 +57,10 @@ class ValidateRpm(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             for project in self.args.projects:
-                execute(f'sudo systemctl start {project}', ".")
-                time.sleep(20)
                 (_, env_var, _) = execute(f'echo $OPENSEARCH_INITIAL_ADMIN_PASSWORD', ".", True, False)
                 logging.info(f"$OPENSEARCH_INITIAL_ADMIN_PASSWORD: {env_var}")
+                execute(f'sudo systemctl start {project}', ".")
+                time.sleep(20)
                 (stdout, stderr, status) = execute(f'sudo systemctl status {project}', ".", True, False)
                 if(status == 0):
                     logging.info(stdout)
