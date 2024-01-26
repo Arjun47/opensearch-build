@@ -16,7 +16,7 @@ class TestTestCases(unittest.TestCase):
     def test_opensearch(self, mock_api_get: Mock) -> None:
         mock_api_get.return_value = (200, 'green')
         testcases = ApiTestCases()
-        result = testcases.test_apis("1,3,0", ['opensearch'])
+        result = testcases.test_apis("1.3.0", ['opensearch'])
 
         self.assertEqual(result[1], 'There are 3/3 test cases Pass')
         self.assertEqual(mock_api_get.call_count, 3)

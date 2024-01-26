@@ -65,48 +65,36 @@ class TestValidation(unittest.TestCase):
     @patch('validation_workflow.validation.execute')
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     def test_is_allow_with_security_true(self, mock_validation_args: Mock, mock_execute: Mock) -> None:
-        # Mocking the execute function
         mock_execute.return_value = (0, "opensearch-security", "")
 
-        # Creating a ValidateTar instance
         mock_validation_args.projects.return_value = ["opensearch"]
         mock_validation = ValidateTar(mock_validation_args.return_value)
 
-        # Calling the function
         result = mock_validation.is_allow_with_security("/path/to/work_dir")
 
-        # Assertions
         self.assertTrue(result)
 
     @patch('validation_workflow.validation.execute')
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     def test_is_allow_with_security_false(self, mock_validation_args: Mock, mock_execute: Mock) -> None:
-        # Mocking the execute function
-        mock_execute.return_value = (0, "no-security-plugin", "")
+        mock_execute.return_value = (0, "opensearch", "")
 
-        # Creating a ValidateTar instance
         mock_validation_args.projects.return_value = ["opensearch"]
         mock_validation = ValidateTar(mock_validation_args.return_value)
 
-        # Calling the function
         result = mock_validation.is_allow_with_security("/path/to/work_dir")
 
-        # Assertions
         self.assertFalse(result)
 
     @patch('validation_workflow.validation.execute')
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     def test_is_allow_with_security_exception(self, mock_validation_args: Mock, mock_execute: Mock) -> None:
-        # Mocking the execute function
-        mock_execute.return_value = (0, "", "")
+        mock_execute.return_value = (0, "", "error")
 
-        # Creating a ValidateTar instance
         mock_validation_args.projects.return_value = ["opensearch"]
         mock_validation = ValidateTar(mock_validation_args.return_value)
 
-        # Calling the function
         with self.assertRaises(Exception) as context:
             mock_validation.is_allow_with_security("/path/to/work_dir")
 
-        # Assertions
         self.assertEqual(str(context.exception), "Couldn't fetch the path to plugin folder")
