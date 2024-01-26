@@ -18,7 +18,7 @@ class TestApiTest(unittest.TestCase):
         mock_get.return_value.status_code = 200
         mock_get.return_value.text = '{"key": "value"}'
         request_url = 'http://localhost:9200'
-        api_test = ApiTest(request_url)
+        api_test = ApiTest(request_url, "2.3.0")
         status_code, response_text = api_test.api_get()
         self.assertEqual(status_code, 200)
         self.assertEqual(response_text, '{"key": "value"}')

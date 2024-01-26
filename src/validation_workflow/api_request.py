@@ -9,8 +9,8 @@
 from typing import Any
 from test_workflow.integ_test.utils import get_password
 
-import logging
 import requests
+import base64
 
 
 """
@@ -21,9 +21,10 @@ It returns response status code and the response content.
 
 class ApiTest:
 
-    def __init__(self, request_url: str) -> None:
+    def __init__(self, request_url: str, version: str) -> None:
         self.request_url = request_url
-        self.apiHeaders_auth = {"Authorization": "Basic YWRtaW46bXlTdHJvbmdQYXNzd29yZDEyMyE="}  # default user/pass "admin/myStrongPassword123!" in Base64 format
+        self.password = base64.b64encode(f"admin:{get_password(version)}".encode("utf-8")).decode("utf-8")
+        self.apiHeaders_auth = {"Authorization": f'Basic {self.password}'}  # default user/pass "admin/myStrongPassword123!" in Base64 format
         self.apiHeaders_accept = {"Accept": "*/*"}
         self.apiHeaders_content_type = {"Content-Type": "application/json"}
         self.apiHeaders = {}
@@ -32,8 +33,5 @@ class ApiTest:
         self.apiHeaders.update(self.apiHeaders_content_type)
 
     def api_get(self) -> Any:
-        password = 'myStrongPassword123!' if get_password("2.12.0") == 'myStrongPassword123!' else None
-        logging.info("password:" + password)
-
         response = requests.get(self.request_url, headers=self.apiHeaders, verify=False)
         return response.status_code, response.text

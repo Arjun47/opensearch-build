@@ -21,7 +21,7 @@ class ApiTestCases:
         pass
 
     @staticmethod
-    def test_apis(projects: list, allow_with_security: bool = True) -> Any:
+    def test_apis(version: str, projects: list, allow_with_security: bool = True) -> Any:
         pass_counter, fail_counter = 0, 0
 
         # the test case parameters are formated as ['<request_url>',<success_status_code>,'<validate_string(optional)>']
@@ -44,7 +44,7 @@ class ApiTestCases:
             success_status_code = test_api.__getitem__(1)
             validate_string = test_api.__getitem__(2)
 
-            status_code, response_text = ApiTest(str(request_url)).api_get()
+            status_code, response_text = ApiTest(str(request_url), version).api_get()
             logging.info(f"\nRequest_url ->{str(request_url)} \n")
             logging.info(f"\nStatus_code ->{status_code} \nresponse_text ->{response_text}")
 
