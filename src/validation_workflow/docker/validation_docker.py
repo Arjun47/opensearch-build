@@ -137,7 +137,7 @@ class ValidateDocker(Validation):
 
         for url, name in self.test_readiness_urls.items():
             try:
-                status_code, response_text = ApiTest(self.args.version, url).api_get()
+                status_code, response_text = ApiTest(url, self.args.version).api_get()
                 if status_code != 200:
                     logging.error(f'Error connecting to {name} ({url}): status code {status_code}')
                     return False
