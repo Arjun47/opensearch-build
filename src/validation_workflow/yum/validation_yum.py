@@ -16,6 +16,7 @@ from validation_workflow.api_test_cases import ApiTestCases
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
+from test_workflow.integ_test.utils import get_password
 
 
 class ValidateYum(Validation, DownloadUtils):
