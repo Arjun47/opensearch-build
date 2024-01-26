@@ -59,7 +59,8 @@ class ValidateTar(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             if self.args.allow_without_security:
-                self.os_process.start(f'export OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(self.args.version)} && ./opensearch-tar-install.sh', os.path.join(self.tmp_dir.path, "opensearch"))
+                logging.info("version number: ", self.args.version)
+                self.os_process.start(f'export OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} && ./opensearch-tar-install.sh', os.path.join(self.tmp_dir.path, "opensearch"))
             else:
                 self.os_process.start('./opensearch-tar-install.sh', os.path.join(self.tmp_dir.path, "opensearch"))
             time.sleep(85)
