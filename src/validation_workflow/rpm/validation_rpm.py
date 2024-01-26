@@ -48,7 +48,7 @@ class ValidateRpm(Validation, DownloadUtils):
             for project in self.args.projects:
                 self.filename = os.path.basename(self.args.file_path.get(project))
                 execute(f'sudo yum remove {project} -y', ".")
-                execute(f'sudo rpm -ivh {os.path.join(self.tmp_dir.path, self.filename)}', str(self.tmp_dir.path), True, False)
+                execute(f'sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD=myStrongPassword123! rpm -ivh {os.path.join(self.tmp_dir.path, self.filename)}', str(self.tmp_dir.path), True, False)
         except:
             raise Exception('Failed to install Opensearch')
         return True
@@ -56,7 +56,7 @@ class ValidateRpm(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             for project in self.args.projects:
-                execute(f'sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD=myStrongPassword123! && sudo systemctl start {project}', ".")
+                execute(f'sudo systemctl start {project}', ".")
                 time.sleep(20)
                 (stdout, stderr, status) = execute(f'sudo systemctl status {project}', ".", True, False)
                 if(status == 0):
