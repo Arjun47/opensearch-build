@@ -71,7 +71,7 @@ class ValidateRpm(Validation, DownloadUtils):
         if self.args.allow_without_security:
             self.args.allow_without_security = self.is_allow_with_security("/usr/")
 
-        test_result, counter = ApiTestCases().test_apis(self.args.projects, self.args.allow_without_security)
+        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.args.allow_without_security)
         if(test_result):
             logging.info(f'All tests Pass : {counter}')
             return True
