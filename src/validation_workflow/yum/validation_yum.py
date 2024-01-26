@@ -74,7 +74,7 @@ class ValidateYum(Validation, DownloadUtils):
             self.args.allow_without_security = self.is_allow_with_security("/usr/")
 
         logging.info(f"allow_without_security set to: {self.args.allow_without_security}")
-        test_result, counter = ApiTestCases().test_apis(self.args.projects, self.args.allow_without_security)
+        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.args.allow_without_security)
         if (test_result):
             logging.info(f'All tests Pass : {counter}')
             return True
