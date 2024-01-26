@@ -53,7 +53,7 @@ class ValidateYum(Validation, DownloadUtils):
                 logging.info('Removed previous versions of Opensearch')
                 urllink = f"{self.args.file_path.get(project)} -o /etc/yum.repos.d/{os.path.basename(self.args.file_path.get(project))}"
                 execute(f'sudo curl -SL {urllink}', ".")
-                execute(f"sudo yum install '{project}-{self.args.version}' -y", ".")
+                execute(f"sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} yum install '{project}-{self.args.version}' -y", ".")
         except:
             raise Exception('Failed to install Opensearch')
         return True
