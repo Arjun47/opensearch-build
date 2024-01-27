@@ -67,8 +67,7 @@ class TestValidateTar(unittest.TestCase):
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     @patch('os.path.basename')
     @patch('validation_workflow.tar.validation_tar.execute')
-    @patch('validation_workflow.validation.Validation.is_allow_with_security')
-    def test_installation(self, mock_security: Mock, mock_system: Mock, mock_basename: Mock, mock_validation_args: Mock) -> None:
+    def test_installation(self, mock_system: Mock, mock_basename: Mock, mock_validation_args: Mock) -> None:
         mock_validation_args.return_value.version = '2.3.0'
         mock_validation_args.return_value.arch = 'x64'
         mock_validation_args.return_value.platform = 'linux'
@@ -86,7 +85,6 @@ class TestValidateTar(unittest.TestCase):
     @patch('validation_workflow.tar.validation_tar.execute')
     @patch('validation_workflow.validation.Validation.is_allow_with_security')
     def test_installation_with_security_parameter(self, mock_security: Mock, mock_system: Mock, mock_basename: Mock, mock_validation_args: Mock) -> None:
-        # Set up mock objects
         mock_validation_args.return_value.version = '2.3.0'
         mock_validation_args.return_value.allow_without_security = True
         validate_tar = ValidateTar(mock_validation_args.return_value)
@@ -120,9 +118,7 @@ class TestValidateTar(unittest.TestCase):
     @patch('src.test_workflow.integ_test.utils.get_password')
     def test_start_cluster_exception_os(self, mock_password: Mock, mock_sleep: Mock, mock_validation_args: Mock) -> None:
         mock_validation_args.return_value.projects = ["opensearch"]
-        mock_validation_args.return_value.version = '2.3.0'
         mock_validation_args.return_value.allow_without_security = True
-        mock_password.return_value = "admin"
 
         validate_tar = ValidateTar(mock_validation_args.return_value)
         validate_tar.os_process.start = MagicMock(side_effect=Exception('Failed to Start Cluster'))  # type: ignore

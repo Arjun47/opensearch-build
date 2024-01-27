@@ -49,6 +49,10 @@ class ValidateRpm(Validation, DownloadUtils):
                 self.filename = os.path.basename(self.args.file_path.get(project))
                 execute(f'sudo yum remove {project} -y', ".")
                 execute(f'sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} rpm -ivh {os.path.join(self.tmp_dir.path, self.filename)}', str(self.tmp_dir.path), True, False)  # noqa: 501
+
+            if self.args.allow_without_security:
+                self.args.allow_without_security = self.is_allow_with_security("/usr/")
+
         except:
             raise Exception('Failed to install Opensearch')
         return True
@@ -69,9 +73,6 @@ class ValidateRpm(Validation, DownloadUtils):
         return True
 
     def validation(self) -> bool:
-        if self.args.allow_without_security:
-            self.args.allow_without_security = self.is_allow_with_security("/usr/")
-
         test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.args.allow_without_security)
         if(test_result):
             logging.info(f'All tests Pass : {counter}')

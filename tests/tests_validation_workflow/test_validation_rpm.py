@@ -90,12 +90,29 @@ class TestValidationRpm(unittest.TestCase):
         mock_validation_args.return_value.version = '2.3.0'
         mock_validation_args.return_value.arch = 'x64'
         mock_validation_args.return_value.platform = 'linux'
+        mock_validation_args.return_value.allow_without_security = False
         mock_validation_args.return_value.projects = ["opensearch"]
 
         validate_rpm = ValidateRpm(mock_validation_args.return_value)
         mock_system.side_effect = lambda *args, **kwargs: (0, "stdout_output", "stderr_output")
         result = validate_rpm.installation()
         self.assertTrue(result)
+
+    @patch('validation_workflow.rpm.validation_rpm.ValidationArgs')
+    @patch('os.path.basename')
+    @patch('validation_workflow.rpm.validation_rpm.execute')
+    @patch('validation_workflow.validation.Validation.is_allow_with_security')
+    def test_installation_with_security_parameter(self, mock_security: Mock, mock_system: Mock, mock_basename: Mock, mock_validation_args: Mock) -> None:
+        mock_validation_args.return_value.version = '2.3.0'
+        mock_validation_args.return_value.allow_without_security = True
+        validate_rpm = ValidateRpm(mock_validation_args.return_value)
+        mock_basename.side_effect = lambda path: "mocked_filename"
+        mock_system.side_effect = lambda *args, **kwargs: (0, "stdout_output", "stderr_output")
+        mock_security.return_value = True
+
+        result = validate_rpm.installation()
+        self.assertTrue(result)
+        mock_security.assert_called_once()
 
     @patch("validation_workflow.rpm.validation_rpm.execute", return_value=True)
     @patch('validation_workflow.rpm.validation_rpm.ValidationArgs')
@@ -110,56 +127,31 @@ class TestValidationRpm(unittest.TestCase):
 
     @patch('validation_workflow.rpm.validation_rpm.ValidationArgs')
     @patch('validation_workflow.rpm.validation_rpm.ApiTestCases')
-    def test_validation_without_security_parameter(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
+    def test_validation(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
         # Set up mock objects
         mock_validation_args.return_value.version = '2.3.0'
-        mock_validation_args.return_value.allow_without_security = False
         mock_test_apis_instance = mock_test_apis.return_value
         mock_test_apis_instance.test_apis.return_value = (True, 4)
-
-        with patch.object(self.call_methods, 'is_allow_with_security') as mock_security:
-            result = self.call_methods.validation()
-            mock_test_apis.assert_called_once()
-        self.assertTrue(result)
-        mock_security.assert_called_once()
 
         validate_rpm = ValidateRpm(mock_validation_args.return_value)
         validate_rpm.validation()
 
-        self.assertEqual(mock_test_apis.call_count, 2)
-
-    @patch('validation_workflow.rpm.validation_rpm.ValidationArgs')
-    @patch('validation_workflow.rpm.validation_rpm.ApiTestCases')
-    def test_validation_with_security_parameter(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
-        # Set up mock objects
-        mock_validation_args.return_value.version = '2.3.0'
-        mock_validation_args.return_value.allow_without_security = True
-        mock_test_apis_instance = mock_test_apis.return_value
-        mock_test_apis_instance.test_apis.return_value = (True, 4)
-
-        with patch.object(self.call_methods, 'is_allow_with_security') as mock_security:
-            result = self.call_methods.validation()
-            mock_test_apis.assert_called_once()
-        self.assertTrue(result)
-        mock_security.assert_called_once()
+        self.assertEqual(mock_test_apis.call_count, 1)
 
     @patch('validation_workflow.rpm.validation_rpm.ValidationArgs')
     @patch('validation_workflow.rpm.validation_rpm.ApiTestCases')
     def test_failed_testcases(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
         # Set up mock objects
         mock_validation_args.return_value.version = '2.3.0'
-        mock_validation_args.return_value.allow_without_security = False
         mock_test_apis_instance = mock_test_apis.return_value
-        mock_test_apis_instance.test_apis.return_value = (True, 1)
+        mock_test_apis_instance.test_apis.return_value = (False, 1)
 
-        # Create instance of ValidateRpm class
         validate_rpm = ValidateRpm(mock_validation_args.return_value)
+        with self.assertRaises(Exception) as context:
+            validate_rpm.validation()
 
-        # Call validation method and assert the result
-        validate_rpm.validation()
-        self.assertRaises(Exception, "Not all tests Pass : 1")
+        self.assertEqual(str(context.exception), 'Not all tests Pass : 1')
 
-        # Assert that the mock methods are called as expected
         mock_test_apis.assert_called_once()
 
     @patch("validation_workflow.rpm.validation_rpm.execute", return_value=True)

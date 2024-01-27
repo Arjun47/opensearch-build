@@ -55,6 +55,8 @@ class ValidateYum(Validation, DownloadUtils):
                 urllink = f"{self.args.file_path.get(project)} -o /etc/yum.repos.d/{os.path.basename(self.args.file_path.get(project))}"
                 execute(f'sudo curl -SL {urllink}', ".")
                 execute(f"sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} yum install '{project}-{self.args.version}' -y", ".")
+            if self.args.allow_without_security:
+                self.args.allow_without_security = self.is_allow_with_security("/usr/")
         except:
             raise Exception('Failed to install Opensearch')
         return True
@@ -70,16 +72,12 @@ class ValidateYum(Validation, DownloadUtils):
         return True
 
     def validation(self) -> bool:
-        if self.args.allow_without_security:
-            self.args.allow_without_security = self.is_allow_with_security("/usr/")
-
-        logging.info(f"allow_without_security set to: {self.args.allow_without_security}")
         test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.args.allow_without_security)
         if (test_result):
             logging.info(f'All tests Pass : {counter}')
             return True
         else:
-            raise Exception(f'Some test cases failed : {counter}')
+            raise Exception(f'Not all tests Pass : {counter}')
 
     def cleanup(self) -> bool:
         try:
