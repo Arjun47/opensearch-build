@@ -221,8 +221,7 @@ pipeline {
                                                             else {
 
                                                                 validateArtifacts(
-                                                                    "file-path": "$FILEPATH",
-                                                                    "$TEST_WITHOUT_SECURITY" : ""
+                                                                    "file-path": "$FILEPATH"
                                                                 )
                                                             }
                                                         }
