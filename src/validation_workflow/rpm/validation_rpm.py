@@ -33,6 +33,8 @@ class ValidateRpm(Validation, DownloadUtils):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
                 else:
+                    self.args.version = re.search(r'(\d+\.\d+\.\d+)', self.args.file_path.get(project)).group(1)
+                    logging.info(self.args.version)
                     self.check_url(self.args.file_path.get(project))
             else:
                 if (self.args.artifact_type == "staging"):
