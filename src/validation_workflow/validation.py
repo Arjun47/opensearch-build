@@ -50,12 +50,13 @@ class Validation(ABC):
             raise Exception("Couldn't fetch the path to plugin folder")
 
     def version_parser(self, v: str) -> str:
-        versionPattern = r'\d+(=?\.(\d+(=?\.(\d+)*)*)*)*'
-        regexMatcher = re.compile(versionPattern)
+        # versionPattern = r'\d+(=?\.(\d+(=?\.(\d+)*)*)*)*'
+        # regexMatcher = re.compile(versionPattern)
+        return re.search(r'(\d+\.\d+\.\d+)', os.path.basename(v)).group(1)
         # print("--regexMatcher ", regexMatcher)
 
-        # 9999803675 print(bool(re.match(versionPattern, v)))
-        return regexMatcher.search(v).group(0)
+        #  print(bool(re.match(versionPattern, v)))
+        # return regexMatcher.search(v).group(0)
         # return bool(re.match(versionPattern, v))
 
     def run(self) -> Any:
