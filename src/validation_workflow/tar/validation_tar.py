@@ -36,10 +36,10 @@ class ValidateTar(Validation, DownloadUtils):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
                 else:
-                    self.check_url(self.args.file_path.get(project))
                     logging.info("version from the url")
                     version = self.version_parser(self.args.file_path.get("opensearch"))
                     logging.info(version)
+                    self.check_url(self.args.file_path.get(project))
             else:
                 if (self.args.artifact_type == "staging"):
                     self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
