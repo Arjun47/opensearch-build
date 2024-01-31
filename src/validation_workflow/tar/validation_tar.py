@@ -12,11 +12,11 @@ import time
 from system.execute import execute
 from system.process import Process
 from system.temporary_directory import TemporaryDirectory
+from test_workflow.integ_test.utils import get_password
 from validation_workflow.api_test_cases import ApiTestCases
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
-from test_workflow.integ_test.utils import get_password
 
 
 class ValidateTar(Validation, DownloadUtils):
@@ -35,6 +35,8 @@ class ValidateTar(Validation, DownloadUtils):
             if (isFilePathEmpty):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
+                    version = self.version_parser(self.args.file_path.get("opensearch"))
+                    logging.info(version)
                 else:
                     self.check_url(self.args.file_path.get(project))
             else:
@@ -51,7 +53,7 @@ class ValidateTar(Validation, DownloadUtils):
                 self.filename = os.path.basename(self.args.file_path.get(project))
                 execute('mkdir ' + os.path.join(self.tmp_dir.path, project) + ' | tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C ' + os.path.join(self.tmp_dir.path, project) + ' --strip-components=1', ".", True, False)  # noqa: E501
             if self.args.allow_without_security:
-                self.args.allow_without_security = self.is_allow_with_security(str(self.tmp_dir.path))
+                self.args.allow_without_security = self.test_security_plugin(str(self.tmp_dir.path))
         except:
             raise Exception('Failed to install Opensearch')
         return True

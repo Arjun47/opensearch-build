@@ -10,6 +10,8 @@ import logging
 import shutil
 from abc import ABC, abstractmethod
 from typing import Any
+import re
+
 
 from system.execute import execute
 from validation_workflow.download_utils import DownloadUtils
@@ -39,13 +41,21 @@ class Validation(ABC):
         else:
             raise Exception("Provided path for local artifacts does not exist")
 
-    def is_allow_with_security(self, work_dir: str) -> bool:
-        (_, stdout_1, _) = execute(f'find {work_dir} -type f -iname \'opensearch-plugin\'', ".", True, False)
-        if (stdout_1):
-            (_, stdout_2, _) = execute("./opensearch-plugin list", stdout_1.replace("opensearch-plugin", "").rstrip("\n"), True, False)
-            return "opensearch-security" in stdout_2
+    def test_security_plugin(self, work_dir: str) -> bool:
+        (_, path, _) = execute(f'find {work_dir} -type f -iname \'opensearch-plugin\'', ".", True, False)
+        if (path):
+            (_, list_plugins, _) = execute("./opensearch-plugin list", path.replace("opensearch-plugin", "").rstrip("\n"), True, False)
+            return "opensearch-security" in list_plugins
         else:
             raise Exception("Couldn't fetch the path to plugin folder")
+
+    def version_parser(self, v: str) -> str:
+        versionPattern = r'\d+(=?\.(\d+(=?\.(\d+)*)*)*)*'
+        regexMatcher = re.compile(versionPattern)
+        print("--regexMatcher ", regexMatcher)
+        print(bool(re.match(versionPattern, v)))
+        return regexMatcher.search(v).group(0)
+        # return bool(re.match(versionPattern, v))
 
     def run(self) -> Any:
         try:
