@@ -52,8 +52,9 @@ class Validation(ABC):
     def version_parser(self, v: str) -> str:
         versionPattern = r'\d+(=?\.(\d+(=?\.(\d+)*)*)*)*'
         regexMatcher = re.compile(versionPattern)
-        print("--regexMatcher ", regexMatcher)
-        print(bool(re.match(versionPattern, v)))
+        # print("--regexMatcher ", regexMatcher)
+
+        # 9999803675 print(bool(re.match(versionPattern, v)))
         return regexMatcher.search(v).group(0)
         # return bool(re.match(versionPattern, v))
 

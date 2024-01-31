@@ -39,6 +39,7 @@ class ValidateTar(Validation, DownloadUtils):
                     logging.info("version from the url")
                     version = self.version_parser(self.args.file_path.get("opensearch"))
                     logging.info(version)
+                    self.args.version = version
                     self.check_url(self.args.file_path.get(project))
             else:
                 if (self.args.artifact_type == "staging"):
