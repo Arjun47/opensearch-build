@@ -56,7 +56,7 @@ class ValidateYum(Validation, DownloadUtils):
                 execute(f'sudo curl -SL {urllink}', ".")
                 execute(f"sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} yum install '{project}-{self.args.version}' -y", ".")
             if self.args.allow_without_security:
-                self.args.allow_without_security = self.is_allow_with_security("/usr/")
+                self.args.allow_without_security = self.test_security_plugin("/usr/")
         except:
             raise Exception('Failed to install Opensearch')
         return True
