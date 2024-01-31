@@ -8,6 +8,7 @@
 import logging
 import os
 import time
+import re
 
 from system.execute import execute
 from system.temporary_directory import TemporaryDirectory
