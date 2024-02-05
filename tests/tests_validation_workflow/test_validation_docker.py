@@ -47,7 +47,7 @@ class TestValidateDocker(unittest.TestCase):
     def test_staging(self, mock_time_sleep: Mock, mock_digest: Mock, mock_container: Mock, mock_test: Mock, mock_docker_image: Mock, mock_validation_args: Mock, mock_check_http: Mock) -> None:
         # Set up mock objects
         mock_validation_args.return_value.OS_image = 'opensearchstaging/opensearch-os'
-        mock_validation_args.return_value.version = '1.0.0'
+        mock_validation_args.return_value.version = '1.0.0.1000'
         mock_validation_args.return_value.validate_digest_only = False
         mock_validation_args.return_value.allow_without_security = False
         mock_validation_args.return_value.projects = ["opensearch"]
@@ -70,7 +70,7 @@ class TestValidateDocker(unittest.TestCase):
         # Assert that the mock methods are called as expected
         mock_container.assert_called_once()
         mock_test.assert_called_once()
-        mock_test.assert_has_calls([call(), call().test_apis("1.0.0", ['opensearch'], True)])
+        mock_test.assert_has_calls([call(), call().test_apis("1.0.0.1000", ['opensearch'], True)])
 
     @patch('validation_workflow.docker.validation_docker.ValidateDocker.check_http_request')
     @patch('validation_workflow.docker.validation_docker.ValidationArgs')
@@ -167,6 +167,35 @@ class TestValidateDocker(unittest.TestCase):
 
         self.assertTrue(urllib.request.urlopen(docker_compose_file_v1_url).getcode() == 200)
         self.assertTrue(urllib.request.urlopen(docker_compose_file_v2_url).getcode() == 200)
+
+    # @patch('validation_workflow.docker.validation_docker.ValidateDocker.check_http_request')
+    @patch('validation_workflow.docker.validation_docker.ValidationArgs')
+    @patch('validation_workflow.docker.validation_docker.ApiTest.api_get')
+    # def test_check_http_request(self, mock_validation_args: Mock, mock_check_http: Mock) -> None:
+    def test_check_http_request(self, mock_validation_args: MagicMock, mock_api_test: MagicMock) -> None:
+        mock_validation_args.return_value.test_readiness_urls = {
+            'https://localhost:9200/': 'opensearch cluster API',
+            'http://localhost:5601/api/status': 'opensearch-dashboards API',
+        }
+        mock_validation_args.return_value.version = '1.0.0'
+
+        # mock_response = MagicMock()
+        # mock_response.status_code = 200
+        # mock_response.text = "sample response"
+        mock_api_test.return_value = (200, "sample_response")
+
+        # create instance of ValidateDocker
+        validate_docker = ValidateDocker(mock_validation_args.return_value)
+
+        # set the desired value for args.docker_source
+        validate_docker.args.docker_source = 'dockerhub'
+
+        # call download_artifacts method
+        result = validate_docker.check_http_request()
+
+        # Assert that the mock methods are called as expected
+        self.assertEqual(result, True)
+        mock_check_http.assert_called_once()
 
 
 if __name__ == '__main__':

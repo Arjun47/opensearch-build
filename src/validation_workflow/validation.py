@@ -10,8 +10,6 @@ import logging
 import shutil
 from abc import ABC, abstractmethod
 from typing import Any
-import re
-
 
 from system.execute import execute
 from validation_workflow.download_utils import DownloadUtils
@@ -49,15 +47,8 @@ class Validation(ABC):
         else:
             raise Exception("Couldn't fetch the path to plugin folder")
 
-    def version_parser(self, v: str) -> str:
-        # versionPattern = r'\d+(=?\.(\d+(=?\.(\d+)*)*)*)*'
-        # regexMatcher = re.compile(versionPattern)
-        return re.search(r'(\d+\.\d+\.\d+)', os.path.basename(v)).group(1)
-        # print("--regexMatcher ", regexMatcher)
-
-        #  print(bool(re.match(versionPattern, v)))
-        # return regexMatcher.search(v).group(0)
-        # return bool(re.match(versionPattern, v))
+    def get_version(self, project: str) -> str:
+        return re.search(r'(\d+\.\d+\.\d+)', os.path.basename(project)).group(1)
 
     def run(self) -> Any:
         try:

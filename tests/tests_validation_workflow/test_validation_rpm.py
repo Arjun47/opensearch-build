@@ -101,7 +101,7 @@ class TestValidationRpm(unittest.TestCase):
     @patch('validation_workflow.rpm.validation_rpm.ValidationArgs')
     @patch('os.path.basename')
     @patch('validation_workflow.rpm.validation_rpm.execute')
-    @patch('validation_workflow.validation.Validation.is_allow_with_security')
+    @patch('validation_workflow.validation.Validation.test_security_plugin')
     def test_installation_with_security_parameter(self, mock_security: Mock, mock_system: Mock, mock_basename: Mock, mock_validation_args: Mock) -> None:
         mock_validation_args.return_value.version = '2.3.0'
         mock_validation_args.return_value.allow_without_security = True

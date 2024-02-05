@@ -12,11 +12,11 @@ import time
 
 from system.execute import execute
 from system.temporary_directory import TemporaryDirectory
+from test_workflow.integ_test.utils import get_password
 from validation_workflow.api_test_cases import ApiTestCases
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
-from test_workflow.integ_test.utils import get_password
 
 
 class ValidateYum(Validation, DownloadUtils):
@@ -34,7 +34,7 @@ class ValidateYum(Validation, DownloadUtils):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
                 else:
-                    self.args.version = re.search(r'(\d+\.\d+\.\d+)', os.path.basename(self.args.file_path.get(project))).group(1)
+                    self.args.version = self.get_version(self.args.file_path.get(project))
                     self.check_url(self.args.file_path.get(project))
 
             else:
