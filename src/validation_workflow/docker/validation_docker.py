@@ -159,7 +159,7 @@ class ValidateDocker(Validation):
         logging.error(f"Maximum number of retries ({max_retry}) reached. Cluster is not ready for API test.")
         return False
 
-    def get_artifact_name(self, artifact: str, using_staging_artifact_only: str) -> Any:
+    def get_artifact_image_name(self, artifact: str, using_staging_artifact_only: str) -> Any:
         self.image_names = {
             'dockerhub': {
                 'opensearch': {
