@@ -8,15 +8,14 @@
 import logging
 import os
 import time
-import re
 
 from system.execute import execute
 from system.temporary_directory import TemporaryDirectory
+from test_workflow.integ_test.utils import get_password
 from validation_workflow.api_test_cases import ApiTestCases
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
-from test_workflow.integ_test.utils import get_password
 
 
 class ValidateRpm(Validation, DownloadUtils):
@@ -34,9 +33,8 @@ class ValidateRpm(Validation, DownloadUtils):
                 if ("https:" not in self.args.file_path.get(project)):
                     self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
                 else:
-                    self.args.version = re.search(r'(\d+\.\d+\.\d+)', self.args.file_path.get(project)).group(1)
-                    logging.info(self.args.version)
                     self.check_url(self.args.file_path.get(project))
+                    self.get_version(self.args.file_path.get(project))
             else:
                 if (self.args.artifact_type == "staging"):
                     self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.rpm"  # noqa: E501
@@ -55,7 +53,6 @@ class ValidateRpm(Validation, DownloadUtils):
 
             if self.args.allow_without_security:
                 self.args.allow_without_security = self.test_security_plugin("/usr/")
-
         except:
             raise Exception('Failed to install Opensearch')
         return True
@@ -77,7 +74,7 @@ class ValidateRpm(Validation, DownloadUtils):
 
     def validation(self) -> bool:
         test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.args.allow_without_security)
-        if(test_result):
+        if (test_result):
             logging.info(f'All tests Pass : {counter}')
             return True
         else:

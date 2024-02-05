@@ -70,7 +70,7 @@ class TestValidation(unittest.TestCase):
         mock_validation_args.projects.return_value = ["opensearch"]
         mock_validation = ValidateTar(mock_validation_args.return_value)
 
-        result = mock_validation.is_allow_with_security("/path/to/work_dir")
+        result = mock_validation.test_security_plugin("/bin/opensearch")
 
         self.assertTrue(result)
 
@@ -82,7 +82,7 @@ class TestValidation(unittest.TestCase):
         mock_validation_args.projects.return_value = ["opensearch"]
         mock_validation = ValidateTar(mock_validation_args.return_value)
 
-        result = mock_validation.is_allow_with_security("/path/to/work_dir")
+        result = mock_validation.test_security_plugin("/bin/opensearch")
 
         self.assertFalse(result)
 
@@ -95,6 +95,6 @@ class TestValidation(unittest.TestCase):
         mock_validation = ValidateTar(mock_validation_args.return_value)
 
         with self.assertRaises(Exception) as context:
-            mock_validation.is_allow_with_security("/path/to/work_dir")
+            mock_validation.test_security_plugin("/bin/opensearch")
 
         self.assertEqual(str(context.exception), "Couldn't fetch the path to plugin folder")
