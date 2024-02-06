@@ -197,7 +197,7 @@ pipeline {
                                             }
                                         }
                                     } else {
-                                        node(agent_nodes["$local_architecture"]) {
+                                        node(agent_nodes["windows_x64"]) {
                                             docker.withRegistry('https://public.ecr.aws/') {
                                                 docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
                                                     try {
