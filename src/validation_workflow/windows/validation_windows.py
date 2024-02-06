@@ -47,7 +47,7 @@ class ValidateWin(Validation, DownloadUtils):
             for project in self.args.projects:
                 logging.info(project)
                 filename = os.path.basename(self.args.file_path.get(project))
-                work_dir = os.path.join(self.tmp_dir.path, project)
+                # work_dir = os.path.join(self.tmp_dir.path, project)
                 # self.os_process.start("mkdir " + work_dir, ".", True)
                 # logging.info(f" Installing in {work_dir}/opensearch-{self.args.version}")
                 # self.zip_path = os.path.join(work_dir, f"opensearch-{self.args.version}")
