@@ -16,12 +16,14 @@ def docker_images = [
     "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v4",
     "rpm": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v3",
     "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v3",
+    "win": "opensearchstaging/ci-runner:ci-runner-windows2019-servercore-opensearch-build-v1"
 ]
 
 def docker_args = [
     "tar": "-u 1000",
     "rpm": "--entrypoint=/usr/lib/systemd/systemd -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host",
     "yum": "--entrypoint=/usr/lib/systemd/systemd -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host",
+    "zip": "-u ContainerAdministrator -e BROWSER_PATH=electron"
 ]
 
 def agent_nodes_docker = [
