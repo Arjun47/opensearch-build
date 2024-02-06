@@ -48,11 +48,11 @@ class ValidateWin(Validation, DownloadUtils):
                 logging.info(project)
                 filename = os.path.basename(self.args.file_path.get(project))
                 work_dir = os.path.join(self.tmp_dir.path, project)
-                self.os_process.start("mkdir " + work_dir, ".", True)
-                logging.info(f" Installing in {work_dir}/{filename.split('.')[0]}/opensearch-{self.args.version}")
-                self.zip_path = os.path.join(work_dir, f"opensearch-{self.args.version}")
+                # self.os_process.start("mkdir " + work_dir, ".", True)
+                # logging.info(f" Installing in {work_dir}/opensearch-{self.args.version}")
+                # self.zip_path = os.path.join(work_dir, f"opensearch-{self.args.version}")
                 with ZipFile(os.path.join(self.tmp_dir.path, filename), "r") as zip:
-                    zip.extractall(work_dir)
+                    zip.extractall(self.tmp_dir.path)
 
             if self.args.allow_without_security:
                 self.args.allow_without_security = self.test_security_plugin(str(self.tmp_dir.path))
