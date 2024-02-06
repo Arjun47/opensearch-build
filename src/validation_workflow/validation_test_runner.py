@@ -12,6 +12,7 @@ from validation_workflow.tar.validation_tar import ValidateTar
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 from validation_workflow.yum.validation_yum import ValidateYum
+from validation_workflow.windows.validation_windows import ValidateWin
 
 
 class ValidationTestRunner:
@@ -19,7 +20,8 @@ class ValidationTestRunner:
         "docker": ValidateDocker,
         "tar": ValidateTar,
         "rpm": ValidateRpm,
-        "yum": ValidateYum
+        "yum": ValidateYum,
+        "zip": ValidateWin
     }
 
     @classmethod
