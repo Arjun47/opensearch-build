@@ -1,3 +1,10 @@
+# Copyright OpenSearch Contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# The OpenSearch Contributors require contributions made to
+# this file be licensed under the Apache-2.0 license or a
+# compatible open source license.
+
 import logging
 import os
 import time
@@ -65,7 +72,8 @@ class ValidateWin(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             execute(f"set OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ".", True)
-            self.os_process.start(".\\opensearch-windows-install.bat", self.tmp_dir.path, True)
+            self.os_process.start(".\\opensearch-windows-install.bat", os.path.join(self.tmp_dir.path, "opensearch-", self.args.version), True)
+
             time.sleep(85)
             if "opensearch-dashboards" in self.args.projects:
                 self.osd_process.start(
