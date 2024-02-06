@@ -16,12 +16,14 @@ def docker_images = [
     "tar": "opensearchstaging/ci-runner:ci-runner-rockylinux8-opensearch-dashboards-integtest-v4",
     "rpm": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v3",
     "yum": "opensearchstaging/ci-runner:ci-runner-rockylinux8-systemd-base-integtest-v3",
+    "zip": "opensearchstaging/ci-runner:ci-runner-windows2019-servercore-opensearch-build-v1"
 ]
 
 def docker_args = [
     "tar": "-u 1000",
     "rpm": "--entrypoint=/usr/lib/systemd/systemd -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host",
     "yum": "--entrypoint=/usr/lib/systemd/systemd -u root --privileged -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host",
+    "zip": "-u ContainerAdministrator -e BROWSER_PATH=electron"
 ]
 
 def agent_nodes_docker = [
@@ -71,6 +73,12 @@ pipeline {
             defaultValue: "x64 arm64"
         )
         string(
+            name: 'PLATFORM',
+            description: 'Enter the type type among linux and windows separated by space. Defaults to "linux windows"',
+            trim: true,
+            defaultValue: "linux windows"
+        )
+        string(
             name: 'OS_BUILD_NUMBER',
             description: 'Enter the build number for OpenSearch - This parameter is applicable only for Docker Validation and staging artifacts referred by build numbers',
             trim: true,
@@ -105,7 +113,7 @@ pipeline {
 
     stages {
         stage('verify-parameters') {
-            agent { label agent_nodes["x64"] }
+            agent { label agent_nodes["windows_x64"] }
             steps {
                 script {
                     def url_paths = [:]
@@ -149,12 +157,13 @@ pipeline {
             }
         }
         stage('Validate') {
-            agent {label agent_nodes["x64"] }
+            agent {label agent_nodes["windows_x64"] }
             steps {
                 script {
 
                     def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : ""
                     def architectureList = ARCHITECTURE ? ARCHITECTURE.trim().split(" ") as List : ""
+                    def platformList = PLATFORM ? PLATFORM.trim().split(" ") as List : ""
 
                     stash includes: "**", name: "validate-artifacts-$BUILD_NUMBER"
 
@@ -163,6 +172,7 @@ pipeline {
                         for (distribution in distributionList) {
                             def local_architecture = architecture.trim()
                             def local_distribution = distribution.trim()
+                            def local_platform = platform.trim()
                             def local_distribution_index = distributionList.indexOf(local_distribution)
                             def wait_seconds = local_distribution_index * 10
 
@@ -196,7 +206,7 @@ pipeline {
                                             }
                                         }
                                     } else {
-                                        node(agent_nodes["windows_x64"]) {
+                                        node(agent_nodes[["${local_platform}_${local_architecture}"]]) {
                                             docker.withRegistry('https://public.ecr.aws/') {
                                                 docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
                                                     try {
