@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 from system.process import Process
 from system.temporary_directory import TemporaryDirectory
@@ -45,10 +46,10 @@ class ValidateWin(Validation, DownloadUtils):
         try:
             for project in self.args.projects:
                 logging.info(project)
-                self.filename = os.path.basename(self.args.file_path.get(project))
+                filename = os.path.basename(self.args.file_path.get(project))
                 work_dir = os.path.join(self.tmp_dir.path, project)
                 self.os_process.start("mkdir " + work_dir, ".", True)
-                logging.info(f" Installing in {work_dir}/{self.filename.split('.')[0]}/opensearch-{self.args.version}")
+                logging.info(f" Installing in {work_dir}/{filename.split('.')[0]}/opensearch-{self.args.version}")
                 self.zip_path = os.path.join(work_dir, f"opensearch-{self.args.version}")
                 with ZipFile(os.path.join(self.tmp_dir.path, filename), "r") as zip:
                     zip.extractall(work_dir)
@@ -62,11 +63,11 @@ class ValidateWin(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             self.os_process.start("set OPENSEARCH_INITIAL_ADMIN_PASSWORD=myStrongPassword123!", ".", True)
-            self.os_process.start(f".\\opensearch-windows-install.bat", self.zip_path, True)
+            self.os_process.start(".\\opensearch-windows-install.bat", self.zip_path, True)
             time.sleep(85)
             if "opensearch-dashboards" in self.args.projects:
                 self.os_process.start(
-                    f".\\bin\\opensearch-dashboards.bat",
+                    ".\\bin\\opensearch-dashboards.bat",
                     os.path.join(
                         self.tmp_dir.path,
                         "opensearch-dashboards",
