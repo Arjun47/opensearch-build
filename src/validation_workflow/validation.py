@@ -44,8 +44,9 @@ class Validation(ABC):
     def test_security_plugin(self, work_dir: str) -> bool:
         (_, path, _) = execute(f'find {work_dir} -type f -iname \'opensearch-plugin\'', ".", True, False)
         logging.info(path)
+        cmd = "./opensearch-plugin list"
         if (path):
-            (_, list_plugins, _) = execute("bin/opensearch-plugin list", path.replace("bin/opensearch-plugin", "").rstrip("\n"), True, False)
+            (_, list_plugins, _) = execute(os.path.normpath(cmd), path.replace("opensearch-plugin", "").rstrip("\n"), True, False)
             logging.info(list_plugins)
             return "opensearch-security" in list_plugins
         else:
