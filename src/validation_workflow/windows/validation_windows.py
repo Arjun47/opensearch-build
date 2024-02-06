@@ -3,6 +3,8 @@ import os
 import time
 
 from system.process import Process
+from system.execute import execute
+
 from system.temporary_directory import TemporaryDirectory
 from system.zip_file import ZipFile
 from validation_workflow.download_utils import DownloadUtils
@@ -18,8 +20,6 @@ class ValidateWin(Validation, DownloadUtils):
         self.tmp_dir = TemporaryDirectory()
         self.os_process = Process()
         self.osd_process = Process()
-        self.filename = None
-        self.zip_path = None
 
     def download_artifacts(self) -> bool:
         isFilePathEmpty = bool(self.args.file_path)
@@ -62,18 +62,13 @@ class ValidateWin(Validation, DownloadUtils):
 
     def start_cluster(self) -> bool:
         try:
-            self.os_process.start("set OPENSEARCH_INITIAL_ADMIN_PASSWORD=myStrongPassword123!", ".", True)
-            self.os_process.start(".\\opensearch-windows-install.bat", self.zip_path, True)
+            execute("set OPENSEARCH_INITIAL_ADMIN_PASSWORD=myStrongPassword123!", ".", True)
+            self.os_process.start(".\\opensearch-windows-install.bat", self.tmp_dir.path, True)
             time.sleep(85)
             if "opensearch-dashboards" in self.args.projects:
-                self.os_process.start(
+                self.osd_process.start(
                     ".\\bin\\opensearch-dashboards.bat",
-                    os.path.join(
-                        self.tmp_dir.path,
-                        "opensearch-dashboards",
-                        self.filename.split(".")[0],
-                        f"opensearch-dashboards-{self.args.version}",
-                    ),
+                    self.tmp_dir.path,
                     True,
                 )
             logging.info("Starting cluster")
