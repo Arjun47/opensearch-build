@@ -72,14 +72,14 @@ class ValidateWin(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             execute(f"set OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ".", True)
-            self.os_process.start(".\\opensearch-windows-install.bat", os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), True)
+            self.os_process.start(".\\opensearch-windows-install.bat", os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), False)
 
             time.sleep(85)
             if "opensearch-dashboards" in self.args.projects:
                 self.osd_process.start(
                     ".\\bin\\opensearch-dashboards.bat",
                     self.tmp_dir.path,
-                    True,
+                    False
                 )
             logging.info("Starting cluster")
         except:
