@@ -76,11 +76,7 @@ class ValidateWin(Validation, DownloadUtils):
 
             time.sleep(85)
             if "opensearch-dashboards" in self.args.projects:
-                self.osd_process.start(
-                    ".\\bin\\opensearch-dashboards.bat",
-                    self.tmp_dir.path,
-                    False
-                )
+                self.osd_process.start(".\\bin\\opensearch-dashboards.bat", os.path.join(self.tmp_dir.path, f"opensearch-dashboards-{self.args.version}", False)
             logging.info("Starting cluster")
         except:
             raise Exception('Failed to Start Cluster')

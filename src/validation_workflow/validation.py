@@ -45,6 +45,7 @@ class Validation(ABC):
         (_, path, _) = execute(f'find {work_dir} -type f -iname \'opensearch-plugin\'', ".", True, False)
         if (path):
             (_, list_plugins, _) = execute("./opensearch-plugin list", path.replace("opensearch-plugin", "").rstrip("\n"), True, False)
+            logging.info(list_plugins)
             return "opensearch-security" in list_plugins
         else:
             raise Exception("Couldn't fetch the path to plugin folder")
