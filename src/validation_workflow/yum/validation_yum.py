@@ -55,7 +55,7 @@ class ValidateYum(Validation, DownloadUtils):
                 execute(f'sudo curl -SL {urllink}', ".")
                 execute(f"sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} yum install '{project}-{self.args.version}' -y", ".")
             if self.args.force_https_check:
-                self.security_plugin_exists = self.check_for_security_plugin(os.path.join(os.sep, "usr", "share", "opensearch"), "yum")
+                self.security_plugin_exists = self.check_for_security_plugin(os.path.join("usr", "share", "opensearch"), "yum")
         except:
             raise Exception('Failed to install Opensearch')
         return True

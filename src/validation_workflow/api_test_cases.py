@@ -23,6 +23,7 @@ class ApiTestCases:
     @staticmethod
     def test_apis(version: str, projects: list, security_plugin_exists: bool = True) -> Any:
         pass_counter, fail_counter = 0, 0
+        logging.info(security_plugin_exists)
         protocol_prefix = "https" if security_plugin_exists else "http"
 
         # the test case parameters are formated as ['<request_url>',<success_status_code>,'<validate_string(optional)>']

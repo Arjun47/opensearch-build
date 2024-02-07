@@ -73,7 +73,7 @@ class ValidateRpm(Validation, DownloadUtils):
         return True
 
     def validation(self) -> bool:
-        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.security_plugin_exists)
+        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.check_for_security_plugin(os.path.join("usr", "share", "opensearch"), "rpm") if )
         if (test_result):
             logging.info(f'All tests Pass : {counter}')
             return True
