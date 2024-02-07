@@ -50,11 +50,11 @@ class ValidateTar(Validation, DownloadUtils):
         try:
             for project in self.args.projects:
                 self.filename = os.path.basename(self.args.file_path.get(project))
-                execute('tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C ' + os.path.join(self.tmp_dir.path) + ' --strip-components=1', ".", True, False)  # noqa: E501
+                execute('mkdir ' + os.path.join(self.tmp_dir.path, project) + ' | tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C ' + os.path.join(self.tmp_dir.path, project) + ' --strip-components=1', ".", True, False)  # noqa: E501
                 (_, stdout, _) = execute("ls", self.tmp_dir.path, True, False)
                 logging.info(stdout)
             if self.args.force_https_check:
-                self.security_plugin_exists = self.check_for_security_plugin(os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), "tar")
+                self.security_plugin_exists = self.check_for_security_plugin(os.path.join(self.tmp_dir.path, "opensearch"), "tar")
         except:
             raise Exception('Failed to install Opensearch')
         return True
