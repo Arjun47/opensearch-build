@@ -41,13 +41,13 @@ class Validation(ABC):
         else:
             raise Exception("Provided path for local artifacts does not exist")
 
-    def test_security_plugin(self, work_dir: str) -> bool:
-        (_, path, _) = execute(f'find {work_dir} -type f -iname \'opensearch-plugin\'', ".", True, False)
-        if (path):
-            (_, list_plugins, _) = execute("./opensearch-plugin list", path.replace("opensearch-plugin", "").rstrip("\n"), True, False)
-            return "opensearch-security" in list_plugins
-        else:
-            raise Exception("Couldn't fetch the path to plugin folder")
+    def test_security_plugin(self, work_dir: str, distribution) -> bool:
+        plugins_list = None
+        if distribution == "zip":
+            (_, plugins_list, _) = execute(f"dir {work_dir}\\plugins", True, False)
+        elif distribution in ["tar", "rpm", "yum"]:
+            (_, plugins_list, _) = execute("ls -d plugins", True, False)
+        return plugins_list and "opensearch-security" in plugins_list
 
     def get_version(self, project: str) -> str:
         return re.search(r'(\d+\.\d+\.\d+)', os.path.basename(project)).group(1)
