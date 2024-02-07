@@ -10,7 +10,7 @@ from typing import Any
 
 import requests
 
-from test_workflow.integ_test.utils import get_password, to_base64
+from test_workflow.integ_test.utils import get_password, str_to_base64
 
 """
 This class is to run API test againt on local OpenSearch API URL with default port 9200.
