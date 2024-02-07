@@ -97,7 +97,7 @@ pipeline {
         choice(
             name: 'TEST_WITHOUT_SECURITY',
             description: 'Allow validation even when the security plugin is absent',
-            choices: ['allow-without-security', 'with-security'],
+            choices: ['force-https-check', 'with-security'],
         )
 
     }
