@@ -51,8 +51,6 @@ class ValidateTar(Validation, DownloadUtils):
             for project in self.args.projects:
                 self.filename = os.path.basename(self.args.file_path.get(project))
                 execute('mkdir ' + os.path.join(self.tmp_dir.path, project) + ' | tar -xzf ' + os.path.join(str(self.tmp_dir.path), self.filename) + ' -C ' + os.path.join(self.tmp_dir.path, project) + ' --strip-components=1', ".", True, False)  # noqa: E501
-                (_, stdout, _) = execute("ls", self.tmp_dir.path, True, False)
-                logging.info(stdout)
             if self.args.force_https_check:
                 self.security_plugin_exists = self.check_for_security_plugin(os.path.join(self.tmp_dir.path, "opensearch"), "tar")
         except:
@@ -62,7 +60,6 @@ class ValidateTar(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             self.os_process.start(f'export OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} && ./opensearch-tar-install.sh', os.path.join(self.tmp_dir.path, "opensearch"))
-            logging.info(get_password(str(self.args.version)))
             time.sleep(85)
             if ("opensearch-dashboards" in self.args.projects):
                 self.osd_process.start(os.path.join(str(self.tmp_dir.path), "opensearch-dashboards", "bin", "opensearch-dashboards"), ".")
@@ -74,7 +71,7 @@ class ValidateTar(Validation, DownloadUtils):
 
     def validation(self) -> bool:
 
-        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.security_plugin_exists)
+        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.check_for_security_plugin(os.path.join(self.tmp_dir.path, "opensearch"), "tar") if not self.args.force_https_check else None)
         if (test_result):
             logging.info(f'All tests Pass : {counter}')
         else:
