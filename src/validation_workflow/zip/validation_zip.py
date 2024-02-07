@@ -54,8 +54,8 @@ class ValidateWin(Validation, DownloadUtils):
                 with ZipFile(os.path.join(self.tmp_dir.path, os.path.basename(self.args.file_path.get(project))), "r") as zip:
                     zip.extractall(self.tmp_dir.path)
 
-            if self.args.allow_without_security:
-                self.args.allow_without_security = self.test_security_plugin(os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), "zip")
+            if self.args.force_https_check:
+                self.security_plugin_exists = self.check_for_security_plugin(os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), "zip")
         except:
             raise Exception("Failed to install Opensearch")
         return True
@@ -74,7 +74,7 @@ class ValidateWin(Validation, DownloadUtils):
         return True
 
     def validation(self) -> bool:
-        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.args.allow_without_security)
+        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.security_plugin_exists)
         if test_result:
             logging.info(f'All tests Pass : {counter}')
         else:
