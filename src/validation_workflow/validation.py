@@ -42,7 +42,6 @@ class Validation(ABC):
             raise Exception("Provided path for local artifacts does not exist")
 
     def check_for_security_plugin(self, work_dir: str, distribution: str) -> bool:
-        logging.info(work_dir, str)
         (_, stdout, _) = execute("ls", self.tmp_dir.path, True, False)
         logging.info(stdout)
         list_cmd = "dir" if distribution == "zip" else "ls"
