@@ -52,7 +52,7 @@ class ValidateRpm(Validation, DownloadUtils):
                 execute(f'sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} rpm -ivh {os.path.join(self.tmp_dir.path, self.filename)}', str(self.tmp_dir.path), True, False)  # noqa: 501
 
             if self.args.allow_without_security:
-                self.args.allow_without_security = self.test_security_plugin(os.path.join(os.sep, "usr", "share", f"opensearch-{self.args.version}"), "rpm")
+                self.args.allow_without_security = self.test_security_plugin(os.path.join(os.sep, "usr", "share", f"opensearch"), "rpm")
         except:
             raise Exception('Failed to install Opensearch')
         return True
