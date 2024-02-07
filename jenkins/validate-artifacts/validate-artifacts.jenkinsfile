@@ -113,7 +113,7 @@ pipeline {
 
     stages {
         stage('verify-parameters') {
-            agent { label agent_nodes["windows_x64"] }
+            agent { label agent_nodes["linux_x64"] }
             steps {
                 script {
                     def url_paths = [:]
@@ -157,7 +157,7 @@ pipeline {
             }
         }
         stage('Validate') {
-            agent {label agent_nodes["windows_x64"] }
+            agent {label agent_nodes["linux_x64"] }
             steps {
                 script {
 
