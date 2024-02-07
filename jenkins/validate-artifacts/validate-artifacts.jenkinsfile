@@ -95,9 +95,9 @@ pipeline {
             choices: ['production', 'staging'],
         )
         choice(
-            name: 'TEST_WITHOUT_SECURITY',
+            name: 'HTTPS_CHECK',
             description: 'Allow validation even when the security plugin is absent',
-            choices: ['force-https-check', 'with-security'],
+            choices: ['force-https-check', null],
         )
 
     }
@@ -213,8 +213,7 @@ pipeline {
                                                                     "os-build-number": "$OS_BUILD_NUMBER",
                                                                     "osd-build-number": "$OSD_BUILD_NUMBER",
                                                                     projects: "$PROJECTS",
-                                                                    "artifact-type": "$ARTIFACT_TYPE",
-                                                                    "$TEST_WITHOUT_SECURITY" : ""
+                                                                    "artifact-type": "$ARTIFACT_TYPE"
                                                                 )
                                                             }
                                                             else {
