@@ -45,7 +45,7 @@ class Validation(ABC):
         plugins_list = None
         logging.info(work_dir)
         if distribution == "zip":
-            (_, plugins_list, _) = execute("dir \\plugins", work_dir, False)
+            (_, plugins_list, _) = execute("dir plugins", work_dir, False)
         elif distribution in ["tar", "rpm", "yum"]:
             (_, plugins_list, _) = execute("ls -d plugins", work_dir, False)
         logging.info(plugins_list)
