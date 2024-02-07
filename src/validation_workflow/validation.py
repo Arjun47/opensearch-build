@@ -43,10 +43,12 @@ class Validation(ABC):
 
     def test_security_plugin(self, work_dir: str, distribution) -> bool:
         plugins_list = None
+        logging.info(work_dir)
         if distribution == "zip":
-            (_, plugins_list, _) = execute(f"dir {work_dir}\\plugins", True, False)
+            (_, plugins_list, _) = execute("dir \\plugins", work_dir, False)
         elif distribution in ["tar", "rpm", "yum"]:
-            (_, plugins_list, _) = execute("ls -d plugins", True, False)
+            (_, plugins_list, _) = execute("ls -d plugins", work_dir, False)
+        logging.info(plugins_list)
         return plugins_list and "opensearch-security" in plugins_list
 
     def get_version(self, project: str) -> str:
