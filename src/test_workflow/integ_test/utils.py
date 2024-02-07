@@ -10,8 +10,8 @@ import semver
 import logging
 
 
-def to_base64(p: str) -> str:
-    return base64.b64encode(p.encode("utf-8")).decode("utf-8")
+def to_base64(value: str) -> str:
+    return base64.b64encode(value.encode("utf-8")).decode("utf-8")
 
 
 def get_password(version: str, convert_to_base64: bool = False) -> str:
