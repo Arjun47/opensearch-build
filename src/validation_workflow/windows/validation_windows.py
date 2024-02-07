@@ -1,10 +1,22 @@
+# Copyright OpenSearch Contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# The OpenSearch Contributors require contributions made to
+# this file be licensed under the Apache-2.0 license or a
+# compatible open source license.
+
 import logging
 import os
+import time
 
 from system.process import Process
+from system.execute import execute
+
 from system.temporary_directory import TemporaryDirectory
 from system.zip_file import ZipFile
+from test_workflow.integ_test.utils import get_password
 from validation_workflow.download_utils import DownloadUtils
+from validation_workflow.api_test_cases import ApiTestCases
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 
@@ -17,8 +29,6 @@ class ValidateWin(Validation, DownloadUtils):
         self.tmp_dir = TemporaryDirectory()
         self.os_process = Process()
         self.osd_process = Process()
-        self.filename = None
-        self.zip_path = None
 
     def download_artifacts(self) -> bool:
         isFilePathEmpty = bool(self.args.file_path)
@@ -45,13 +55,13 @@ class ValidateWin(Validation, DownloadUtils):
         try:
             for project in self.args.projects:
                 logging.info(project)
-                self.filename = os.path.basename(self.args.file_path.get(project))
-                work_dir = os.path.join(self.tmp_dir.path, project)
-                self.os_process.start("mkdir " + work_dir, ".", True)
-                logging.info(f" Installing in {work_dir}/{self.filename.split('.')[0]}/opensearch-{self.args.version}")
-                self.zip_path = os.path.join(work_dir, f"opensearch-{self.args.version}")
+                filename = os.path.basename(self.args.file_path.get(project))
+                # work_dir = os.path.join(self.tmp_dir.path, project)
+                # self.os_process.start("mkdir " + work_dir, ".", True)
+                # logging.info(f" Installing in {work_dir}/opensearch-{self.args.version}")
+                # self.zip_path = os.path.join(work_dir, f"opensearch-{self.args.version}")
                 with ZipFile(os.path.join(self.tmp_dir.path, filename), "r") as zip:
-                    zip.extractall(work_dir)
+                    zip.extractall(self.tmp_dir.path)
 
             if self.args.allow_without_security:
                 self.args.allow_without_security = self.test_security_plugin(str(self.tmp_dir.path))
@@ -61,29 +71,30 @@ class ValidateWin(Validation, DownloadUtils):
 
     def start_cluster(self) -> bool:
         try:
-            self.os_process.start("set OPENSEARCH_INITIAL_ADMIN_PASSWORD=myStrongPassword123!", ".", True)
-            self.os_process.start(f".\\opensearch-windows-install.bat", self.zip_path, True)
+            execute(f"set OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ".", True)
+            self.os_process.start(".\\opensearch-windows-install.bat", os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), False)
+
             time.sleep(85)
             if "opensearch-dashboards" in self.args.projects:
-                self.os_process.start(
-                    f".\\bin\\opensearch-dashboards.bat",
-                    os.path.join(
-                        self.tmp_dir.path,
-                        "opensearch-dashboards",
-                        self.filename.split(".")[0],
-                        f"opensearch-dashboards-{self.args.version}",
-                    ),
-                    True,
-                )
+                self.osd_process.start(".\\bin\\opensearch-dashboards.bat", os.path.join(self.tmp_dir.path, f"opensearch-dashboards-{self.args.version}"), False)
             logging.info("Starting cluster")
         except:
             raise Exception('Failed to Start Cluster')
         return True
 
     def validation(self) -> bool:
-        logging.info("Inside Validation")
+        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.args.allow_without_security)
+        if test_result:
+            logging.info(f'All tests Pass : {counter}')
+        else:
+            raise Exception(f'Not all tests Pass : {counter}')
         return True
 
     def cleanup(self) -> bool:
-        logging.info("Inside cleanup")
+        try:
+            self.os_process.terminate()
+            if ("opensearch-dashboards" in self.args.projects):
+                self.osd_process.terminate()
+        except:
+            raise Exception('Failed to terminate the processes that started OpenSearch and OpenSearch-Dashboards')
         return True
