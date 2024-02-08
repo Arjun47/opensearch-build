@@ -71,7 +71,7 @@ class ValidateRpm(Validation, DownloadUtils):
 
     def validation(self) -> bool:
         logging.info(self.args.force_https_check)
-        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.check_for_security_plugin(os.path.join("usr", "share", "opensearch"), "rpm") if not self.args.force_https_check else True)  # noqa: E501
+        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.check_for_security_plugin(os.path.join(os.sep, "usr", "share", "opensearch"), "rpm") if not self.args.force_https_check else True)  # noqa: E501
         if (test_result):
             logging.info(f'All tests Pass : {counter}')
             return True

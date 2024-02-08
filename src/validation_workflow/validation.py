@@ -43,8 +43,6 @@ class Validation(ABC):
 
     def check_for_security_plugin(self, work_dir: str, distribution: str) -> bool:
         list_cmd = "dir" if distribution == "zip" else "ls"
-        (_, stdout, _) = execute("ls", "/usr/share/opensearch", True, False)
-        logging.info(stdout)
         (status, plugins_list, error) = execute(f"{list_cmd} plugins", work_dir, True, False)
         return "opensearch-security" in plugins_list
 
