@@ -82,7 +82,7 @@ class TestValidationArgs(unittest.TestCase):
             self.assertEqual(ValidationArgs().projects, ["opensearch-dashboards"])
         self.assertEqual(str(ctx.exception), "Missing OpenSearch OpenSearch artifact details! Please provide the same along with OpenSearch-Dashboards to validate")
 
-    @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path", "opensearch=https://opensearch.org/releases/opensearch/2.8.0/opensearch-2.8.0-linux-x64.zip"])
+    @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path", "opensearch=https://opensearch.org/releases/opensearch/2.8.0/opensearch-2.8.0-linux-x64.deb"])
     def test_file_path_distribution_type(self) -> None:
         with self.assertRaises(Exception) as ctx:
             self.assertEqual(ValidationArgs().projects, ["opensearch"])
