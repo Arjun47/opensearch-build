@@ -115,7 +115,7 @@ class ValidationArgs:
             "-f",
             "--force-https-check",
             action="store_true",
-            default=True,
+            default=False,
             help="If False then check for the existence of security plugin and use http/https as required, else force to check to https"
         )
         group = parser.add_mutually_exclusive_group()
