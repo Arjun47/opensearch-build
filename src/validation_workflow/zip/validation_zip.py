@@ -21,7 +21,7 @@ from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 
 
-class ValidateWin(Validation, DownloadUtils):
+class ValidateZip(Validation, DownloadUtils):
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
         self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
@@ -54,8 +54,6 @@ class ValidateWin(Validation, DownloadUtils):
                 with ZipFile(os.path.join(self.tmp_dir.path, os.path.basename(self.args.file_path.get(project))), "r") as zip:
                     zip.extractall(self.tmp_dir.path)
 
-            if self.args.force_https_check:
-                self.security_plugin_exists = self.check_for_security_plugin(os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), "zip")
         except:
             raise Exception("Failed to install Opensearch")
         return True
@@ -74,7 +72,7 @@ class ValidateWin(Validation, DownloadUtils):
         return True
 
     def validation(self) -> bool:
-        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.security_plugin_exists)
+        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.check_for_security_plugin(os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), "zip") if not self.args.force_https_check else True)  # noqa: E501
         if test_result:
             logging.info(f'All tests Pass : {counter}')
         else:

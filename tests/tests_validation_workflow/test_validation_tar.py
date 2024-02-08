@@ -80,8 +80,6 @@ class TestValidateTar(unittest.TestCase):
         result = validate_tar.installation()
         self.assertTrue(result)
 
-
-
     @patch('validation_workflow.tar.validation_tar.ValidationArgs')
     @patch.object(Process, 'start')
     @patch('time.sleep')

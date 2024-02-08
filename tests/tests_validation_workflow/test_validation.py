@@ -85,6 +85,3 @@ class TestValidation(unittest.TestCase):
         result = mock_validation.check_for_security_plugin("/bin/opensearch", "tar")
 
         self.assertFalse(result)
-
-
-
