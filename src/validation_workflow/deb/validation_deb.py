@@ -13,7 +13,6 @@ from system.process import Process
 from system.execute import execute
 
 from system.temporary_directory import TemporaryDirectory
-from system.zip_file import ZipFile
 from test_workflow.integ_test.utils import get_password
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.api_test_cases import ApiTestCases
@@ -21,7 +20,7 @@ from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 
 
-class ValidateZip(Validation, DownloadUtils):
+class ValidateWin(Validation, DownloadUtils):
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
         self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
@@ -41,9 +40,9 @@ class ValidateZip(Validation, DownloadUtils):
                     self.check_url(self.args.file_path.get(project))
             else:
                 if self.args.artifact_type == "staging":
-                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/windows/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-windows-{self.args.arch}.zip"  # noqa: E501
+                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/{self.args.platform}/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.deb"  # noqa: E501
                 else:
-                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-windows-{self.args.arch}.zip"
+                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-{self.args.platform}-{self.args.arch}.deb"
                 self.check_url(self.args.file_path.get(project))
         return True
 
@@ -51,8 +50,9 @@ class ValidateZip(Validation, DownloadUtils):
         try:
             for project in self.args.projects:
                 logging.info(project)
-                with ZipFile(os.path.join(self.tmp_dir.path, os.path.basename(self.args.file_path.get(project))), "r") as zip:
-                    zip.extractall(self.tmp_dir.path)
+                self.set_password_env("deb")
+                self.os_process.start(f"sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}", ".", True)
+                time.sleep(80)
 
         except:
             raise Exception("Failed to install Opensearch")
@@ -60,30 +60,34 @@ class ValidateZip(Validation, DownloadUtils):
 
     def start_cluster(self) -> bool:
         try:
-            execute(f"set OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ".", True)
-            self.os_process.start(".\\opensearch-windows-install.bat", os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), False)
+            for project in self.args.projects:
+                execute(f'sudo systemctl enable {project} && sudo systemctl start {project}', ".")
+                time.sleep(20)
+                (stdout, stderr, status) = execute(f'sudo systemctl status {project}', ".")
+                if(status == 0):
+                    logging.info(stdout)
+                else:
+                    logging.info(stderr)
 
-            time.sleep(85)
-            if "opensearch-dashboards" in self.args.projects:
-                self.osd_process.start(".\\opensearch-dashboards.bat", os.path.join(self.tmp_dir.path, f"opensearch-dashboards-{self.args.version}"), False)
-            logging.info("Starting cluster")
         except:
             raise Exception('Failed to Start Cluster')
         return True
 
     def validation(self) -> bool:
-        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.check_for_security_plugin(os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), "zip") if not self.args.force_https_check else True)  # noqa: E501
-        if test_result:
+        logging.info(self.args.force_https_check)
+        test_result, counter = ApiTestCases().test_apis(self.args.version, self.args.projects, self.check_for_security_plugin(os.path.join(os.sep, "usr", "share", "opensearch"), "deb") if not self.args.force_https_check else True)  # noqa: E501
+        if (test_result):
             logging.info(f'All tests Pass : {counter}')
+            return True
         else:
             raise Exception(f'Not all tests Pass : {counter}')
-        return True
 
     def cleanup(self) -> bool:
         try:
-            self.os_process.terminate()
-            if ("opensearch-dashboards" in self.args.projects):
-                self.osd_process.terminate()
-        except:
-            raise Exception('Failed to terminate the processes that started OpenSearch and OpenSearch-Dashboards')
+            for project in self.args.projects:
+                execute(f'sudo systemctl stop {project}', ".")
+                execute(f'sudo yum remove {project} -y', ".")
+        except Exception as e:
+            raise Exception(
+                f'Exception occurred either while attempting to stop cluster or removing OpenSearch/OpenSearch-Dashboards. {str(e)}')
         return True
