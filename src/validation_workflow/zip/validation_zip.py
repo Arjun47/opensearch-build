@@ -21,7 +21,7 @@ from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 
 
-class ValidateWin(Validation, DownloadUtils):
+class ValidateZip(Validation, DownloadUtils):
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
         self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
