@@ -38,7 +38,7 @@ class ValidateYum(Validation, DownloadUtils):
 
             else:
                 if (self.args.artifact_type == "staging"):
-                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/rpm/dist/{project}/{project}-{self.args.version}.staging.repo"  # noqa: E501
+                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/{self.args.platform}/{self.args.arch}/rpm/dist/{project}/{project}-{self.args.version}.staging.repo"  # noqa: E501
                 else:
                     self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version[0:1]}.x/{project}-{self.args.version[0:1]}.x.repo"
 
@@ -50,10 +50,11 @@ class ValidateYum(Validation, DownloadUtils):
             execute('sudo rpm --import https://artifacts.opensearch.org/publickeys/opensearch.pgp', str(self.tmp_dir.path), True, False)
             for project in self.args.projects:
                 execute(f'sudo yum remove {project} -y', ".")
+                self.set_password_env("yum")
                 logging.info('Removed previous versions of Opensearch')
                 urllink = f"{self.args.file_path.get(project)} -o /etc/yum.repos.d/{os.path.basename(self.args.file_path.get(project))}"
                 execute(f'sudo curl -SL {urllink}', ".")
-                execute(f"sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} yum install '{project}-{self.args.version}' -y", ".")
+                execute(f"yum install '{project}-{self.args.version}' -y", ".")
 
         except:
             raise Exception('Failed to install Opensearch')

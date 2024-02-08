@@ -40,9 +40,9 @@ class ValidateTar(Validation, DownloadUtils):
                     self.check_url(self.args.file_path.get(project))
             else:
                 if (self.args.artifact_type == "staging"):
-                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
+                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/{self.args.platform}/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
                 else:
-                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
+                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-{self.args.platform}-{self.args.arch}.tar.gz"
                 self.check_url(self.args.file_path.get(project))
         return True
 
@@ -57,7 +57,8 @@ class ValidateTar(Validation, DownloadUtils):
 
     def start_cluster(self) -> bool:
         try:
-            self.os_process.start(f'export OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} && ./opensearch-tar-install.sh', os.path.join(self.tmp_dir.path, "opensearch"))
+            self.set_password_env("tar")
+            self.os_process.start(f'./opensearch-tar-install.sh', os.path.join(self.tmp_dir.path, "opensearch"))
             time.sleep(85)
             if ("opensearch-dashboards" in self.args.projects):
                 self.osd_process.start(os.path.join(str(self.tmp_dir.path), "opensearch-dashboards", "bin", "opensearch-dashboards"), ".")

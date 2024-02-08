@@ -41,9 +41,9 @@ class ValidateWin(Validation, DownloadUtils):
                     self.check_url(self.args.file_path.get(project))
             else:
                 if self.args.artifact_type == "staging":
-                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/windows/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-windows-{self.args.arch}.zip"  # noqa: E501
+                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/{self.args.platform}/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-windows-{self.args.arch}.zip"  # noqa: E501
                 else:
-                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-windows-{self.args.arch}.zip"
+                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-{self.args.platform}-{self.args.arch}.zip"
                 self.check_url(self.args.file_path.get(project))
         return True
 

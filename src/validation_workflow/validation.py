@@ -14,6 +14,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from system.execute import execute
+from test_workflow.integ_test.utils import get_password
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation_args import ValidationArgs
 
@@ -48,6 +49,10 @@ class Validation(ABC):
 
     def get_version(self, project: str) -> str:
         return re.search(r'(\d+\.\d+\.\d+)', os.path.basename(project)).group(1)
+
+    def set_password_env(self, dist: str)-> None:
+        command_modifier = "set" if dist == "zip" else "sudo env"
+        execute(f"{command_modifier} OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ",", True, False)
 
     def run(self) -> Any:
         try:
