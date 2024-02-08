@@ -42,9 +42,9 @@ class Validation(ABC):
             raise Exception("Provided path for local artifacts does not exist")
 
     def check_for_security_plugin(self, work_dir: str, distribution: str) -> bool:
-        list_cmd = "dir" if distribution == "zip" else "ls"
-        (status, plugins_list, error) = execute(f"{list_cmd} plugins", work_dir, True, False)
-        return "opensearch-security" in plugins_list
+        path = os.path.exists(os.path.join(work_dir, "plugins", "opensearch-security"))
+        logging.info(path)
+        return path
 
     def get_version(self, project: str) -> str:
         return re.search(r'(\d+\.\d+\.\d+)', os.path.basename(project)).group(1)
