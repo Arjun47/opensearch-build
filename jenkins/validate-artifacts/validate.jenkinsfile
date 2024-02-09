@@ -169,7 +169,6 @@ pipeline {
 
                     def distributionList = DISTRIBUTION ? DISTRIBUTION.trim().split(" ") as List : ""
                     def architectureList = ARCHITECTURE ? ARCHITECTURE.trim().split(" ") as List : ""
-                    def platformList = PLATFORM ? PLATFORM.trim().split(" ") as List : ""
 
                     stash includes: "**", name: "validate-artifacts-$BUILD_NUMBER"
 
@@ -178,7 +177,7 @@ pipeline {
                         for (distribution in distributionList) {
                             def local_architecture = architecture.trim()
                             def local_distribution = distribution.trim()
-                            def local_platform = platform.trim()
+                            def local_platform = "windows" ? local_distribution == "zip" : "linux"
                             def local_distribution_index = distributionList.indexOf(local_distribution)
                             def wait_seconds = local_distribution_index * 10
 

@@ -50,7 +50,7 @@ class ValidateDeb(Validation, DownloadUtils):
             for project in self.args.projects:
                 logging.info(project)
                 self.set_password_env("deb")
-                self.os_process.start(f"sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}", ".", True)
+                self.os_process.start(f"sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}", ".")
                 time.sleep(80)
 
         except:

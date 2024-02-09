@@ -51,7 +51,7 @@ class Validation(ABC):
 
     def set_password_env(self, dist: str) -> None:
         command_modifier = "set" if dist == "zip" else "sudo env"
-        execute(f"{command_modifier} OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ",", True, False)
+        execute(f"{command_modifier} OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ".", True, False)
 
     def run(self) -> Any:
         try:
