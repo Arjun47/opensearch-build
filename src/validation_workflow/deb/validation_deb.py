@@ -51,7 +51,7 @@ class ValidateDeb(Validation, DownloadUtils):
                 logging.info(project)
                 self.set_password_env("deb")
                 execute(f'sudo dpkg --purge {project}', ".")
-                execute(f'sudo dpkg -i {project} {os.path.basename(self.args.file_path.get(project))}', ".")
+                execute(f'sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}', ".")
                 time.sleep(80)
 
         except:
