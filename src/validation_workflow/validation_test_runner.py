@@ -8,6 +8,7 @@
 
 from validation_workflow.docker.validation_docker import ValidateDocker
 from validation_workflow.rpm.validation_rpm import ValidateRpm
+from validation_workflow.deb.validation_deb import ValidateDeb
 from validation_workflow.tar.validation_tar import ValidateTar
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
@@ -21,7 +22,8 @@ class ValidationTestRunner:
         "tar": ValidateTar,
         "rpm": ValidateRpm,
         "yum": ValidateYum,
-        "zip": ValidateZip
+        "zip": ValidateZip,
+        "deb": ValidateDeb
     }
 
     @classmethod

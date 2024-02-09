@@ -13,7 +13,6 @@ import shutil
 from abc import ABC, abstractmethod
 from typing import Any
 
-from system.execute import execute
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation_args import ValidationArgs
 
