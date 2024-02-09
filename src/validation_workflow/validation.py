@@ -24,12 +24,12 @@ class Validation(ABC):
     """
 
     def __init__(self, args: ValidationArgs) -> None:
-        super().__init__()
         self.args = args
 
     def check_url(self, url: str) -> bool:
         if DownloadUtils().download(url, self.tmp_dir) and DownloadUtils().is_url_valid(url):  # type: ignore
             logging.info(f"Valid URL - {url} and Download Successful !")
+            logging.info(self.args.version)
             return True
         else:
             raise Exception(f"Invalid url - {url}")
@@ -48,10 +48,6 @@ class Validation(ABC):
 
     def get_version(self, project: str) -> str:
         return re.search(r'(\d+\.\d+\.\d+)', os.path.basename(project)).group(1)
-
-    def set_password_env(self, dist: str) -> None:
-        command_modifier = "set" if dist == "zip" else "sudo env"
-        execute(f"{command_modifier} OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ",", True, False)
 
     def run(self) -> Any:
         try:
