@@ -60,14 +60,10 @@ class ValidateDeb(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             for project in self.args.projects:
-                execute(f'sudo systemctl enable {project} && sudo systemctl start {project}', ".")
+                execute(f'sudo systemctl enable {project}', ".")
+                execute(f'sudo systemctl start {project}', ".")
                 time.sleep(20)
-                (stdout, stderr, status) = execute(f'sudo systemctl status {project}', ".")
-                if(status == 0):
-                    logging.info(stdout)
-                else:
-                    logging.info(stderr)
-
+                execute(f'sudo systemctl status {project}', ".")
         except:
             raise Exception('Failed to Start Cluster')
         return True
@@ -84,9 +80,7 @@ class ValidateDeb(Validation, DownloadUtils):
     def cleanup(self) -> bool:
         try:
             for project in self.args.projects:
-                execute(f'sudo systemctl stop {project}', ".")
-                execute(f'sudo yum remove {project} -y', ".")
+                execute(f'sudo dpkg --purge {project}', ".")
         except Exception as e:
-            raise Exception(
-                f'Exception occurred either while attempting to stop cluster or removing OpenSearch/OpenSearch-Dashboards. {str(e)}')
+            raise Exception(f'Exception occurred either while attempting to stop cluster or removing OpenSearch/OpenSearch-Dashboards. {str(e)}')
         return True
