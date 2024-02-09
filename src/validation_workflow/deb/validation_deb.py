@@ -53,7 +53,7 @@ class ValidateDeb(Validation, DownloadUtils):
                 execute(f'sudo dpkg --purge {project}', ".")
                 (_, list1, _) = execute("ls", ".", True, False)
                 logging.info(list1)
-                execute(f'sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}', ".")
+                execute(f'sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}', self.tmp_dir.path)
                 time.sleep(80)
 
         except:
