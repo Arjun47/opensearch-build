@@ -64,7 +64,7 @@ class ValidateZip(Validation, DownloadUtils):
             self.os_process.start(".\\opensearch-windows-install.bat", os.path.join(self.tmp_dir.path, f"opensearch-{self.args.version}"), False)
             time.sleep(85)
             if "opensearch-dashboards" in self.args.projects:
-                self.osd_process.start(".\\opensearch-dashboards.bat", os.path.join(self.tmp_dir.path, f"opensearch-dashboards-{self.args.version}"), False)
+                self.osd_process.start(".\\bin\\opensearch-dashboards.bat", os.path.join(self.tmp_dir.path, f"opensearch-dashboards-{self.args.version}"), False)
                 time.sleep(20)
             logging.info("Starting cluster")
 
