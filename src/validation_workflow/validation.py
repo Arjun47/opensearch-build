@@ -53,10 +53,6 @@ class Validation(ABC):
     def get_version(self, project: str) -> str:
         return re.search(r'(\d+\.\d+\.\d+)', os.path.basename(project)).group(1)
 
-    def set_password_env(self, dist: str) -> None:
-        command_modifier = "set" if dist == "zip" else "sudo env"
-        execute(f"{command_modifier} OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ",", True, False)
-
     def run(self) -> Any:
         try:
             return self.download_artifacts() and self.installation() and self.start_cluster() and self.validation() and self.cleanup()
