@@ -136,7 +136,7 @@ pipeline {
 
                     if(OPENSEARCH_ARTIFACT_URL) {
                         ARCHITECTURE = url_paths.values().find { it.contains("x64") } ? "x64" : "arm64"
-                        DISTRIBUTION = url_paths.values().find { it.contains("tar.gz") } ? "tar" : (url_paths.values().find { it.contains("repo") } ? "yum" : "rpm")
+                        DISTRIBUTION = url_paths.values().find { it.contains("tar.gz") } ? "tar" : (url_paths.values().find { it.contains("zip") } ? "zip" : (url_paths.values().find { it.contains("rpm") ? "rpm" : "yum" )
                         env.FILEPATH = "opensearch=${OPENSEARCH_ARTIFACT_URL?.trim()}"
                         if (OPENSEARCH_DASHBOARDS_ARTIFACT_URL) {
                            FILEPATH = env.FILEPATH + " opensearch-dashboards=${OPENSEARCH_DASHBOARDS_ARTIFACT_URL?.trim()}"
