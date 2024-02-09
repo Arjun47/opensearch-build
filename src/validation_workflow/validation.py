@@ -29,7 +29,6 @@ class Validation(ABC):
     def check_url(self, url: str) -> bool:
         if DownloadUtils().download(url, self.tmp_dir) and DownloadUtils().is_url_valid(url):  # type: ignore
             logging.info(f"Valid URL - {url} and Download Successful !")
-            logging.info(self.args.version)
             return True
         else:
             raise Exception(f"Invalid url - {url}")
