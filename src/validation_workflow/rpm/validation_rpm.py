@@ -22,26 +22,6 @@ class ValidateRpm(Validation, DownloadUtils):
 
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
-        self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
-        self.base_url_staging = "https://ci.opensearch.org/ci/dbc/distribution-build-"
-        self.tmp_dir = TemporaryDirectory()
-
-    def download_artifacts(self) -> bool:
-        isFilePathEmpty = bool(self.args.file_path)
-        for project in self.args.projects:
-            if (isFilePathEmpty):
-                if ("https:" not in self.args.file_path.get(project)):
-                    self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
-                else:
-                    self.args.version = self.get_version(self.args.file_path.get(project))
-                    self.check_url(self.args.file_path.get(project))
-            else:
-                if (self.args.artifact_type == "staging"):
-                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.rpm"  # noqa: E501
-                else:
-                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.rpm"
-                self.check_url(self.args.file_path.get(project))
-        return True
 
     def installation(self) -> bool:
         try:

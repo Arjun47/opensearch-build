@@ -14,8 +14,10 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from system.execute import execute
+from test_workflow.integ_test.utils import get_password
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation_args import ValidationArgs
+from system.temporary_directory import TemporaryDirectory
 
 
 class Validation(ABC):
@@ -24,8 +26,10 @@ class Validation(ABC):
     """
 
     def __init__(self, args: ValidationArgs) -> None:
-        super().__init__()
         self.args = args
+        self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
+        self.base_url_staging = "https://ci.opensearch.org/ci/dbc/distribution-build-"
+        self.tmp_dir = TemporaryDirectory()
 
     def check_url(self, url: str) -> bool:
         if DownloadUtils().download(url, self.tmp_dir) and DownloadUtils().is_url_valid(url):  # type: ignore
@@ -59,9 +63,24 @@ class Validation(ABC):
         except Exception as e:
             raise Exception(f'An error occurred while running the validation tests: {str(e)}')
 
-    @abstractmethod
     def download_artifacts(self) -> bool:
-        pass
+        isFilePathEmpty = bool(self.args.file_path)
+        for project in self.args.projects:
+            if (isFilePathEmpty):
+                if ("https:" not in self.args.file_path.get(project)):
+                    self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
+                else:
+                    self.args.version = self.get_version(self.args.file_path.get(project))
+                    self.check_url(self.args.file_path.get(project))
+            else:
+                if (self.args.artifact_type == "staging"):
+                    self.args.file_path[
+                        project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
+                else:
+                    self.args.file_path[
+                        project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
+                self.check_url(self.args.file_path.get(project))
+        return True
 
     @abstractmethod
     def installation(self) -> bool:
