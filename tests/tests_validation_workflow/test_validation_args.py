@@ -75,12 +75,18 @@ class TestValidationArgs(unittest.TestCase):
     def test_set_projects(self) -> None:
         self.assertEqual(ValidationArgs().projects, ["opensearch"])
 
+    @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path", "opensearch=https://opensearch.org/releases/opensearch/2.8.0/opensearch-2.8.0-linux-x64.rpm opensearch-dashboard=https://opensearch.org/releases/opensearch/2.8.0/opensearch-dashboards-2.8.0-linux-x64.rpm"])
+    def test_projects_exception(self) -> None:
+        with self.assertRaises(Exception) as ctx:
+            self.assertEqual(ValidationArgs().distribution, "rpm")
+        self.assertEqual(str(ctx.exception), "Missing OpenSearch artifact details! Please provide the valid product names among opensearch among opensearch-dashboards")
+
     @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path", "opensearch-dashboards=https://opensearch.org/releases/opensearch/2.8.0/opensearch-dashboards-2.8.0-linux-x64.rpm"])
     def test_projects_exception(self) -> None:
         with self.assertRaises(Exception) as ctx:
             self.assertEqual(ValidationArgs().distribution, "rpm")
             self.assertEqual(ValidationArgs().projects, ["opensearch-dashboards"])
-        self.assertEqual(str(ctx.exception), "Missing OpenSearch OpenSearch artifact details! Please provide the same along with OpenSearch-Dashboards to validate")
+        self.assertEqual(str(ctx.exception),"Missing OpenSearch artifact details! Please provide the valid product names among opensearch among opensearch-dashboards")
 
     @patch("argparse._sys.argv", [VALIDATION_PY, "--file-path", "opensearch=https://opensearch.org/releases/opensearch/2.8.0/opensearch-2.8.0-linux-x64.xyz"])
     def test_file_path_distribution_type(self) -> None:
