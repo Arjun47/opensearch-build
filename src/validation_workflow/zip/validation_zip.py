@@ -28,7 +28,6 @@ class ValidateZip(Validation, DownloadUtils):
     def installation(self) -> bool:
         try:
             for project in self.args.projects:
-                logging.info(project)
                 with ZipFile(os.path.join(self.tmp_dir.path, os.path.basename(self.args.file_path.get(project))), "r") as zip:
                     zip.extractall(self.tmp_dir.path)
         except:
