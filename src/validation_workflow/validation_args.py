@@ -13,7 +13,7 @@ from test_workflow.test_kwargs import TestKwargs
 
 
 class ValidationArgs:
-    SUPPORTED_PLATFORMS = ["linux"]
+    SUPPORTED_PLATFORMS = ["linux", "windows"]
     DOCKER_SOURCE = ["dockerhub", "ecr"]
 
     def __init__(self) -> None:
