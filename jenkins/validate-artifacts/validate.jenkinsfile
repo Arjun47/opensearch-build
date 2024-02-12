@@ -174,6 +174,7 @@ pipeline {
                             def local_distribution = distribution.trim()
                             echo "distribution: ${local_distribution}"
                             def local_platform = "windows" ? local_distribution == "zip" : "linux"
+                            echo "${local_platform}_${local_architecture}"
                             def local_distribution_index = distributionList.indexOf(local_distribution)
                             def wait_seconds = local_distribution_index * 10
 
@@ -206,7 +207,7 @@ pipeline {
                                             }
                                         }
                                     } else {
-                                        node(agent_nodes["linux_x64"]) {
+                                        node(agent_nodes["windows_x64"]) {
                                             docker.withRegistry('https://public.ecr.aws/') {
                                                 docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
                                                     try {
