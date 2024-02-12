@@ -9,12 +9,10 @@ import logging
 import os
 import time
 
-from system.process import Process
 from system.execute import execute
-
-from system.temporary_directory import TemporaryDirectory
-from validation_workflow.download_utils import DownloadUtils
+from system.process import Process
 from validation_workflow.api_test_cases import ApiTestCases
+from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 
@@ -22,38 +20,15 @@ from validation_workflow.validation_args import ValidationArgs
 class ValidateDeb(Validation, DownloadUtils):
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
-        self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
-        self.base_url_staging = "https://ci.opensearch.org/ci/dbc/distribution-build-"
-        self.tmp_dir = TemporaryDirectory()
         self.os_process = Process()
         self.osd_process = Process()
-
-    def download_artifacts(self) -> bool:
-        isFilePathEmpty = bool(self.args.file_path)
-        for project in self.args.projects:
-            if isFilePathEmpty:
-                if "https:" not in self.args.file_path.get(project):
-                    self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
-                else:
-                    self.args.version = self.get_version(self.args.file_path.get(project))
-                    self.check_url(self.args.file_path.get(project))
-            else:
-                if self.args.artifact_type == "staging":
-                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/{self.args.platform}/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.deb"  # noqa: E501
-                else:
-                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-{self.args.platform}-{self.args.arch}.deb"
-                self.check_url(self.args.file_path.get(project))
-        return True
 
     def installation(self) -> bool:
         try:
             for project in self.args.projects:
-                logging.info(project)
                 self.set_password_env("deb")
                 execute(f'sudo dpkg --purge {project}', ".")
-                (_, list1, _) = execute("ls", ".", True, False)
-                logging.info(list1)
-                execute(f'sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}', self.tmp_dir.path)
+                execute(f'sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}', str(self.tmp_dir.path))
                 time.sleep(80)
 
         except:

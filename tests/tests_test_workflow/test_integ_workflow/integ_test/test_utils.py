@@ -5,8 +5,8 @@
 # this file be licensed under the Apache-2.0 license or a
 # compatible open source license.
 
-import unittest
 import base64
+import unittest
 
 from test_workflow.integ_test.utils import get_password, str_to_base64
 

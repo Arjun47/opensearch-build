@@ -9,14 +9,12 @@ import logging
 import os
 import time
 
-from system.process import Process
 from system.execute import execute
-
-from system.temporary_directory import TemporaryDirectory
+from system.process import Process
 from system.zip_file import ZipFile
 from test_workflow.integ_test.utils import get_password
-from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.api_test_cases import ApiTestCases
+from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 
@@ -24,28 +22,8 @@ from validation_workflow.validation_args import ValidationArgs
 class ValidateZip(Validation, DownloadUtils):
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
-        self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
-        self.base_url_staging = "https://ci.opensearch.org/ci/dbc/distribution-build-"
-        self.tmp_dir = TemporaryDirectory()
         self.os_process = Process()
         self.osd_process = Process()
-
-    def download_artifacts(self) -> bool:
-        isFilePathEmpty = bool(self.args.file_path)
-        for project in self.args.projects:
-            if isFilePathEmpty:
-                if "https:" not in self.args.file_path.get(project):
-                    self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
-                else:
-                    self.args.version = self.get_version(self.args.file_path.get(project))
-                    self.check_url(self.args.file_path.get(project))
-            else:
-                if self.args.artifact_type == "staging":
-                    self.args.file_path[project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/windows/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-windows-{self.args.arch}.zip"  # noqa: E501
-                else:
-                    self.args.file_path[project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-windows-{self.args.arch}.zip"
-                self.check_url(self.args.file_path.get(project))
-        return True
 
     def installation(self) -> bool:
         try:
@@ -53,7 +31,6 @@ class ValidateZip(Validation, DownloadUtils):
                 logging.info(project)
                 with ZipFile(os.path.join(self.tmp_dir.path, os.path.basename(self.args.file_path.get(project))), "r") as zip:
                     zip.extractall(self.tmp_dir.path)
-
         except:
             raise Exception("Failed to install Opensearch")
         return True

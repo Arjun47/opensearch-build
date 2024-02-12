@@ -106,11 +106,6 @@ pipeline {
             choices: ['production', 'staging'],
         )
         choice(
-            name: 'TEST_WITHOUT_SECURITY',
-            description: 'Allow validation even when the security plugin is absent',
-            choices: ['allow-without-security', 'with-security'],
-        )
-        choice(
             name: 'HTTPS_CHECK',
             description: 'Allow validation even when the security plugin is absent',
             choices: ['force-https-check', null],
@@ -124,7 +119,8 @@ pipeline {
                 script {
                     def url_paths = [:]
 
-                    OPENSEARCH_ARTIFACT_URL ? url_paths["opensearch"] = OPENSEARCH_ARTIFACT_URL : null
+                    OPENSEARCH_ARTIFACT_URL ? url_p
+                    aths["opensearch"] = OPENSEARCH_ARTIFACT_URL : null
                     OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = OPENSEARCH_DASHBOARDS_ARTIFACT_URL : null
 
                     if (PROJECTS == 'Both') {
@@ -211,7 +207,7 @@ pipeline {
                                             }
                                         }
                                     } else {
-                                        node(agent_nodes["linux_x64"]) {
+                                        node(agent_nodes["${local_platform}_${local_architecture}"]) {
                                             docker.withRegistry('https://public.ecr.aws/') {
                                                 docker.image(docker_images["$local_distribution"]).inside(docker_args["$local_distribution"]) {
                                                     try {

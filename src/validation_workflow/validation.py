@@ -14,6 +14,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from system.execute import execute
+from system.temporary_directory import TemporaryDirectory
 from test_workflow.integ_test.utils import get_password
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation_args import ValidationArgs
@@ -26,6 +27,16 @@ class Validation(ABC):
 
     def __init__(self, args: ValidationArgs) -> None:
         self.args = args
+        self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
+        self.base_url_staging = "https://ci.opensearch.org/ci/dbc/distribution-build-"
+        self.tmp_dir = TemporaryDirectory()
+        self.file_type = {
+            "rpm": "rpm",
+            "tar": "tar.gz",
+            "yum": "repo",
+            "zip": "zip",
+            "deb": "deb"
+        }
 
     def check_url(self, url: str) -> bool:
         if DownloadUtils().download(url, self.tmp_dir) and DownloadUtils().is_url_valid(url):  # type: ignore
@@ -59,9 +70,28 @@ class Validation(ABC):
         except Exception as e:
             raise Exception(f'An error occurred while running the validation tests: {str(e)}')
 
-    @abstractmethod
     def download_artifacts(self) -> bool:
-        pass
+        isFilePathEmpty = bool(self.args.file_path)
+        for project in self.args.projects:
+            if (isFilePathEmpty):
+                if ("https:" not in self.args.file_path.get(project)):
+                    self.copy_artifact(self.args.file_path.get(project), str(self.tmp_dir.path))
+                else:
+                    self.args.version = self.get_version(self.args.file_path.get(project))
+                    self.check_url(self.args.file_path.get(project))
+            else:
+                self.args.file_path[project] = self.get_filepath(project)
+                self.check_url(self.args.file_path.get(project))
+        return True
+
+    def get_filepath(self, project: str) -> str:
+        if self.args.artifact_type == "staging":
+            if self.args.distribution == "yum":
+                return f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/{self.args.platform}/{self.args.arch}/rpm/dist/{project}/{project}-{self.args.version}.staging.{self.file_type[self.args.distribution]}"  # noqa: E501
+            return f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/{self.args.platform}/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-{self.args.platform}-{self.args.arch}.{self.file_type[self.args.distribution]}"  # noqa: E501
+        if self.args.distribution == "yum":
+            return f"{self.base_url_production}{project}/{self.args.version[0:1]}.x/{project}-{self.args.version[0:1]}.x.{self.file_type[self.args.distribution]}"
+        return f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-{self.args.platform}-{self.args.arch}.{self.file_type[self.args.distribution]}"
 
     @abstractmethod
     def installation(self) -> bool:
