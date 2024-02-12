@@ -119,8 +119,7 @@ pipeline {
                 script {
                     def url_paths = [:]
 
-                    OPENSEARCH_ARTIFACT_URL ? url_p
-                    aths["opensearch"] = OPENSEARCH_ARTIFACT_URL : null
+                    OPENSEARCH_ARTIFACT_URL ? url_paths["opensearch"] = OPENSEARCH_ARTIFACT_URL : null
                     OPENSEARCH_DASHBOARDS_ARTIFACT_URL ? url_paths['opensearch-dashboards'] = OPENSEARCH_DASHBOARDS_ARTIFACT_URL : null
 
                     if (PROJECTS == 'Both') {
