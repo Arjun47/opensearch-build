@@ -17,10 +17,6 @@ from validation_workflow.validation_args import ValidationArgs
 class ImplementValidation(Validation):
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
-        self.tmp_dir = TemporaryDirectory()
-
-    def download_artifacts(self) -> None:
-        return None
 
     def installation(self) -> None:
         return None
@@ -85,3 +81,148 @@ class TestValidation(unittest.TestCase):
         result = mock_validation.check_for_security_plugin("/bin/opensearch", "tar")
 
         self.assertFalse(result)
+
+    @patch('validation_workflow.validation.Validation.check_url')
+    @patch('validation_workflow.validation.Validation.copy_artifact')
+    @patch('validation_workflow.download_utils.DownloadUtils')
+    @patch('validation_workflow.validation.ValidationArgs')
+    def test_download_artifacts_with_url(self, mock_validation_args: Mock, mock_download_utils: Mock, mock_copy_artifact: Mock, mock_check_url: Mock) -> None:
+        mock_copy_artifact.return_value = True
+        mock_validation_args.return_value.projects = ["opensearch"]
+        mock_validation_args.return_value.file_path = {"opensearch": "https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/1.3.12/latest/linux/x64/rpm/dist/opensearch/opensearch-1.3.12.staging.repo"}
+        mock_download_utils.return_value.download.return_value = True
+        mock_download_utils.return_value.is_url_valid.return_value = True
+        mock_validation = ImplementValidation(mock_validation_args.return_value)
+
+        # Call the download_artifacts method
+        result = mock_validation.download_artifacts()
+
+        # Assertions
+        self.assertTrue(result)
+        self.assertEqual(mock_validation.args.version, "1.3.12")
+
+    @patch('validation_workflow.validation.Validation.check_url')
+    @patch('validation_workflow.validation.Validation.copy_artifact')
+    @patch('validation_workflow.download_utils.DownloadUtils')
+    @patch('validation_workflow.validation.ValidationArgs')
+    def test_download_artifacts_local_path(self, mock_validation_args: Mock, mock_download_utils: Mock, mock_copy_artifact: Mock, mock_check_url: Mock) -> None:
+        mock_copy_artifact.return_value = True
+        mock_validation_args.return_value.projects = ["opensearch"]
+        mock_validation_args.return_value.file_path = {"opensearch": "/rpm/dist/opensearch/opensearch-1.3.12.staging.repo"}
+        mock_download_utils.return_value.download.return_value = True
+        mock_download_utils.return_value.is_url_valid.return_value = True
+        mock_validation = ImplementValidation(mock_validation_args.return_value)
+
+        # Call the download_artifacts method
+        result = mock_validation.download_artifacts()
+
+        # Assertions
+        self.assertTrue(result)
+        self.assertNotEqual(mock_validation.args.version, "1.3.12")
+
+    @patch('validation_workflow.validation.Validation.check_url')
+    @patch('validation_workflow.validation.Validation.copy_artifact')
+    @patch('validation_workflow.download_utils.DownloadUtils')
+    @patch('validation_workflow.validation.ValidationArgs')
+    def test_download_artifacts_empty_file_path_staging_tar(self, mock_validation_args: Mock, mock_download_utils: Mock, mock_copy_artifact: Mock, mock_check_url: Mock) -> None:
+        # mock_copy_artifact.return_value = True
+        mock_validation_args.return_value.projects = ["opensearch"]
+        mock_validation_args.return_value.version = "1.3.12"
+        mock_validation_args.return_value.build_number = {"opensearch": "98765"}
+        mock_validation_args.return_value.file_path = {}
+        mock_validation_args.return_value.platform = "linux"
+        mock_validation_args.return_value.arch = "x64"
+        mock_validation_args.return_value.distribution = "tar"
+        mock_validation_args.return_value.artifact_type = "staging"
+        mock_download_utils.return_value.download.return_value = True
+        mock_download_utils.return_value.is_url_valid.return_value = True
+        mock_validation = ImplementValidation(mock_validation_args.return_value)
+
+        # Call the download_artifacts method
+        result = mock_validation.download_artifacts()
+        expected_uri = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/1.3.12/98765/linux/x64/tar/dist/opensearch/opensearch-1.3.12-linux-x64.tar.gz'
+
+        # Assertions
+        self.assertTrue(result)
+        self.assertEqual(mock_validation.args.file_path["opensearch"], expected_uri)
+        mock_check_url.assert_called_with(expected_uri)
+    @patch('validation_workflow.validation.Validation.check_url')
+    @patch('validation_workflow.validation.Validation.copy_artifact')
+    @patch('validation_workflow.download_utils.DownloadUtils')
+    @patch('validation_workflow.validation.ValidationArgs')
+    def test_download_artifacts_empty_file_path_production_deb(self, mock_validation_args: Mock, mock_download_utils: Mock, mock_copy_artifact: Mock, mock_check_url: Mock) -> None:
+        # mock_copy_artifact.return_value = True
+        mock_validation_args.return_value.projects = ["opensearch"]
+        mock_validation_args.return_value.version = "1.3.12"
+        mock_validation_args.return_value.build_number = {"opensearch": "98765"}
+        mock_validation_args.return_value.file_path = {}
+        mock_validation_args.return_value.platform = "linux"
+        mock_validation_args.return_value.arch = "x64"
+        mock_validation_args.return_value.distribution = "deb"
+        mock_validation_args.return_value.artifact_type = "production"
+        mock_download_utils.return_value.download.return_value = True
+        mock_download_utils.return_value.is_url_valid.return_value = True
+        mock_validation = ImplementValidation(mock_validation_args.return_value)
+
+        # Call the download_artifacts method
+        result = mock_validation.download_artifacts()
+        expected_uri = 'https://artifacts.opensearch.org/releases/bundle/opensearch/1.3.12/opensearch-1.3.12-linux-x64.deb'
+
+        # Assertions
+        self.assertTrue(result)
+        self.assertEqual(mock_validation.args.file_path["opensearch"], expected_uri)
+        mock_check_url.assert_called_with(expected_uri)
+
+    @patch('validation_workflow.validation.Validation.check_url')
+    @patch('validation_workflow.validation.Validation.copy_artifact')
+    @patch('validation_workflow.download_utils.DownloadUtils')
+    @patch('validation_workflow.validation.ValidationArgs')
+    def test_download_artifacts_empty_file_path_staging_yum(self, mock_validation_args: Mock, mock_download_utils: Mock, mock_copy_artifact: Mock, mock_check_url: Mock) -> None:
+        # mock_copy_artifact.return_value = True
+        mock_validation_args.return_value.projects = ["opensearch"]
+        mock_validation_args.return_value.version = "1.3.12"
+        mock_validation_args.return_value.build_number = {"opensearch": "98765"}
+        mock_validation_args.return_value.file_path = {}
+        mock_validation_args.return_value.platform = "linux"
+        mock_validation_args.return_value.arch = "x64"
+        mock_validation_args.return_value.distribution = "yum"
+        mock_validation_args.return_value.artifact_type = "staging"
+        mock_download_utils.return_value.download.return_value = True
+        mock_download_utils.return_value.is_url_valid.return_value = True
+        mock_validation = ImplementValidation(mock_validation_args.return_value)
+
+        # Call the download_artifacts method
+        result = mock_validation.download_artifacts()
+        expected_uri = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/1.3.12/98765/linux/x64/rpm/dist/opensearch/opensearch-1.3.12.staging.repo'
+
+        # Assertions
+        self.assertTrue(result)
+        self.assertEqual(mock_validation.args.file_path["opensearch"], expected_uri)
+        mock_check_url.assert_called_with(expected_uri)
+
+    @patch('validation_workflow.validation.Validation.check_url')
+    @patch('validation_workflow.validation.Validation.copy_artifact')
+    @patch('validation_workflow.download_utils.DownloadUtils')
+    @patch('validation_workflow.validation.ValidationArgs')
+    def test_download_artifacts_empty_file_path_production_yum(self, mock_validation_args: Mock, mock_download_utils: Mock, mock_copy_artifact: Mock, mock_check_url: Mock) -> None:
+        # mock_copy_artifact.return_value = True
+        mock_validation_args.return_value.projects = ["opensearch"]
+        mock_validation_args.return_value.version = "1.3.12"
+        mock_validation_args.return_value.build_number = {"opensearch": "98765"}
+        mock_validation_args.return_value.file_path = {}
+        mock_validation_args.return_value.platform = "linux"
+        mock_validation_args.return_value.arch = "x64"
+        mock_validation_args.return_value.distribution = "yum"
+        mock_validation_args.return_value.artifact_type = "production"
+        mock_download_utils.return_value.download.return_value = True
+        mock_download_utils.return_value.is_url_valid.return_value = True
+        mock_validation = ImplementValidation(mock_validation_args.return_value)
+
+        # Call the download_artifacts method
+        result = mock_validation.download_artifacts()
+        expected_uri = 'https://artifacts.opensearch.org/releases/bundle/opensearch/1.x/opensearch-1.x.repo'
+
+        # Assertions
+        self.assertTrue(result)
+        self.assertEqual(mock_validation.args.file_path["opensearch"], expected_uri)
+        mock_check_url.assert_called_with(expected_uri)
