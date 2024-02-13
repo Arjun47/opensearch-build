@@ -9,16 +9,15 @@ import logging
 import os
 import time
 
-from system.process import Process
 from system.execute import execute
-
-from validation_workflow.download_utils import DownloadUtils
+from system.process import Process
 from validation_workflow.api_test_cases import ApiTestCases
+from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 
 
-class ValidateWin(Validation, DownloadUtils):
+class ValidateDeb(Validation, DownloadUtils):
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
         self.os_process = Process()
@@ -27,9 +26,9 @@ class ValidateWin(Validation, DownloadUtils):
     def installation(self) -> bool:
         try:
             for project in self.args.projects:
-                logging.info(project)
                 self.set_password_env("deb")
-                self.os_process.start(f"sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}", ".", True)
+                execute(f'sudo dpkg --purge {project}', ".")
+                execute(f'sudo dpkg -i {os.path.basename(self.args.file_path.get(project))}', str(self.tmp_dir.path))
                 time.sleep(80)
 
         except:
@@ -39,14 +38,10 @@ class ValidateWin(Validation, DownloadUtils):
     def start_cluster(self) -> bool:
         try:
             for project in self.args.projects:
-                execute(f'sudo systemctl enable {project} && sudo systemctl start {project}', ".")
+                execute(f'sudo systemctl enable {project}', ".")
+                execute(f'sudo systemctl start {project}', ".")
                 time.sleep(20)
-                (stdout, stderr, status) = execute(f'sudo systemctl status {project}', ".")
-                if(status == 0):
-                    logging.info(stdout)
-                else:
-                    logging.info(stderr)
-
+                execute(f'sudo systemctl status {project}', ".")
         except:
             raise Exception('Failed to Start Cluster')
         return True
@@ -63,9 +58,7 @@ class ValidateWin(Validation, DownloadUtils):
     def cleanup(self) -> bool:
         try:
             for project in self.args.projects:
-                execute(f'sudo systemctl stop {project}', ".")
-                execute(f'sudo yum remove {project} -y', ".")
+                execute(f'sudo dpkg --purge {project}', ".")
         except Exception as e:
-            raise Exception(
-                f'Exception occurred either while attempting to stop cluster or removing OpenSearch/OpenSearch-Dashboards. {str(e)}')
+            raise Exception(f'Exception occurred either while attempting to stop cluster or removing OpenSearch/OpenSearch-Dashboards. {str(e)}')
         return True

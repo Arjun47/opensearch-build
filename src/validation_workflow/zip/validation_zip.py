@@ -9,13 +9,12 @@ import logging
 import os
 import time
 
-from system.process import Process
 from system.execute import execute
-
+from system.process import Process
 from system.zip_file import ZipFile
 from test_workflow.integ_test.utils import get_password
-from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.api_test_cases import ApiTestCases
+from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 
@@ -26,14 +25,11 @@ class ValidateZip(Validation, DownloadUtils):
         self.os_process = Process()
         self.osd_process = Process()
 
-
     def installation(self) -> bool:
         try:
             for project in self.args.projects:
-                logging.info(project)
                 with ZipFile(os.path.join(self.tmp_dir.path, os.path.basename(self.args.file_path.get(project))), "r") as zip:
                     zip.extractall(self.tmp_dir.path)
-
         except:
             raise Exception("Failed to install Opensearch")
         return True

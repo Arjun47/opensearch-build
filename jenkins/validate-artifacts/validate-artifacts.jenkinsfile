@@ -164,7 +164,7 @@ pipeline {
                             def local_distribution = distribution.trim()
                             def local_distribution_index = distributionList.indexOf(local_distribution)
                             def wait_seconds = local_distribution_index * 10
-
+                            // [tar, rpm, zip] [x64, arm64]
                             echo "Validating Distribution: ${local_distribution}"
                             validateDistributions["${local_distribution}-${local_architecture}"] = {
                                 // Using scripted pipelines to trigger dynamic parallel stages

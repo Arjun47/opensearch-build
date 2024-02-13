@@ -15,7 +15,6 @@ from typing import Any
 
 import requests
 
-from system.temporary_directory import TemporaryDirectory
 from validation_workflow.api_request import ApiTest
 from validation_workflow.api_test_cases import ApiTestCases
 from validation_workflow.docker.inspect_docker_image import InspectDockerImage
@@ -241,7 +240,6 @@ class ValidateDocker(Validation):
             '2': 'docker-compose-2.x.yml'
         }
 
-        self.tmp_dir = TemporaryDirectory()
         self.target_yml_file = os.path.join(self.tmp_dir.name, 'docker-compose.yml')
 
         self.major_version_number = version[0]

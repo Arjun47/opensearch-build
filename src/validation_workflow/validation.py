@@ -14,10 +14,10 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from system.execute import execute
+from system.temporary_directory import TemporaryDirectory
 from test_workflow.integ_test.utils import get_password
 from validation_workflow.download_utils import DownloadUtils
 from validation_workflow.validation_args import ValidationArgs
-from system.temporary_directory import TemporaryDirectory
 
 
 class Validation(ABC):
@@ -30,6 +30,13 @@ class Validation(ABC):
         self.base_url_production = "https://artifacts.opensearch.org/releases/bundle/"
         self.base_url_staging = "https://ci.opensearch.org/ci/dbc/distribution-build-"
         self.tmp_dir = TemporaryDirectory()
+        self.file_type = {
+            "rpm": "rpm",
+            "tar": "tar.gz",
+            "yum": "repo",
+            "zip": "zip",
+            "deb": "deb"
+        }
 
     def check_url(self, url: str) -> bool:
         if DownloadUtils().download(url, self.tmp_dir) and DownloadUtils().is_url_valid(url):  # type: ignore
@@ -53,6 +60,10 @@ class Validation(ABC):
     def get_version(self, project: str) -> str:
         return re.search(r'(\d+\.\d+\.\d+)', os.path.basename(project)).group(1)
 
+    def set_password_env(self, dist: str) -> None:
+        command_modifier = "set" if dist == "zip" else "sudo env"
+        execute(f"{command_modifier} OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}", ".", True, False)
+
     def run(self) -> Any:
         try:
             return self.download_artifacts() and self.installation() and self.start_cluster() and self.validation() and self.cleanup()
@@ -69,14 +80,18 @@ class Validation(ABC):
                     self.args.version = self.get_version(self.args.file_path.get(project))
                     self.check_url(self.args.file_path.get(project))
             else:
-                if (self.args.artifact_type == "staging"):
-                    self.args.file_path[
-                        project] = f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/linux/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"  # noqa: E501
-                else:
-                    self.args.file_path[
-                        project] = f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-linux-{self.args.arch}.tar.gz"
+                self.args.file_path[project] = self.get_filepath(project)
                 self.check_url(self.args.file_path.get(project))
         return True
+
+    def get_filepath(self, project: str) -> str:
+        if self.args.artifact_type == "staging":
+            if self.args.distribution == "yum":
+                return f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/{self.args.platform}/{self.args.arch}/rpm/dist/{project}/{project}-{self.args.version}.staging.{self.file_type[self.args.distribution]}"  # noqa: E501
+            return f"{self.base_url_staging}{project}/{self.args.version}/{self.args.build_number[project]}/{self.args.platform}/{self.args.arch}/{self.args.distribution}/dist/{project}/{project}-{self.args.version}-{self.args.platform}-{self.args.arch}.{self.file_type[self.args.distribution]}"  # noqa: E501
+        if self.args.distribution == "yum":
+            return f"{self.base_url_production}{project}/{self.args.version[0:1]}.x/{project}-{self.args.version[0:1]}.x.{self.file_type[self.args.distribution]}"
+        return f"{self.base_url_production}{project}/{self.args.version}/{project}-{self.args.version}-{self.args.platform}-{self.args.arch}.{self.file_type[self.args.distribution]}"
 
     @abstractmethod
     def installation(self) -> bool:

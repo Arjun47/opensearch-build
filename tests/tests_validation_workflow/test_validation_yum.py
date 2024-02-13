@@ -20,6 +20,7 @@ class TestValidationYum(unittest.TestCase):
     def test_empty_file_path_and_production_artifact_type(self) -> None:
         self.args.projects = ["opensearch"]
         self.args.version = "2.5.0"
+        self.args.distribution = "yum"
         self.args.file_path = {}
         self.args.artifact_type = "production"
 
@@ -43,6 +44,7 @@ class TestValidationYum(unittest.TestCase):
         self.args.projects = ["opensearch"]
         self.args.version = "2.4.0"
         self.args.artifact_type = "staging"
+        self.args.distribution = "yum"
         self.args.file_path = {}
         self.args.build_number = {"opensearch": "1.2.3", "opensearch-dashboards": "1.2.3"}
 
