@@ -17,28 +17,25 @@ from validation_workflow.validation import Validation
 from validation_workflow.validation_args import ValidationArgs
 
 
-class ValidateYum(Validation, DownloadUtils):
-
+class ValidateDeb(Validation, DownloadUtils):
     def __init__(self, args: ValidationArgs) -> None:
         super().__init__(args)
 
     def installation(self) -> bool:
         try:
-            execute('sudo rpm --import https://artifacts.opensearch.org/publickeys/opensearch.pgp', str(self.tmp_dir.path), True, False)
             for project in self.args.projects:
-                execute(f'sudo yum remove {project} -y', ".")
-                logging.info('Removed previous versions of Opensearch')
-                urllink = f"{self.args.file_path.get(project)} -o /etc/yum.repos.d/{os.path.basename(self.args.file_path.get(project))}"
-                execute(f'sudo curl -SL {urllink}', ".")
-                execute(f"sudo env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))} yum install '{project}-{self.args.version}' -y", ".")
-
+                set_password = f' env OPENSEARCH_INITIAL_ADMIN_PASSWORD={get_password(str(self.args.version))}' if project == "opensearch" else ""
+                execute(f'sudo dpkg --purge {project}', ".")
+                execute(f'sudo {set_password} dpkg -i {os.path.basename(self.args.file_path.get(project))}', str(self.tmp_dir.path))
+                time.sleep(80)
         except:
-            raise Exception('Failed to install Opensearch')
+            raise Exception("Failed to install Opensearch")
         return True
 
     def start_cluster(self) -> bool:
         try:
             for project in self.args.projects:
+                execute(f'sudo systemctl enable {project}', ".")
                 execute(f'sudo systemctl start {project}', ".")
                 time.sleep(20)
                 execute(f'sudo systemctl status {project}', ".")
@@ -57,8 +54,7 @@ class ValidateYum(Validation, DownloadUtils):
     def cleanup(self) -> bool:
         try:
             for project in self.args.projects:
-                execute(f'sudo systemctl stop {project}', ".")
-                execute(f'sudo yum remove {project} -y', ".")
+                execute(f'sudo dpkg --purge {project}', ".")
         except Exception as e:
             raise Exception(f'Exception occurred either while attempting to stop cluster or removing OpenSearch/OpenSearch-Dashboards. {str(e)}')
         return True

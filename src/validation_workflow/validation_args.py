@@ -13,7 +13,7 @@ from test_workflow.test_kwargs import TestKwargs
 
 
 class ValidationArgs:
-    SUPPORTED_PLATFORMS = ["linux"]
+    SUPPORTED_PLATFORMS = ["linux", "windows"]
     DOCKER_SOURCE = ["dockerhub", "ecr"]
 
     def __init__(self) -> None:
@@ -134,11 +134,11 @@ class ValidationArgs:
 
         if (not (args.version or args.file_path)):
             raise Exception("Provide either version number or File Path")
-        if(args.file_path):
+        if (args.file_path):
+            if 'opensearch' not in args.file_path.keys() or not set(args.file_path.keys()) <= {'opensearch', 'opensearch-dashboards'}:
+                raise Exception("Missing OpenSearch artifact details! Please provide the valid product names among opensearch and opensearch-dashboards")
             args.distribution = self.get_distribution_type(args.file_path)
             args.projects = args.file_path.keys()
-        if (('opensearch' not in args.projects)):
-            raise Exception("Missing OpenSearch OpenSearch artifact details! Please provide the same along with OpenSearch-Dashboards to validate")
 
         self.version = args.version
         self.file_path = args.file_path
@@ -165,6 +165,10 @@ class ValidationArgs:
             return 'yum'
         elif (any("rpm" in value for value in file_path.values())):
             return 'rpm'
+        elif (any("zip" in value for value in file_path.values())):
+            return 'zip'
+        elif (any("deb" in value for value in file_path.values())):
+            return 'deb'
         else:
             raise Exception("Provided distribution is not supported")
 

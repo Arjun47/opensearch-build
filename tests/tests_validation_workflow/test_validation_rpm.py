@@ -19,6 +19,7 @@ class TestValidationRpm(unittest.TestCase):
     def test_empty_file_path_and_production_artifact_type(self) -> None:
         self.args.projects = ["opensearch"]
         self.args.version = "2.4.0"
+        self.args.distribution = "rpm"
         self.args.file_path = {}
         self.args.artifact_type = "production"
 
@@ -41,6 +42,7 @@ class TestValidationRpm(unittest.TestCase):
     def test_empty_file_path_and_staging_artifact_type(self, mock_validation_args: Mock) -> None:
         self.args.projects = ["opensearch"]
         self.args.version = "2.4.0"
+        self.args.distribution = "rpm"
         self.args.artifact_type = "staging"
         self.args.file_path = {}
         self.args.build_number = {"opensearch": "1.2.3", "opensearch-dashboards": "1.2.3"}

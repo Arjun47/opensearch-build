@@ -19,9 +19,6 @@ class ImplementValidation(Validation):
         super().__init__(args)
         self.tmp_dir = TemporaryDirectory()
 
-    def download_artifacts(self) -> None:
-        return None
-
     def installation(self) -> None:
         return None
 

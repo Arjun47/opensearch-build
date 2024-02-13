@@ -126,7 +126,7 @@ class TestValidateDocker(unittest.TestCase):
 
         # Set up mock objects
         mock_validation_args.return_value = 'validation_args'
-        mock_subprocess_run.return_value = subprocess.CompletedProcess(['command'], 0)
+        mock_subprocess_run.return_value = subprocess.CompletedProcess(args='docker-compose -f docker-compose.yml down', returncode=0, stdout=b'', stderr=b'')
 
         # Create instance of class
         validate_docker = ValidateDocker(mock_validation_args)
