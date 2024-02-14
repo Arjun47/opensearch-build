@@ -29,7 +29,7 @@ class ValidateZip(Validation, DownloadUtils):
             for project in self.args.projects:
                 with ZipFile(os.path.join(self.tmp_dir.path, os.path.basename(self.args.file_path.get(project))), "r") as zip:
                     zip.extractall(self.tmp_dir.path)
-        except Exception as e:
+        except:
             raise Exception("Failed to install Opensearch")
         return True
 
