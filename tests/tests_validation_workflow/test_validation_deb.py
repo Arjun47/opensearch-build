@@ -14,24 +14,24 @@ from validation_workflow.deb.validation_deb import ValidateDeb
 
 class TestValidateDeb(unittest.TestCase):
     def setUp(self) -> None:
-        self.args = Mock()
-        self.call_methods = ValidateDeb(self.args)
+        self.mock_args = MagicMock()
+        self.mock_args.version = "2.3.0"
+        self.mock_args.arch = "x64"
+        self.mock_args.projects = ["opensearch"]
+        self.mock_args.file_path = {"opensearch": "/src/opensearch/opensearch-1.3.12.staging.deb"}
+        self.mock_args.platform = "linux"
+        self.mock_args.force_https_check = True
+        self.mock_args.allow_without_security = True
+        self.call_methods = ValidateDeb(self.mock_args)
 
     @patch("time.sleep")
     @patch("validation_workflow.deb.validation_deb.ValidationArgs")
     @patch("validation_workflow.deb.validation_deb.execute")
     @patch("validation_workflow.deb.validation_deb.get_password")
     def test_installation(
-        self, mock_get_pwd: Mock, mock_system: Mock, mock_validation_args: Mock, mock_sleep: Mock
+            self, mock_get_pwd: Mock, mock_system: Mock, mock_validation_args: Mock, mock_sleep: Mock
     ) -> None:
-        mock_validation_args.return_value.version = "2.3.0"
-        mock_validation_args.return_value.arch = "x64"
-        mock_validation_args.return_value.platform = "linux"
-        mock_validation_args.return_value.force_https_check = True
-        mock_validation_args.return_value.projects = ["opensearch"]
-        mock_validation_args.return_value.file_path = {"opensearch": "/src/opensearch/opensearch-1.3.12.staging.deb"}
-
-        validate_deb = ValidateDeb(mock_validation_args.return_value)
+        validate_deb = ValidateDeb(self.mock_args)
         mock_system.side_effect = lambda *args, **kwargs: (0, "stdout_output", "stderr_output")
         result = validate_deb.installation()
         self.assertTrue(result)
@@ -42,11 +42,9 @@ class TestValidateDeb(unittest.TestCase):
     @patch("validation_workflow.deb.validation_deb.execute")
     @patch("validation_workflow.deb.validation_deb.get_password")
     def test_installation_exception_os(
-        self, mock_get_pwd: Mock, mock_execute: Mock, mock_validation_args: Mock, mock_sleep: Mock
+            self, mock_get_pwd: Mock, mock_execute: Mock, mock_validation_args: Mock, mock_sleep: Mock
     ) -> None:
-        mock_validation_args.return_value.version = "2.3.0"
-        mock_validation_args.return_value.projects = ["opensearch"]
-        validate_deb = ValidateDeb(mock_validation_args.return_value)
+        validate_deb = ValidateDeb(self.mock_args)
         mock_execute.side_effect = Exception("any exception occurred")
         with self.assertRaises(Exception) as context:
             validate_deb.installation()
@@ -58,13 +56,9 @@ class TestValidateDeb(unittest.TestCase):
     @patch("validation_workflow.deb.validation_deb.ValidationArgs")
     @patch("time.sleep")
     def test_start_cluster(self, mock_sleep: Mock, mock_validation_args: Mock, mock_execute: Mock) -> None:
-        mock_validation_args.return_value.version = "2.3.0"
-        mock_validation_args.return_value.arch = "x64"
-        mock_validation_args.return_value.platforms = "linux"
-        mock_validation_args.return_value.allow_without_security = True
-        mock_validation_args.return_value.projects = ["opensearch", "opensearch-dashboards"]
+        self.mock_args.projects = ["opensearch", "opensearch-dashboards"]
 
-        validate_deb = ValidateDeb(mock_validation_args.return_value)
+        validate_deb = ValidateDeb(self.mock_args)
         result = validate_deb.start_cluster()
         self.assertTrue(result)
         mock_execute.assert_has_calls(
@@ -82,12 +76,9 @@ class TestValidateDeb(unittest.TestCase):
     @patch("validation_workflow.deb.validation_deb.ValidationArgs")
     @patch("time.sleep")
     def test_start_cluster_exception_os(
-        self, mock_sleep: Mock, mock_validation_args: Mock, mock_execute: MagicMock
+            self, mock_sleep: Mock, mock_validation_args: Mock, mock_execute: MagicMock
     ) -> None:
-        mock_validation_args.return_value.projects = ["opensearch"]
-        mock_validation_args.return_value.allow_without_security = True
-
-        validate_deb = ValidateDeb(mock_validation_args.return_value)
+        validate_deb = ValidateDeb(self.mock_args)
         mock_execute.side_effect = Exception("any exception occurred")
         with self.assertRaises(Exception) as context:
             validate_deb.start_cluster()
@@ -98,11 +89,10 @@ class TestValidateDeb(unittest.TestCase):
     @patch("validation_workflow.deb.validation_deb.ApiTestCases")
     @patch("validation_workflow.validation.Validation.check_for_security_plugin")
     def test_validation(self, mock_security: Mock, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
-        mock_validation_args.return_value.version = "2.3.0"
         mock_test_apis_instance = mock_test_apis.return_value
         mock_test_apis_instance.test_apis.return_value = (True, 3)
 
-        validate_deb = ValidateDeb(mock_validation_args.return_value)
+        validate_deb = ValidateDeb(self.mock_args)
 
         result = validate_deb.validation()
         self.assertTrue(result)
@@ -114,11 +104,10 @@ class TestValidateDeb(unittest.TestCase):
     @patch("validation_workflow.deb.validation_deb.ApiTestCases")
     @patch("validation_workflow.validation.Validation.check_for_security_plugin")
     def test_validation_without_force_https_check(
-        self, mock_security: Mock, mock_test_apis: Mock, mock_validation_args: Mock
+            self, mock_security: Mock, mock_test_apis: Mock, mock_validation_args: Mock
     ) -> None:
-        mock_validation_args.return_value.version = "2.3.0"
-        mock_validation_args.return_value.force_https = False
-        validate_deb = ValidateDeb(mock_validation_args.return_value)
+        self.mock_args.force_https = False
+        validate_deb = ValidateDeb(self.mock_args)
         mock_test_apis_instance = mock_test_apis.return_value
         mock_test_apis_instance.test_apis.return_value = (True, 4)
 
@@ -129,13 +118,11 @@ class TestValidateDeb(unittest.TestCase):
     @patch("validation_workflow.deb.validation_deb.ValidationArgs")
     @patch("validation_workflow.deb.validation_deb.ApiTestCases")
     def test_failed_testcases(self, mock_test_apis: Mock, mock_validation_args: Mock) -> None:
-        # Set up mock objects
-        mock_validation_args.return_value.version = "2.3.0"
         mock_test_apis_instance = mock_test_apis.return_value
         mock_test_apis_instance.test_apis.return_value = (False, 1)
 
         # Create instance of ValidateDeb class
-        validate_deb = ValidateDeb(mock_validation_args.return_value)
+        validate_deb = ValidateDeb(self.mock_args)
 
         # Call validation method and assert the result
         with self.assertRaises(Exception) as context:
@@ -149,12 +136,9 @@ class TestValidateDeb(unittest.TestCase):
     @patch("validation_workflow.deb.validation_deb.ValidationArgs")
     @patch("validation_workflow.deb.validation_deb.execute")
     def test_cleanup(self, mock_execute: Mock, mock_validation_args: Mock) -> None:
-        mock_validation_args.return_value.version = "2.3.0"
-        mock_validation_args.return_value.arch = "x64"
-        mock_validation_args.return_value.platform = "linux"
-        mock_validation_args.return_value.projects = ["opensearch", "opensearch-dashboards"]
+        self.mock_args.projects = ["opensearch", "opensearch-dashboards"]
 
-        validate_deb = ValidateDeb(mock_validation_args.return_value)
+        validate_deb = ValidateDeb(self.mock_args)
         result = validate_deb.cleanup()
         self.assertTrue(result)
         mock_execute.assert_has_calls(
@@ -164,9 +148,9 @@ class TestValidateDeb(unittest.TestCase):
     @patch("validation_workflow.deb.validation_deb.ValidationArgs")
     @patch("validation_workflow.deb.validation_deb.execute")
     def test_cleanup_exception(self, mock_execute: Mock, mock_validation_args: Mock) -> None:
-        mock_validation_args.return_value.projects = ["opensearch", "opensearch-dashboards"]
+        self.mock_args.projects = ["opensearch", "opensearch-dashboards"]
         mock_execute.side_effect = Exception("an exception occurred")
-        validate_deb = ValidateDeb(mock_validation_args.return_value)
+        validate_deb = ValidateDeb(self.mock_args)
         with self.assertRaises(Exception) as context:
             validate_deb.cleanup()
 
