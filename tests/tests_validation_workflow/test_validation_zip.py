@@ -54,7 +54,10 @@ class TestValidateZip(unittest.TestCase):
         validate_zip = ValidateZip(self.mock_args)
         result = validate_zip.start_cluster()
         self.assertTrue(result)
-        mock_start.assert_has_calls(call('env OPENSEARCH_INITIAL_ADMIN_PASSWORD=admin .\\opensearch-windows-install.bat', 'C:\\Users\\Arjun\\tmpgqmgpxf1\\opensearch-2.3.0', False),
-                                    call('.\\bin\\opensearch-dashboards.bat', 'C:\\Users\\Arjun\\tmpgqmgpxf1\\opensearch-dashboards-2.3.0', False))
-
-
+        expected_calls = [
+            call('env OPENSEARCH_INITIAL_ADMIN_PASSWORD=admin .\\opensearch-windows-install.bat',
+                      f'{validate_zip.tmp_dir.path}\\opensearch-2.3.0', False),
+            call (
+            '.\\bin\\opensearch-dashboards.bat', f'{validate_zip.tmp_dir.path}\\opensearch-dashboards-2.3.0', False)
+        ]
+        mock_start.assert_has_calls(expected_calls)
