@@ -69,7 +69,7 @@ ENV PATH=$RUBY_HOME:$RVM_HOME:$PATH
 # Install Python binary
 RUN update-alternatives --set python /usr/bin/python3.9 && \
     update-alternatives --set python3 /usr/bin/python3.9 && \
-    pip3 install pip==23.1.2 && pip3 install pipenv==2023.6.12 awscli==1.22.12
+    pip3 install pip==23.1.2 && pip3 install pipenv==2023.6.12 awscli==1.32.17
 
 # Preparation for awscliv2
 #RUN pip3 install git+https://github.com/aws/aws-cli.git@2.11.17
@@ -87,7 +87,7 @@ ENV PATH=$CONTAINER_USER_HOME/.gem/gems/fpm-1.14.2/bin:$PATH
 # nvm environment variables
 ENV NVM_DIR $CONTAINER_USER_HOME/.nvm
 ENV NODE_VERSION 10.24.1
-ARG NODE_VERSION_LIST="10.24.1 14.19.1 14.20.0 14.20.1 14.21.3 16.20.0 18.16.0"
+ARG NODE_VERSION_LIST="10.24.1 14.19.1 14.20.0 14.20.1 14.21.3 16.20.0 18.16.0 18.19.0"
 # install nvm
 # https://github.com/creationix/nvm#install-script
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash

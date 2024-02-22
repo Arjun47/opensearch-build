@@ -15,7 +15,6 @@ from typing import Any
 
 import requests
 
-from system.temporary_directory import TemporaryDirectory
 from validation_workflow.api_request import ApiTest
 from validation_workflow.api_test_cases import ApiTestCases
 from validation_workflow.docker.inspect_docker_image import InspectDockerImage
@@ -83,7 +82,7 @@ class ValidateDocker(Validation):
 
                 if self.check_cluster_readiness():
                     # STEP 4 . OS, OSD API validation
-                    _test_result, _counter = ApiTestCases().test_apis(self.args.projects)
+                    _test_result, _counter = ApiTestCases().test_apis(self.args.version, self.args.projects, True)
 
                     if _test_result:
                         logging.info(f'All tests Pass : {_counter}')
@@ -137,7 +136,7 @@ class ValidateDocker(Validation):
 
         for url, name in self.test_readiness_urls.items():
             try:
-                status_code, response_text = ApiTest(url).api_get()
+                status_code, response_text = ApiTest(url, self.args.version).api_get()
                 if status_code != 200:
                     logging.error(f'Error connecting to {name} ({url}): status code {status_code}')
                     return False
@@ -241,7 +240,6 @@ class ValidateDocker(Validation):
             '2': 'docker-compose-2.x.yml'
         }
 
-        self.tmp_dir = TemporaryDirectory()
         self.target_yml_file = os.path.join(self.tmp_dir.name, 'docker-compose.yml')
 
         self.major_version_number = version[0]
